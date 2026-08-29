@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.simibubi.create.AllTags.AllItemTags;
 
-import net.neoforged.neoforge.common.crafting.DifferenceIngredient;
+import net.fabricmc.fabric.api.recipe.v1.ingredient.DefaultCustomIngredients;
 
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.SmithingTrimRecipe;
@@ -19,6 +19,6 @@ public class SmithingTrimRecipeMixin {
 
 	@ModifyVariable(method = "<init>", at = @At("CTOR_HEAD"), argsOnly = true, ordinal = 1)
 	private Ingredient create$preventTrimmingDivingArmor(Ingredient base) {
-		return new DifferenceIngredient(base, NON_TRIMMABLE_ARMOR).toVanilla();
+		return DefaultCustomIngredients.difference(base, NON_TRIMMABLE_ARMOR);
 	}
 }

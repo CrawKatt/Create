@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.simibubi.create.api.event.BlockPostProcessPlaceEvent;
 import com.simibubi.create.content.kinetics.deployer.DeployerFakePlayer;
 import com.simibubi.create.foundation.mixin.accessor.UseOnContextAccessor;
 
@@ -21,5 +22,18 @@ public class BlockItemMixin {
 		if (!state.canBeReplaced() && pContext.getPlayer() instanceof DeployerFakePlayer) {
 			cir.setReturnValue(InteractionResult.PASS);
 		}
+	}
+
+	@Inject(
+		method = "place",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/InteractionResult;sidedSuccess(Z)Lnet/minecraft/world/InteractionResult;"
+		)
+	)
+	private void create$postProcessPlace(BlockPlaceContext context, CallbackInfoReturnable<InteractionResult> cir) {
+		BlockPostProcessPlaceEvent.EVENT.invoker()
+			.onPostProcessPlace(context, context.getClickedPos(), context.getLevel()
+				.getBlockState(context.getClickedPos()));
 	}
 }

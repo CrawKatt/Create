@@ -31,13 +31,15 @@ public abstract class AbstractMinecartMixin implements AbstractMinecartExtension
 
 	@Inject(method = "readAdditionalSaveData", at = @At("HEAD"))
 	private void loadController(CompoundTag compound, CallbackInfo ci) {
+		AbstractMinecart cart = (AbstractMinecart) (Object) this;
 		if (compound.contains(CAP_KEY, Tag.TAG_COMPOUND))
-			controller.deserializeNBT(compound.getCompound(CAP_KEY));
+			controller.deserializeNBT(cart.level().registryAccess(), compound.getCompound(CAP_KEY));
 	}
 
 	@Inject(method = "addAdditionalSaveData", at = @At("HEAD"))
 	private void saveController(CompoundTag compound, CallbackInfo ci) {
-		compound.put(CAP_KEY, controller.serializeNBT());
+		AbstractMinecart cart = (AbstractMinecart) (Object) this;
+		compound.put(CAP_KEY, controller.serializeNBT(cart.level().registryAccess()));
 	}
 
 	@Override
