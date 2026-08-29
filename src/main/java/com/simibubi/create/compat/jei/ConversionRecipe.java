@@ -9,17 +9,17 @@ import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 
 /**
  * Helper recipe type for displaying an item relationship in JEI
  */
 @ParametersAreNonnullByDefault
-public class ConversionRecipe extends ProcessingRecipe<Container> {
+public class ConversionRecipe extends ProcessingRecipe<RecipeInput> {
 
 	static int counter = 0;
 
@@ -37,7 +37,7 @@ public class ConversionRecipe extends ProcessingRecipe<Container> {
 	}
 
 	@Override
-	public boolean matches(Container inv, Level worldIn) {
+	public boolean matches(RecipeInput inv, Level worldIn) {
 		return false;
 	}
 

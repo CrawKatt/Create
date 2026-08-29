@@ -9,7 +9,6 @@ import com.simibubi.create.Create;
 import net.minecraft.core.NonNullList;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -19,7 +18,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.block.Block;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.TagValueAccessor;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 public final class ToolboxColoringRecipeMaker {
 
@@ -33,13 +32,8 @@ public final class ToolboxColoringRecipeMaker {
 		return Arrays.stream(DyeColor.values())
 			.filter(dc -> dc != DyeColor.BROWN)
 			.map(color -> {
-				DyeItem dye = DyeItem.byColor(color);
-				ItemStack dyeStack = new ItemStack(dye);
-				TagKey<Item> colorTag = color.getTag();
-				Ingredient.Value dyeList = new Ingredient.ItemValue(dyeStack);
-				Ingredient.Value colorList = TagValueAccessor.createTagValue(colorTag);
-				Stream<Ingredient.Value> colorIngredientStream = Stream.of(dyeList, colorList);
-				Ingredient colorIngredient = Ingredient.fromValues(colorIngredientStream);
+				TagKey<Item> colorTag = getColorDyeTag(color);
+				Ingredient colorIngredient = Ingredient.of(colorTag);
 				NonNullList<Ingredient> inputs =
 					NonNullList.of(Ingredient.EMPTY, baseShulkerIngredient, colorIngredient);
 				Block coloredShulkerBox = AllBlocks.TOOLBOXES.get(color)
@@ -48,6 +42,27 @@ public final class ToolboxColoringRecipeMaker {
 				ShapelessRecipe recipe = new ShapelessRecipe(group, CraftingBookCategory.MISC, output, inputs);
 				return new RecipeHolder<>(Create.asResource(group + "/" + color), recipe);
 			});
+	}
+
+	private static TagKey<Item> getColorDyeTag(DyeColor color) {
+		return switch (color) {
+			case WHITE -> ConventionalItemTags.WHITE_DYES;
+			case ORANGE -> ConventionalItemTags.ORANGE_DYES;
+			case MAGENTA -> ConventionalItemTags.MAGENTA_DYES;
+			case LIGHT_BLUE -> ConventionalItemTags.LIGHT_BLUE_DYES;
+			case YELLOW -> ConventionalItemTags.YELLOW_DYES;
+			case LIME -> ConventionalItemTags.LIME_DYES;
+			case PINK -> ConventionalItemTags.PINK_DYES;
+			case GRAY -> ConventionalItemTags.GRAY_DYES;
+			case LIGHT_GRAY -> ConventionalItemTags.LIGHT_GRAY_DYES;
+			case CYAN -> ConventionalItemTags.CYAN_DYES;
+			case PURPLE -> ConventionalItemTags.PURPLE_DYES;
+			case BLUE -> ConventionalItemTags.BLUE_DYES;
+			case BROWN -> ConventionalItemTags.BROWN_DYES;
+			case GREEN -> ConventionalItemTags.GREEN_DYES;
+			case RED -> ConventionalItemTags.RED_DYES;
+			case BLACK -> ConventionalItemTags.BLACK_DYES;
+		};
 	}
 
 	private ToolboxColoringRecipeMaker() {}
