@@ -36,11 +36,10 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 import io.github.fabricators_of_create.porting_lib.block.LightEmissiveBlock;
-import io.github.fabricators_of_create.porting_lib.item.CustomMaxCountItem;
 import io.github.fabricators_of_create.porting_lib.item.EntityTickListenerItem;
 import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.BeaconBlockEntityAccessor;
 
-public class ChromaticCompoundItem extends Item implements CustomMaxCountItem, EntityTickListenerItem {
+public class ChromaticCompoundItem extends Item implements EntityTickListenerItem {
 
 	public ChromaticCompoundItem(Properties properties) {
 		super(properties);
@@ -64,11 +63,6 @@ public class ChromaticCompoundItem extends Item implements CustomMaxCountItem, E
 	public int getBarColor(ItemStack stack) {
 		return Color.mixColors(0x413c69, 0xFFFFFF,
 			getLight(stack) / (float) AllConfigs.server().recipes.lightSourceCountForRefinedRadiance.get());
-	}
-
-	@Override
-	public int getItemStackLimit(ItemStack stack) {
-		return isBarVisible(stack) ? 1 : 16;
 	}
 
 	@Override
