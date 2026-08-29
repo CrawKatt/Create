@@ -2,7 +2,7 @@ package com.simibubi.create.compat.trainmap;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.api.event.PreRenderTooltipCallback;
 import com.simibubi.create.compat.Mods;
 
 import net.minecraft.client.Minecraft;
@@ -37,7 +37,7 @@ public class TrainMapEvents {
 		return true;
 	}
 
-	public static boolean cancelTooltips(ItemStack stack, PoseStack matrices, int x, int y, int width, int height, Font font, List<ClientTooltipComponent> tooltip) {
+	public static boolean cancelTooltips(ItemStack stack, int x, int y, Font font, List<ClientTooltipComponent> tooltip) {
 		if (Mods.FTBCHUNKS.isLoaded()) {
 			return FTBChunksTrainMap.cancelTooltips();
 		}

@@ -45,7 +45,6 @@ public enum Mods {
 	TRINKETS,
 	MODMENU,
 	BOTANIA,
-	SODIUM,
 	INDIUM;
 
 	private final String id;
