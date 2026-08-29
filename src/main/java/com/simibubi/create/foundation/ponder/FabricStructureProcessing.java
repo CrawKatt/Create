@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.ponder;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,18 +9,27 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
+import com.simibubi.create.content.fluids.potion.PotionFluid;
+import com.simibubi.create.content.fluids.potion.PotionFluid.BottleType;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
@@ -34,10 +44,9 @@ import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
  * Processing for structures exported on Forge to allow using the same ones on Forge and Fabric.
  */
 public class FabricStructureProcessing {
-	public static final Codec<Processor> PROCESSOR_CODEC = ResourceLocation.CODEC
+	public static final MapCodec<Processor> PROCESSOR_CODEC = ResourceLocation.CODEC
 			.fieldOf("structureId")
-			.xmap(Processor::new, processor -> processor.structureId)
-			.codec();
+			.xmap(Processor::new, processor -> processor.structureId);
 
 	public static final StructureProcessorType<Processor> PROCESSOR_TYPE = Registry.register(
 			BuiltInRegistries.STRUCTURE_PROCESSOR,
@@ -107,9 +116,19 @@ public class FabricStructureProcessing {
 			if (!predicate.shouldApplyProcess(structureId, Process.FLUID_AMOUNTS))
 				return relativeBlockInfo;
 
-			if (AllBlocks.FLUID_TANK.has(relativeBlockInfo.state()) && nbt.contains("TankContent", Tag.TAG_COMPOUND)) {
+			if ((AllBlocks.FLUID_TANK.has(relativeBlockInfo.state()) || AllBlocks.CREATIVE_FLUID_TANK.has(relativeBlockInfo.state()))
+				&& nbt.contains("TankContent", Tag.TAG_COMPOUND)) {
 				CompoundTag copy = nbt.copy();
-				fixTankContent(copy.getCompound("TankContent"));
+				fixTankContent(level, copy.getCompound("TankContent"));
+				return new StructureBlockInfo(relativeBlockInfo.pos(), relativeBlockInfo.state(), copy);
+			} else if (AllBlocks.THRESHOLD_SWITCH.has(relativeBlockInfo.state())
+				&& nbt.contains("CurrentMaxAmount", Tag.TAG_ANY_NUMERIC)) {
+				CompoundTag copy = nbt.copy();
+				fixThresholdAmount(copy, "OnAboveAmount");
+				fixThresholdAmount(copy, "OffBelowAmount");
+				fixThresholdAmount(copy, "CurrentMinAmount");
+				fixThresholdAmount(copy, "CurrentAmount");
+				fixThresholdAmount(copy, "CurrentMaxAmount");
 				return new StructureBlockInfo(relativeBlockInfo.pos(), relativeBlockInfo.state(), copy);
 			} else if (AllBlocks.BASIN.has(relativeBlockInfo.state())) {
 				CompoundTag copy = nbt.copy();
@@ -118,7 +137,7 @@ public class FabricStructureProcessing {
 					for (int i = 0; i < inputTanks.size(); i++) {
 						CompoundTag compound = inputTanks.getCompound(i);
 						CompoundTag content = compound.getCompound("TankContent");
-						fixTankContent(content);
+						fixTankContent(level, content);
 					}
 				}
 				ListTag outputTanks = copy.getList("OutputTanks", Tag.TAG_COMPOUND);
@@ -126,7 +145,7 @@ public class FabricStructureProcessing {
 					for (int i = 0; i < outputTanks.size(); i++) {
 						CompoundTag compound = outputTanks.getCompound(i);
 						CompoundTag content = compound.getCompound("TankContent");
-						fixTankContent(content);
+						fixTankContent(level, content);
 					}
 				}
 
@@ -144,16 +163,63 @@ public class FabricStructureProcessing {
 		}
 	}
 
-	private static void fixTankContent(CompoundTag content) {
-		if (content.contains("FluidName", Tag.TAG_STRING) && content.getString("FluidName").equals("minecraft:milk")) {
-			content.putString("FluidName", "milk:still_milk");
+	private static void fixThresholdAmount(CompoundTag nbt, String key) {
+		if (nbt.contains(key, Tag.TAG_ANY_NUMERIC))
+			nbt.putInt(key, (int) Math.round(nbt.getDouble(key) / 1000d * FluidConstants.BUCKET));
+	}
+
+	private static void fixTankContent(LevelReader level, CompoundTag content) {
+		CompoundTag fluidTag = content.contains("Fluid", Tag.TAG_COMPOUND) ? content.getCompound("Fluid") : content;
+		if (fluidTag.isEmpty())
+			return;
+		FluidStack stack;
+		if (fluidTag.contains("FluidName", Tag.TAG_STRING)) {
+			long amount = fluidTag.getLong("Amount");
+			String name = fluidTag.getString("FluidName");
+			if (amount <= 0 || name.equals("minecraft:empty"))
+				return;
+
+			ResourceLocation id = ResourceLocation.tryParse(name);
+			Fluid fluid;
+			if (name.equals("minecraft:milk") || name.equals("milk:still_milk")) {
+				fluid = AllFluids.MILK.getSource();
+			} else if (id == null) {
+				return;
+			} else {
+				fluid = BuiltInRegistries.FLUID.getOptional(id).orElse(Fluids.EMPTY);
+			}
+			if (fluid == Fluids.EMPTY)
+				return;
+
+			stack = new FluidStack(fluid, amount);
+			if (fluid == AllFluids.POTION.getSource() && fluidTag.contains("Tag", Tag.TAG_COMPOUND)) {
+				CompoundTag potionTag = fluidTag.getCompound("Tag");
+				ResourceLocation potionId = ResourceLocation.tryParse(potionTag.getString("Potion"));
+				if (potionId != null) {
+					Optional<? extends net.minecraft.core.Holder<Potion>> potion = level.registryAccess()
+						.lookupOrThrow(Registries.POTION)
+						.get(ResourceKey.create(Registries.POTION, potionId));
+					if (potion.isPresent()) {
+						BottleType bottle = switch (potionTag.getString("Bottle")) {
+							case "SPLASH" -> BottleType.SPLASH;
+							case "LINGERING" -> BottleType.LINGERING;
+							default -> BottleType.REGULAR;
+						};
+						stack = PotionFluid.of(amount, new PotionContents(potion.get()), bottle);
+					}
+				}
+			}
+		} else {
+			Optional<FluidStack> optionalStack = FluidStack.parse(level.registryAccess(), fluidTag);
+			if (optionalStack.isEmpty())
+				return;
+			stack = optionalStack.get();
 		}
-		FluidStack stack = FluidStack.loadFluidStackFromNBT(content);
 		long amount = stack.getAmount();
 		double buckets = amount / 1000d;
 		long fixedAmount = Math.round(buckets * FluidConstants.BUCKET);
 		stack.setAmount(fixedAmount);
 		Set.copyOf(content.getAllKeys()).forEach(content::remove);
-		stack.writeToNBT(content);
+		content.put("Fluid", stack.save(level.registryAccess()));
 	}
 }
