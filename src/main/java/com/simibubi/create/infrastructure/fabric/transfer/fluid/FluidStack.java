@@ -2,6 +2,9 @@ package com.simibubi.create.infrastructure.fabric.transfer.fluid;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 
@@ -16,13 +19,16 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 
@@ -39,12 +45,36 @@ public final class FluidStack implements DataComponentHolder {
 
 	public static final FluidStack EMPTY = new FluidStack(FluidVariant.blank(), 0);
 
-	public static final Codec<FluidStack> CODEC = null;
-	public static final Codec<FluidStack> OPTIONAL_CODEC = null;
-	public static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> STREAM_CODEC = null;
+	public static final Codec<FluidStack> CODEC = Codec.withAlternative(codec("id"), codec("fluid"));
+
+	public static final Codec<FluidStack> OPTIONAL_CODEC = ExtraCodecs.optionalEmptyMap(CODEC).xmap(
+		stack -> stack.orElse(EMPTY),
+		stack -> stack.isEmpty() ? Optional.empty() : Optional.of(stack)
+	);
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> STREAM_CODEC = StreamCodec.composite(
+		CatnipStreamCodecs.FLUID, FluidStack::getFluid,
+		DataComponentPatch.STREAM_CODEC, FluidStack::getComponentsPatch,
+		ByteBufCodecs.VAR_LONG, FluidStack::getAmount,
+		(fluid, components, amount) -> new FluidStack(fluid, amount, components)
+	);
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, FluidStack> OPTIONAL_STREAM_CODEC =
+		ByteBufCodecs.optional(STREAM_CODEC).map(
+			opt -> opt.orElse(EMPTY),
+			stack -> stack.isEmpty() ? Optional.empty() : Optional.of(stack)
+		);
 
 	private final FluidVariant variant;
 	private long amount;
+
+	private static Codec<FluidStack> codec(String fluidKey) {
+		return RecordCodecBuilder.create(i -> i.group(
+			BuiltInRegistries.FLUID.byNameCodec().fieldOf(fluidKey).forGetter(FluidStack::getFluid),
+			Codec.LONG.fieldOf("amount").forGetter(FluidStack::getAmount),
+			DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(FluidStack::getComponentsPatch)
+		).apply(i, FluidStack::new));
+	}
 
 	public FluidStack(FluidVariant variant, long amount) {
 		this.variant = variant;
@@ -53,6 +83,10 @@ public final class FluidStack implements DataComponentHolder {
 
 	public FluidStack(Fluid fluid, long amount) {
 		this(FluidVariant.of(fluid), amount);
+	}
+
+	public FluidStack(Fluid fluid, long amount, DataComponentPatch components) {
+		this(FluidVariant.of(fluid, components), amount);
 	}
 
 	public FluidStack(Holder<Fluid> fluid, long amount, DataComponentPatch components) {
@@ -147,6 +181,14 @@ public final class FluidStack implements DataComponentHolder {
 			return false;
 
 		return first.variant.componentsMatch(second.variant.getComponents());
+	}
+
+	public boolean isFluidEqual(FluidStack stack) {
+		return isSameFluidSameComponents(this, stack);
+	}
+
+	public boolean canFill(FluidVariant variant) {
+		return this.isEmpty() || isSameFluidSameComponents(this, new FluidStack(variant, 1));
 	}
 
 	public static Optional<FluidStack> parse(HolderLookup.Provider registries, Tag tag) {

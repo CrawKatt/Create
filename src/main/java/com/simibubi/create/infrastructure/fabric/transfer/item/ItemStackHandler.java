@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -41,6 +42,13 @@ public class ItemStackHandler implements SlottedStackStorage {
 	private final SortedSet<Slot> nonEmptySlots;
 	private final Map<Item, SortedSet<Slot>> lookup;
 
+	public NonNullList<ItemStack> getStacks() {
+		NonNullList<ItemStack> stacks = NonNullList.withSize(slots.size(), ItemStack.EMPTY);
+		for (int i = 0; i < slots.size(); i++)
+			stacks.set(i, getStackInSlot(i));
+		return stacks;
+	}
+
 	public ItemStackHandler() {
 		this(1);
 	}
@@ -56,7 +64,7 @@ public class ItemStackHandler implements SlottedStackStorage {
 		for (int i = 0; i < stacks.length; i++) {
 			ItemStack stack = stacks[i];
 			// slot handles filling lookup
-			this.slots.add(new Slot(i, stack));
+			this.slots.add(makeSlot(i, stack));
 		}
 	}
 
@@ -185,7 +193,7 @@ public class ItemStackHandler implements SlottedStackStorage {
 		this.nonEmptySlots.clear();
 		this.lookup.clear();
 		for (int i = 0; i < size; i++) {
-			this.slots.add(new Slot(i, ItemStack.EMPTY));
+			this.slots.add(makeSlot(i, ItemStack.EMPTY));
 		}
 	}
 
@@ -204,7 +212,10 @@ public class ItemStackHandler implements SlottedStackStorage {
 			if (!slot.getStack().isEmpty()) {
 				CompoundTag itemTag = new CompoundTag();
 				itemTag.putInt("Slot", slot.index);
-				slots.add(slot.save(provider, itemTag));
+				Tag saved = slot.save(provider, itemTag);
+				if (saved != null) {
+					slots.add(saved);
+				}
 			}
 		}
 
@@ -276,17 +287,25 @@ public class ItemStackHandler implements SlottedStackStorage {
 		return new ObjectAVLTreeSet<>(Comparator.comparingInt(slot -> slot.index));
 	}
 
-	private class Slot extends SingleStackStorage {
+	/**
+	 * Create the slot for a given index. Subclasses may return custom slots.
+	 */
+	protected Slot makeSlot(int index, ItemStack initialStack) {
+		return new Slot(index, initialStack);
+	}
+
+	protected class Slot extends SingleStackStorage {
 		private final int index;
 
 		private ItemStack stack;
 		private ItemStack lastStack; // last stack pre-transaction
 		private ItemVariant variant;
 
-		private Slot(int index, ItemStack initial) {
+		protected Slot(int index, ItemStack initial) {
 			this.index = index;
 			this.lastStack = initial.copy();
-			this.setStack(initial);
+			this.stack = initial;
+			this.variant = ItemVariant.of(initial);
 
 			ItemStackHandler.this.getSetForItem(this.stack.getItem()).add(this);
 			if (!this.stack.isEmpty()) {
@@ -297,6 +316,11 @@ public class ItemStackHandler implements SlottedStackStorage {
 		@Override
 		protected int getCapacity(ItemVariant itemVariant) {
 			return ItemStackHandler.this.getStackLimit(index, itemVariant);
+		}
+
+		@Override
+		protected boolean canInsert(ItemVariant resource) {
+			return ItemStackHandler.this.isItemValid(this.index, resource, 1);
 		}
 
 		@Override
@@ -341,11 +365,11 @@ public class ItemStackHandler implements SlottedStackStorage {
 		/**
 		 * "Slot" is a reserved key.
 		 */
-		private Tag save(HolderLookup.Provider provider, Tag tag) {
+		protected Tag save(HolderLookup.Provider provider, Tag tag) {
 			return stack.save(provider, tag);
 		}
 
-		private void load(HolderLookup.Provider provider, CompoundTag tag) {
+		protected void load(HolderLookup.Provider provider, CompoundTag tag) {
 			ItemStack.parse(provider, tag).ifPresent(this::setStack);
 			onStackChange();
 			// intentionally do not notify handler, matches forge
