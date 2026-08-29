@@ -7,7 +7,6 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock.Shape;
@@ -81,18 +80,6 @@ public class FluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggl
 		width = 1;
 		boiler = new BoilerData();
 //		refreshCapability(); // fabric: lazy init to prevent access too early
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
-				AllBlockEntityTypes.FLUID_TANK.get(),
-				(be, context) -> {
-					if (be.fluidCapability == null)
-						be.refreshCapability();
-					return be.fluidCapability;
-				}
-		);
 	}
 
 	protected SmartFluidTank createInventory() {

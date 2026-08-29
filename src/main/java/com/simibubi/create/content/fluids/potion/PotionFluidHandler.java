@@ -67,13 +67,12 @@ public class PotionFluidHandler {
 		PotionContents potion = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
 		BottleType bottleTypeFromItem = bottleTypeFromItem(stack.getItem());
 		if (potion.is(Potions.WATER) && potion.customEffects().isEmpty() && bottleTypeFromItem == BottleType.REGULAR)
-			return new FluidStack(Fluids.WATER, 250);
-		FluidStack fluid = getFluidFromPotion(potion, bottleTypeFromItem, 250);
-		fluid.set(AllDataComponents.POTION_FLUID_BOTTLE_TYPE, bottleTypeFromItem);
-		return fluid;
+			return new FluidStack(Fluids.WATER, FluidConstants.BOTTLE);
+		FluidStack fluid = getFluidFromPotion(potion, bottleTypeFromItem, FluidConstants.BOTTLE);
+		return PotionFluid.withComponent(fluid, AllDataComponents.POTION_FLUID_BOTTLE_TYPE, bottleTypeFromItem);
 	}
 
-	public static FluidStack getFluidFromPotion(PotionContents potionContents, BottleType bottleType, int amount) {
+	public static FluidStack getFluidFromPotion(PotionContents potionContents, BottleType bottleType, long amount) {
 		if (potionContents.is(Potions.WATER) && bottleType == BottleType.REGULAR)
 			return new FluidStack(Fluids.WATER, amount);
 		return PotionFluid.of(amount, potionContents, bottleType);
@@ -113,7 +112,8 @@ public class PotionFluidHandler {
 	// Modified version of PotionContents#addPotionTooltip
 	@Environment(EnvType.CLIENT)
 	public static void addPotionTooltip(FluidVariant fs, Consumer<Component> tooltipAdder, float durationFactor) {
-		PotionContents contents = fs.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+		PotionContents contents = fs.getComponentMap()
+			.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
 		Iterable<MobEffectInstance> effects = contents.getAllEffects();
 
 		List<Pair<Holder<Attribute>, AttributeModifier>> list = Lists.newArrayList();

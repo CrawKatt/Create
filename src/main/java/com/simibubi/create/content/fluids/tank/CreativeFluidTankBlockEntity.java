@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.foundation.codec.CreateCodecs;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 
@@ -29,18 +28,6 @@ public class CreativeFluidTankBlockEntity extends FluidTankBlockEntity {
 
 	public CreativeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
-				AllBlockEntityTypes.CREATIVE_FLUID_TANK.get(),
-				(be, context) -> {
-					if (be.fluidCapability == null)
-						be.refreshCapability();
-					return be.fluidCapability;
-				}
-		);
 	}
 
 	@Override

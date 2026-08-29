@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.behaviour.spouting.BlockSpoutingBehaviour;
@@ -69,18 +67,6 @@ public class SpoutBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	public SpoutBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		processingTicks = -1;
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
-				AllBlockEntityTypes.SPOUT.get(),
-				(be, context) -> {
-					if (context != Direction.DOWN)
-						return be.tank.getCapability();
-					return null;
-				}
-		);
 	}
 
 	@Override

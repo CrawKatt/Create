@@ -50,6 +50,8 @@ import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.access
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
+
 public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 
 	public static final BehaviourType<FluidDrainingBehaviour> TYPE = new BehaviourType<>();
@@ -173,8 +175,10 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 					fluid = flowingFluid.fluid;
 				else {
 					affectedArea = BBHelper.encapsulate(affectedArea, BoundingBox.fromCorners(currentPos, currentPos));
-					if (!blockEntity.isVirtual())
+					if (!blockEntity.isVirtual()) {
+						world.updateSnapshots(ctx);
 						world.setBlock(currentPos, emptied, 2 | 16);
+					}
 					dequeue(queue);
 					if (queue.isEmpty()) {
 						isValid = checkValid(world, rootPos);
@@ -424,7 +428,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 	}
 
 	public FluidStack getDrainableFluid(BlockPos rootPos) {
-		try (Transaction t = Transaction.openOuter()) { // simulate pullNext
+		try (Transaction t = Transaction.openNested(Transaction.getCurrentUnsafe())) { // simulate pullNext
 			if (fluid == null || isSearching() || !pullNext(rootPos, t)) {
 				return FluidStack.EMPTY;
 			}

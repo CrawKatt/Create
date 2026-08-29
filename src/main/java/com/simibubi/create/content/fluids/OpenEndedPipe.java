@@ -5,16 +5,15 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.api.effect.OpenPipeEffectHandler;
 import com.simibubi.create.content.fluids.pipes.VanillaFluidTargets;
-import com.simibubi.create.foundation.ICapabilityProvider;
 import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.mixin.accessor.FlowingFluidAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
 
-import io.github.tropheusj.milk.Milk;
 import net.createmod.catnip.math.BlockFace;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -52,8 +51,6 @@ public class OpenEndedPipe extends FlowSource {
 	private OpenEndFluidHandler fluidHandler;
 	private BlockPos outputPos;
 	private boolean wasPulling;
-
-	private final ICapabilityProvider<IFluidHandler> fluidHandlerProvider = ICapabilityProvider.of(() -> fluidHandler);
 
 	public OpenEndedPipe(BlockFace face) {
 		super(face);
@@ -140,10 +137,11 @@ public class OpenEndedPipe extends FlowSource {
 		FluidStack stack = new FluidStack(fluidState.getType(), FluidConstants.BUCKET);
 
 		if (FluidHelper.isWater(stack.getFluid()))
-			AdvancementBehaviour.tryAward(world, pos, AllAdvancements.WATER_SUPPLY);
+			TransactionSuccessCallback.register(ctx,
+				() -> AdvancementBehaviour.tryAward(world, pos, AllAdvancements.WATER_SUPPLY));
 
-		world.updateSnapshots(ctx);
 		if (waterlog) {
+			world.updateSnapshots(ctx);
 			world.setBlock(outputPos, state.setValue(WATERLOGGED, false), 3);
 			TransactionSuccessCallback.register(ctx, () -> world.scheduleTick(outputPos, Fluids.WATER, 1));
 		} else {
@@ -162,6 +160,7 @@ public class OpenEndedPipe extends FlowSource {
 				}
 			}
 
+			world.updateSnapshots(ctx);
 			world.setBlock(outputPos, newState, 3);
 		}
 
@@ -186,7 +185,7 @@ public class OpenEndedPipe extends FlowSource {
 			return false;
 		if (!(fluid.getFluid() instanceof FlowingFluid))
 			return false;
-		if (!FluidHelper.hasBlockState(fluid.getFluid()) || fluid.getFluid().is(Milk.MILK_FLUID_TAG)) // fabric: milk logic is different
+		if (!FluidHelper.hasBlockState(fluid.getFluid()) || fluid.getFluid().is(AllFluids.MILK_FLUID_TAG)) // fabric: milk logic is different
 			return true;
 
 		// fabric: note - this is possibly prone to issues but follows what forge does.
@@ -211,8 +210,8 @@ public class OpenEndedPipe extends FlowSource {
 			return true;
 		}
 
-		world.updateSnapshots(ctx);
 		if (waterlog) {
+			world.updateSnapshots(ctx);
 			world.setBlock(outputPos, state.setValue(WATERLOGGED, true), 3);
 			TransactionSuccessCallback.register(ctx, () -> world.scheduleTick(outputPos, Fluids.WATER, 1));
 			return true;
@@ -221,6 +220,7 @@ public class OpenEndedPipe extends FlowSource {
 		if (!AllConfigs.server().fluids.pipesPlaceFluidSourceBlocks.get())
 			return true;
 
+		world.updateSnapshots(ctx);
 		world.setBlock(outputPos, fluid.getFluid()
 			.defaultFluidState()
 			.createLegacyBlock(), 3);
@@ -252,7 +252,7 @@ public class OpenEndedPipe extends FlowSource {
 			FluidStack containedFluidStack = getFluid();
 			boolean hasBlockState = FluidHelper.hasBlockState(containedFluidStack.getFluid());
 
-			if (!containedFluidStack.isEmpty() && !FluidStack.isSameFluidSameComponents(containedFluidStack, resource))
+			if (!containedFluidStack.isEmpty() && !FluidStack.isSameFluidSameComponents(containedFluidStack, new FluidStack(resource, 81)))
 				setFluid(FluidStack.EMPTY);
 			if (wasPulling)
 				wasPulling = false;
@@ -267,7 +267,7 @@ public class OpenEndedPipe extends FlowSource {
 				// resource should be copied before giving it to the handler.
 				// if hasBlockState is false, it was already copied above.
 				FluidStack exposed = new FluidStack(resource, 81);
-				effectHandler.apply(world, aoe, exposed);
+				TransactionSuccessCallback.register(transaction, () -> effectHandler.apply(world, aoe, exposed));
 			}
 
 			if (getFluidAmount() == FluidConstants.BUCKET || !hasBlockState)
@@ -299,7 +299,7 @@ public class OpenEndedPipe extends FlowSource {
 			FluidStack drainedFromWorld = removeFluidFromSpace(transaction);
 			if (drainedFromWorld.isEmpty())
 				return 0;
-			if (!FluidStack.isSameFluidSameComponents(drainedFromWorld, filter))
+			if (!FluidStack.isSameFluidSameComponents(drainedFromWorld, new FluidStack(extractedVariant, maxAmount)))
 				return 0;
 
 			long remainder = drainedFromWorld.getAmount() - maxAmount;
@@ -322,7 +322,7 @@ public class OpenEndedPipe extends FlowSource {
 		@Override
 		public FluidVariant getResource() {
 			if (!super.isResourceBlank()) return super.getResource();
-			try (Transaction t = Transaction.openOuter()) {
+			try (Transaction t = Transaction.openNested(Transaction.getCurrentUnsafe())) {
 				FluidStack stack = removeFluidFromSpace(t);
 				return stack.getVariant();
 			}

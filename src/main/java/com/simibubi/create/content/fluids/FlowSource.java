@@ -12,7 +12,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.foundation.ICapabilityProvider;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
 import net.createmod.catnip.math.BlockFace;

@@ -2,6 +2,7 @@ package com.simibubi.create.content.fluids.transfer;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.fluids.FluidFX;
+import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
 import net.createmod.catnip.net.base.ClientboundPacketPayload;
 
 import net.minecraft.client.player.LocalPlayer;
@@ -11,7 +12,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.neoforged.neoforge.fluids.FluidStack;
 
 public record FluidSplashPacket(BlockPos pos, FluidStack fluid) implements ClientboundPacketPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, FluidSplashPacket> STREAM_CODEC = StreamCodec.composite(

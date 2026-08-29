@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
@@ -79,28 +78,6 @@ public class ItemDrainBlockEntity extends SmartBlockEntity implements IHaveGoggl
 			ItemDrainItemHandler itemDrainItemHandler = new ItemDrainItemHandler(this, d);
 			itemHandlers.put(d, itemDrainItemHandler);
 		}
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.ITEM_DRAIN.get(),
-				(be, context) -> {
-					if (context != null && context.getAxis().isHorizontal())
-						return be.itemHandlers.get(context);
-					return null;
-				}
-		);
-
-		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
-				AllBlockEntityTypes.ITEM_DRAIN.get(),
-				(be, context) -> {
-					if (context != Direction.UP)
-						return be.internalTank.getCapability();
-					return null;
-				}
-		);
 	}
 
 	@Override
