@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "create:fan_fire",
     "create:fan_lava"

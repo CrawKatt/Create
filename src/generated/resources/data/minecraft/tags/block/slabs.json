@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "create:copper_shingle_slab",
     "create:exposed_copper_shingle_slab",
