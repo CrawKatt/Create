@@ -20,7 +20,6 @@ import com.simibubi.create.foundation.render.ShadowRenderHelper;
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
-import io.github.foundationgames.sandwichable.items.ItemsRegistry;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.levelWrappers.WrappedLevel;
@@ -290,7 +289,7 @@ public class BeltRenderer extends SafeBlockEntityRenderer<BeltBlockEntity> {
 		BakedModel bakedModel = itemRenderer.getModel(transported.stack, be.getLevel(), null, 0);
 		boolean blockItem = bakedModel.isGui3d();
 
-		Boolean sandwich = Mods.SANDWICHABLE.runIfInstalled(() -> () -> transported.stack.is(ItemsRegistry.SANDWICH)).orElse(Boolean.FALSE);
+		Boolean sandwich = Boolean.FALSE; // Sandwichable has no 1.21.1 build yet
 			if (sandwich)
 				blockItem = false;
 			int count = 0;

@@ -24,6 +24,7 @@ import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.item.TooltipHelper;
+import com.simibubi.create.foundation.recipe.ItemStackHandlerRecipeInput;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
@@ -76,7 +77,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
-
 
 public class DeployerBlockEntity extends KineticBlockEntity implements SidedStorageBlockEntity {
 
@@ -135,17 +135,6 @@ public class DeployerBlockEntity extends KineticBlockEntity implements SidedStor
 			.startWithValue(0);
 	}
 
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.DEPLOYER.get(),
-				(be, context) ->  {
-					if (be.invHandler == null)
-						be.initHandler();
-					return be.invHandler;
-				}
-		);
-	}
 
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
@@ -606,10 +595,10 @@ public class DeployerBlockEntity extends KineticBlockEntity implements SidedStor
 
 		DeployerRecipeSearchEvent event = new DeployerRecipeSearchEvent(this, recipeInv);
 
-		event.addRecipe(() -> SequencedAssemblyRecipe.getRecipe(level, event.getInventory(),
+		event.addRecipe(() -> SequencedAssemblyRecipe.getRecipe(level, new ItemStackHandlerRecipeInput(event.getInventory()),
 			AllRecipeTypes.DEPLOYING.getType(), DeployerApplicationRecipe.class), 100);
-		event.addRecipe(() -> checkRecipe(AllRecipeTypes.DEPLOYING, event.getInventory(), level), 50);
-		event.addRecipe(() -> checkRecipe(AllRecipeTypes.ITEM_APPLICATION, event.getInventory(), level), 50);
+		event.addRecipe(() -> checkRecipe(AllRecipeTypes.DEPLOYING, new ItemStackHandlerRecipeInput(event.getInventory()), level), 50);
+		event.addRecipe(() -> checkRecipe(AllRecipeTypes.ITEM_APPLICATION, new ItemStackHandlerRecipeInput(event.getInventory()), level), 50);
 
 		DeployerRecipeSearchEvent.EVENT.invoker().handle(event);
 		return event.getRecipe();

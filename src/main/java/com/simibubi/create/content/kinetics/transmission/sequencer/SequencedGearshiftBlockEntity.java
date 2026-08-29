@@ -11,7 +11,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.SplitShaftBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import dan200.computercraft.api.peripheral.PeripheralCapability;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,15 +70,6 @@ public class SequencedGearshiftBlockEntity extends SplitShaftBlockEntity {
 		poweredPreviously = false;
 	}
 
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		if (Mods.COMPUTERCRAFT.isLoaded()) {
-			event.registerBlockEntity(
-					PeripheralCapability.get(),
-					AllBlockEntityTypes.SEQUENCED_GEARSHIFT.get(),
-					(be, context) -> be.computerBehaviour.getPeripheralCapability()
-			);
-		}
-	}
 
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
@@ -108,8 +98,11 @@ public class SequencedGearshiftBlockEntity extends SplitShaftBlockEntity {
 	@Override
 	public void onSpeedChanged(float previousSpeed) {
 		super.onSpeedChanged(previousSpeed);
-		if (isIdle())
+		if (isIdle()) {
+			if (getSpeed() != 0 && level.hasNeighborSignal(worldPosition))
+				run(0);
 			return;
+		}
 		float currentSpeed = Math.abs(speed);
 		if (Math.abs(previousSpeed) == currentSpeed)
 			return;

@@ -11,11 +11,8 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
 import net.minecraft.world.item.crafting.Recipe;
-
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
-
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 
 public class DeployerRecipeSearchEvent {
 	private boolean canceled = false;
@@ -52,6 +49,14 @@ public class DeployerRecipeSearchEvent {
 	// lazyness to not scan for recipes that aren't selected
 	public boolean shouldAddRecipeWithPriority(int priority) {
 		return !canceled && priority > maxPriority;
+	}
+
+	public boolean isCanceled() {
+		return canceled;
+	}
+
+	public void setCanceled() {
+		this.canceled = true;
 	}
 
 	@Nullable

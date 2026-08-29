@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
 import com.simibubi.create.content.processing.recipe.ProcessingInventory;
@@ -41,7 +40,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -59,7 +59,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 
-import io.github.fabricators_of_create.porting_lib.util.EnvExecutor;
+import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
 
 
 public class CrushingWheelControllerBlockEntity extends SmartBlockEntity implements SidedStorageBlockEntity {
@@ -81,14 +81,6 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 			}
 
 		};
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.CRUSHING_WHEEL_CONTROLLER.get(),
-				(be, context) -> be.inventory
-		);
 	}
 
 	@Override
@@ -309,7 +301,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	}
 
 	private void applyRecipe() {
-		Optional<RecipeHolder<ProcessingRecipe<Container>>> recipe = findRecipe();
+		Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> recipe = findRecipe();
 
 		List<ItemStack> list = new ArrayList<>();
 		if (recipe.isPresent()) {
@@ -331,10 +323,12 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 
 	}
 
-	public Optional<RecipeHolder<ProcessingRecipe<Container>>> findRecipe() {
-		Optional<RecipeHolder<ProcessingRecipe<Container>>> crushingRecipe = AllRecipeTypes.CRUSHING.find(wrapper, level);
+	public Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> findRecipe() {
+		SingleRecipeInput input = new SingleRecipeInput(inventory.getStackInSlot(0));
+		Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> crushingRecipe =
+			AllRecipeTypes.CRUSHING.<RecipeInput, ProcessingRecipe<RecipeInput>>find(input, level);
 		if (!crushingRecipe.isPresent())
-			crushingRecipe = AllRecipeTypes.MILLING.find(inventory, level);
+			crushingRecipe = AllRecipeTypes.MILLING.<RecipeInput, ProcessingRecipe<RecipeInput>>find(input, level);
 		return crushingRecipe;
 	}
 
@@ -364,7 +358,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	}
 
 	private void itemInserted(ItemStack stack) {
-		Optional<RecipeHolder<ProcessingRecipe<Container>>> recipe = findRecipe();
+		Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> recipe = findRecipe();
 		inventory.remainingTime = recipe.isPresent() ? recipe.get().value()
 			.getProcessingDuration() : 100;
 		inventory.appliedRecipe = false;

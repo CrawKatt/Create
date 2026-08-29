@@ -6,8 +6,6 @@ import com.simibubi.create.content.kinetics.base.KineticBlock;
 import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.block.IBE;
 
-import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
-
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +33,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
-import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
 
 public class MillstoneBlock extends KineticBlock implements IBE<MillstoneBlockEntity>, ICogWheel {
 
@@ -73,11 +71,11 @@ public class MillstoneBlock extends KineticBlock implements IBE<MillstoneBlockEn
 			}
 
 			if (emptyOutput) {
-				inv = millstone.inputInv;
-				for (int slot = 0; slot < inv.getSlotCount(); slot++) {
+				ItemStackHandlerContainer inputInv = millstone.inputInv;
+				for (int slot = 0; slot < inputInv.getSlotCount(); slot++) {
 					player.getInventory()
-						.placeItemBackInInventory(inv.getStackInSlot(slot));
-					inv.setStackInSlot(slot, ItemStack.EMPTY);
+						.placeItemBackInInventory(inputInv.getStackInSlot(slot));
+					inputInv.setStackInSlot(slot, ItemStack.EMPTY);
 				}
 			}
 
@@ -116,7 +114,7 @@ public class MillstoneBlock extends KineticBlock implements IBE<MillstoneBlockEn
 			long inserted = handler.insert(ItemVariant.of(inEntity), inEntity.getCount(), t);
 			if (inserted == inEntity.getCount())
 				itemEntity.discard();
-			else itemEntity.setItem(ItemHandlerHelper.copyStackWithSize(inEntity, (int) (inEntity.getCount() - inserted)));
+			else itemEntity.setItem(inEntity.copyWithCount((int) (inEntity.getCount() - inserted)));
 			t.commit();
 		}
 	}

@@ -91,7 +91,7 @@ public class MechanicalPressBlockEntity extends BasinOperatingBlockEntity implem
 			SmartInventory inputs = basin.get()
 				.getInputInventory();
 			for (int slot = 0; slot < inputs.getSlotCount(); slot++) {
-				ItemStack stackInSlot = inputs.getItem(slot);
+				ItemStack stackInSlot = inputs.getStackInSlot(slot);
 				if (stackInSlot.isEmpty())
 					continue;
 				pressingBehaviour.particleItems.add(stackInSlot);

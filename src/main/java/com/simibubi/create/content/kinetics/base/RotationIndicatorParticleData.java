@@ -11,12 +11,12 @@ import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.minecraft.client.particle.ParticleEngine.SpriteParticleRegistration;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -91,7 +91,7 @@ public class RotationIndicatorParticleData
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public SpriteParticleRegistration<RotationIndicatorParticleData> getMetaFactory() {
+	public MetaFactory<RotationIndicatorParticleData> getMetaFactory() {
 		return RotationIndicatorParticle.Factory::new;
 	}
 

@@ -309,7 +309,7 @@ public class ArmBlockEntity extends KineticBlockEntity implements TransformableB
 				if (!armInteractionPoint.isValid())
 					continue;
 
-			ItemStack remainder = armInteractionPoint.insert(held, true);
+			ItemStack remainder = armInteractionPoint.insert(held, t);
 			if (ItemStack.matches(remainder, heldItem))
 				continue;
 
@@ -344,7 +344,7 @@ public class ArmBlockEntity extends KineticBlockEntity implements TransformableB
 	}
 
 	protected int getDistributableAmount(ArmInteractionPoint armInteractionPoint) {
-		try (Transaction t = Transaction.openOuter()) {
+		try (Transaction t = Transaction.openNested(Transaction.getCurrentUnsafe())) {
 			ItemStack stack = armInteractionPoint.extract(t);
 
 			ItemStack remainder = stack.isEmpty() ? stack : simulateInsertion(stack);
@@ -357,7 +357,7 @@ public class ArmBlockEntity extends KineticBlockEntity implements TransformableB
 	}
 
 	private ItemStack simulateInsertion(ItemStack stack) {
-		try (Transaction t = Transaction.openOuter()) {
+		try (Transaction t = Transaction.openNested(Transaction.getCurrentUnsafe())) {
 			for (ArmInteractionPoint armInteractionPoint : outputs) {
 				if (armInteractionPoint.isValid())
 					stack = armInteractionPoint.insert(stack, t);

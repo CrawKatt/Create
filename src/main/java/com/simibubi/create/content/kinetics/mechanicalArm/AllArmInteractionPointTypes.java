@@ -6,6 +6,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import com.simibubi.create.AllBlocks;
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
@@ -617,7 +618,7 @@ public class AllArmInteractionPointTypes {
 				return ItemStack.EMPTY;
 			if (!(level.getBlockEntity(pos) instanceof JukeboxBlockEntity jukeboxBE))
 				return ItemStack.EMPTY;
-			ItemStack record = jukeboxBE.getFirstItem();
+			ItemStack record = jukeboxBE.getTheItem();
 			if (record.isEmpty())
 				return ItemStack.EMPTY;
 			level.updateSnapshots(ctx);

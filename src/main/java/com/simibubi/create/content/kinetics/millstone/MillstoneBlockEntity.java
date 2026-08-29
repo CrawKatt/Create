@@ -19,6 +19,7 @@ import net.createmod.catnip.math.VecHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
@@ -37,6 +38,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -124,7 +126,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements SidedSto
 			.isEmpty())
 			return;
 
-		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
+		SingleRecipeInput inventoryIn = new SingleRecipeInput(inputInv.getStackInSlot(0));
 		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
 			Optional<RecipeHolder<MillingRecipe>> recipe = AllRecipeTypes.MILLING.find(inventoryIn, level);
 			if (!recipe.isPresent()) {
@@ -155,7 +157,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements SidedSto
 	}
 
 	private void process() {
-		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
+		SingleRecipeInput inventoryIn = new SingleRecipeInput(inputInv.getStackInSlot(0));
 
 		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
 			Optional<RecipeHolder<MillingRecipe>> recipe = AllRecipeTypes.MILLING.find(inventoryIn, level);
@@ -219,8 +221,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements SidedSto
 	}
 
 	private boolean canProcess(ItemStack stack) {
-		ItemStackHandlerContainer tester = new ItemStackHandlerContainer(1);
-		tester.setStackInSlot(0, stack);
+		SingleRecipeInput tester = new SingleRecipeInput(stack);
 
 		if (lastRecipe != null && lastRecipe.matches(tester, level))
 			return true;
@@ -228,7 +229,7 @@ public class MillstoneBlockEntity extends KineticBlockEntity implements SidedSto
 			.isPresent();
 	}
 
-	private class MillstoneInventoryHandler extends CombinedStorage<ItemVariant, io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler> {
+	private class MillstoneInventoryHandler extends CombinedStorage<ItemVariant, SlottedStorage<ItemVariant>> {
 
 		public MillstoneInventoryHandler() {
 			super(List.of(inputInv, outputInv));

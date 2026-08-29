@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.kinetics.base.BlockBreakingKineticBlockEntity;
@@ -112,18 +111,6 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements S
 		playEvent = ItemStack.EMPTY;
 	}
 
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.SAW.get(),
-				(be, context) -> {
-					if (context != Direction.DOWN)
-						return be.inventory;
-					return null;
-				}
-		);
-	}
-
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 		super.addBehaviours(behaviours);
@@ -171,7 +158,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements S
 			Item item = playEvent.getItem();
 			if (item instanceof BlockItem) {
 				Block block = ((BlockItem) item).getBlock();
-				isWood = block.getSoundType(block.defaultBlockState()) == SoundType.WOOD;
+				isWood = block.defaultBlockState().getSoundType() == SoundType.WOOD;
 			}
 			spawnEventParticles(playEvent);
 			playEvent = ItemStack.EMPTY;
@@ -435,7 +422,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity implements S
 			if (contained.getCount() == inserted)
 				entity.discard();
 			else
-				entity.setItem(ItemHandlerHelper.copyStackWithSize(contained, (int) (contained.getCount() - inserted)));
+				entity.setItem(contained.copyWithCount((int) (contained.getCount() - inserted)));
 			t.commit();
 		}
 	}

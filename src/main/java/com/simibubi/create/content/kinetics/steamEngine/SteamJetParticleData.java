@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.minecraft.client.particle.ParticleEngine.SpriteParticleRegistration;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -54,7 +53,7 @@ public class SteamJetParticleData implements ParticleOptions, ICustomParticleDat
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public SpriteParticleRegistration<SteamJetParticleData> getMetaFactory() {
+	public MetaFactory<SteamJetParticleData> getMetaFactory() {
 		return SteamJetParticle.Factory::new;
 	}
 

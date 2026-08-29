@@ -2,8 +2,6 @@ package com.simibubi.create.content.kinetics.gauge;
 
 import java.util.List;
 
-import com.simibubi.create.AllBlockEntityTypes;
-import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.computercraft.AbstractComputerBehaviour;
 import com.simibubi.create.compat.computercraft.ComputerCraftProxy;
 import com.simibubi.create.content.kinetics.base.IRotate.StressImpact;
@@ -13,7 +11,6 @@ import com.simibubi.create.foundation.item.TooltipHelper;
 import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import dan200.computercraft.api.peripheral.PeripheralCapability;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
@@ -33,16 +30,6 @@ public class StressGaugeBlockEntity extends GaugeBlockEntity {
 
 	public StressGaugeBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		if (Mods.COMPUTERCRAFT.isLoaded()) {
-			event.registerBlockEntity(
-					PeripheralCapability.get(),
-					AllBlockEntityTypes.STRESSOMETER.get(),
-					(be, context) -> be.computerBehaviour.getPeripheralCapability()
-			);
-		}
 	}
 
 	@Override

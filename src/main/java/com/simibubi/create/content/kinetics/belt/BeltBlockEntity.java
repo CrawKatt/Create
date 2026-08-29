@@ -14,7 +14,6 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
@@ -81,20 +80,6 @@ public class BeltBlockEntity extends KineticBlockEntity implements SidedStorageB
 		itemHandler = null;
 		casing = CasingType.NONE;
 		color = Optional.empty();
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.BELT.get(),
-				(be, context) -> {
-						if (!BeltBlock.canTransportObjects(be.getBlockState()))
-							return null;
-						if (!be.isRemoved() && be.itemHandler == null)
-							be.initializeItemHandler();
-						return be.itemHandler;
-				}
-		);
 	}
 
 	@Override

@@ -42,7 +42,9 @@ import net.minecraft.world.phys.HitResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-public class WaterWheelStructuralBlock extends DirectionalBlock implements IWrenchable, IProxyHoveringInformation, MultiPosDestructionHandler {
+public class WaterWheelStructuralBlock extends DirectionalBlock implements IWrenchable, IProxyHoveringInformation, MultiPosDestructionHandler,
+	io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock, io.github.fabricators_of_create.porting_lib.block.CustomDestroyEffectsBlock,
+	io.github.fabricators_of_create.porting_lib.block.CustomHitEffectsBlock {
 
 	public static final MapCodec<WaterWheelStructuralBlock> CODEC = simpleCodec(WaterWheelStructuralBlock::new);
 
@@ -77,7 +79,7 @@ public class WaterWheelStructuralBlock extends DirectionalBlock implements IWren
 
 		if (stillValid(level, clickedPos, state, false)) {
 			BlockPos masterPos = getMaster(level, clickedPos, state);
-			context = new UseOnContext(level, context.getPlayer(), context.getHand(), context.getItemInHand(),
+			context = new UseOnContext(context.getPlayer(), context.getHand(),
 				new BlockHitResult(context.getClickLocation(), context.getClickedFace(), masterPos,
 					context.isInside()));
 			state = level.getBlockState(masterPos);
