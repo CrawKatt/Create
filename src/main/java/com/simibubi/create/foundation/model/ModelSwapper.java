@@ -27,7 +27,7 @@ public class ModelSwapper implements AfterBake {
 	protected CustomBlockModels customBlockModels = new CustomBlockModels();
 	protected CustomItemModels customItemModels = new CustomItemModels();
 
-	private Map<ResourceLocation, NonNullFunction<BakedModel, ? extends BakedModel>> swaps = null;
+	private Map<ModelResourceLocation, NonNullFunction<BakedModel, ? extends BakedModel>> swaps = null;
 
 	public CustomBlockModels getCustomBlockModels() {
 		return customBlockModels;
@@ -45,7 +45,8 @@ public class ModelSwapper implements AfterBake {
 	public BakedModel modifyModelAfterBake(BakedModel model, Context context) {
 		if (swaps == null)
 			collectSwaps();
-		NonNullFunction<BakedModel, ? extends BakedModel> swap = swaps.get(context.id());
+		ModelResourceLocation id = context.topLevelId() instanceof ModelResourceLocation mrl ? mrl : null;
+		NonNullFunction<BakedModel, ? extends BakedModel> swap = id != null ? swaps.get(id) : null;
 		return swap != null ? swap.apply(model) : model;
 	}
 
