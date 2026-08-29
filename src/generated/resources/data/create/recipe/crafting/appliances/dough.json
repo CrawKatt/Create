@@ -3,13 +3,14 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:wheat_flour"
+      "tag": "c:flours/wheat"
     },
     {
       "item": "minecraft:water_bucket"
     }
   ],
   "result": {
-    "item": "create:dough"
+    "count": 1,
+    "id": "create:dough"
   }
 }

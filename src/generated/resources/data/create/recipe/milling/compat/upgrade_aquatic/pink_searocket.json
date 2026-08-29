@@ -1,19 +1,17 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:mod_loaded",
-      "modid": "upgrade_aquatic"
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "upgrade_aquatic"
+      ]
     }
   ],
   "type": "create:milling",
   "ingredients": [
     {
-      "type": "neoforge:compound",
-      "ingredients": [
-        {
-          "item": "upgrade_aquatic:pink_searocket"
-        }
-      ]
+      "fabric:type": "create:simple_datagen",
+      "item": "upgrade_aquatic:pink_searocket"
     }
   ],
   "processing_time": 50,

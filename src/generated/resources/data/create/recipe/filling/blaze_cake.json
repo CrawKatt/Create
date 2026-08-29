@@ -5,14 +5,16 @@
       "item": "create:blaze_cake_base"
     },
     {
+      "type": "fluid_stack",
       "amount": 27000,
-      "fluid": "minecraft:lava",
-      "nbt": {}
+      "fluid": "minecraft:lava"
     }
   ],
   "results": [
     {
-      "item": "create:blaze_cake"
+      "item": {
+        "id": "create:blaze_cake"
+      }
     }
   ]
 }

@@ -6,10 +6,11 @@
       "item": "create:dough"
     },
     {
-      "tag": "c:lime_dyes"
+      "tag": "c:dyes/lime"
     }
   ],
   "result": {
-    "item": "minecraft:slime_ball"
+    "count": 1,
+    "id": "minecraft:slime_ball"
   }
 }

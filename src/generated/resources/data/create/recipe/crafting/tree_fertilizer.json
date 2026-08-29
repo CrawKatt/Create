@@ -1,12 +1,4 @@
 {
-  "fabric:load_conditions": [
-    {
-      "condition": "fabric:all_mods_loaded",
-      "values": [
-        "upgrade_aquatic"
-      ]
-    }
-  ],
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
@@ -25,6 +17,6 @@
   ],
   "result": {
     "count": 2,
-    "item": "create:tree_fertilizer"
+    "id": "create:tree_fertilizer"
   }
 }

@@ -6,7 +6,7 @@
       "item": "create:andesite_alloy"
     },
     "B": {
-      "tag": "c:brass_plates"
+      "tag": "c:plates/brass"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     " B "
   ],
   "result": {
-    "item": "create:brass_hand"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:brass_hand"
+  }
 }

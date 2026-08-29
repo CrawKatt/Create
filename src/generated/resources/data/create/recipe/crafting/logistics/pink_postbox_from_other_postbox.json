@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:pink_dyes"
+      "tag": "c:dyes/pink"
     },
     {
       "tag": "create:postboxes"
     }
   ],
   "result": {
-    "item": "create:pink_postbox"
+    "count": 1,
+    "id": "create:pink_postbox"
   }
 }

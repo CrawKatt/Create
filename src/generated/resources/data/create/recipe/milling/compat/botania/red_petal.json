@@ -13,7 +13,7 @@
       "tag": "botania:petals/red"
     }
   ],
-  "processingTime": 50,
+  "processing_time": 50,
   "results": [
     {
       "item": "minecraft:red_dye"

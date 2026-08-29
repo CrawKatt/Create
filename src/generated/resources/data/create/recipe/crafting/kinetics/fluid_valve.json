@@ -3,13 +3,14 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     },
     {
       "item": "create:fluid_pipe"
     }
   ],
   "result": {
-    "item": "create:fluid_valve"
+    "count": 1,
+    "id": "create:fluid_valve"
   }
 }

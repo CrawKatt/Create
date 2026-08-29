@@ -6,7 +6,7 @@
       "item": "create:polished_rose_quartz"
     },
     "N": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     }
   },
   "pattern": [
@@ -14,7 +14,7 @@
     "N"
   ],
   "result": {
-    "item": "create:electron_tube"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:electron_tube"
+  }
 }

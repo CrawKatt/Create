@@ -3,13 +3,14 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:white_dyes"
+      "tag": "c:dyes/white"
     },
     {
       "tag": "create:valve_handles"
     }
   ],
   "result": {
-    "item": "create:white_valve_handle"
+    "count": 1,
+    "id": "create:white_valve_handle"
   }
 }

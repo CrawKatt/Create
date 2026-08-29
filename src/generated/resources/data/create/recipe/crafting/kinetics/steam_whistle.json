@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "C": {
-      "tag": "c:copper_ingots"
+      "tag": "c:ingots/copper"
     },
     "P": {
-      "tag": "c:gold_plates"
+      "tag": "c:plates/gold"
     }
   },
   "pattern": [
@@ -14,7 +14,7 @@
     "C"
   ],
   "result": {
-    "item": "create:steam_whistle"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:steam_whistle"
+  }
 }

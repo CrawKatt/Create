@@ -6,7 +6,7 @@
       "item": "create:andesite_alloy"
     },
     "P": {
-      "tag": "c:copper_ingots"
+      "tag": "c:ingots/copper"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     "G G"
   ],
   "result": {
-    "item": "create:copper_diving_boots"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:copper_diving_boots"
+  }
 }

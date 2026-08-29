@@ -2,12 +2,14 @@
   "type": "create:splashing",
   "ingredients": [
     {
-      "tag": "c:stained_glass_panes"
+      "tag": "c:glass_panes"
     }
   ],
   "results": [
     {
-      "item": "minecraft:glass_pane"
+      "item": {
+        "id": "minecraft:glass_pane"
+      }
     }
   ]
 }

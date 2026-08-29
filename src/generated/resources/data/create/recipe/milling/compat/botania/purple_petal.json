@@ -13,7 +13,7 @@
       "tag": "botania:petals/purple"
     }
   ],
-  "processingTime": 50,
+  "processing_time": 50,
   "results": [
     {
       "item": "minecraft:purple_dye"

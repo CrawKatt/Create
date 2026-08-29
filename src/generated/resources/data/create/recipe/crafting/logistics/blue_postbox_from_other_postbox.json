@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:blue_dyes"
+      "tag": "c:dyes/blue"
     },
     {
       "tag": "create:postboxes"
     }
   ],
   "result": {
-    "item": "create:blue_postbox"
+    "count": 1,
+    "id": "create:blue_postbox"
   }
 }

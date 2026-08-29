@@ -1,0 +1,12 @@
+{
+  "values": [
+    "create:belt",
+    "create:chute",
+    "create:smart_chute",
+    "create:track",
+    "create:andesite_funnel",
+    "create:andesite_belt_funnel",
+    "create:brass_funnel",
+    "create:brass_belt_funnel"
+  ]
+}

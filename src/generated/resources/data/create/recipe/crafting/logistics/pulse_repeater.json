@@ -3,13 +3,13 @@
   "category": "misc",
   "key": {
     "C": {
-      "tag": "c:brass_plates"
+      "tag": "c:plates/brass"
     },
     "R": {
       "tag": "c:dusts/redstone"
     },
     "S": {
-      "tag": "c:stone"
+      "tag": "c:stones"
     },
     "T": {
       "item": "minecraft:redstone_torch"
@@ -20,7 +20,7 @@
     "SSS"
   ],
   "result": {
-    "item": "create:pulse_repeater"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:pulse_repeater"
+  }
 }

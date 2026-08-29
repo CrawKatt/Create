@@ -10,6 +10,7 @@
   "type": "create:splashing",
   "ingredients": [
     {
+      "fabric:type": "create:simple_datagen",
       "item": "atmospheric:red_arid_sand"
     }
   ],
@@ -17,7 +18,9 @@
     {
       "chance": 0.125,
       "count": 4,
-      "item": "minecraft:clay_ball"
+      "item": {
+        "id": "minecraft:clay_ball"
+      }
     },
     {
       "chance": 0.05,

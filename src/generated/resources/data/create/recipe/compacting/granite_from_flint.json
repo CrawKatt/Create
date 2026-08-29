@@ -11,14 +11,16 @@
       "item": "minecraft:red_sand"
     },
     {
+      "type": "fluid_stack",
       "amount": 8100,
-      "fluid": "minecraft:lava",
-      "nbt": {}
+      "fluid": "minecraft:lava"
     }
   ],
   "results": [
     {
-      "item": "minecraft:granite"
+      "item": {
+        "id": "minecraft:granite"
+      }
     }
   ]
 }

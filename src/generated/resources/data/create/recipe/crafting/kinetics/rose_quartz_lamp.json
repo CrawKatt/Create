@@ -9,10 +9,11 @@
       "tag": "c:dusts/redstone"
     },
     {
-      "tag": "c:zinc_ingots"
+      "tag": "c:ingots/zinc"
     }
   ],
   "result": {
-    "item": "create:rose_quartz_lamp"
+    "count": 1,
+    "id": "create:rose_quartz_lamp"
   }
 }

@@ -10,6 +10,7 @@
   "type": "create:splashing",
   "ingredients": [
     {
+      "fabric:type": "create:simple_datagen",
       "item": "endergetic:end_corrock_crown"
     }
   ],

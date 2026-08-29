@@ -1,19 +1,17 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:mod_loaded",
-      "modid": "byg"
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "byg"
+      ]
     }
   ],
   "type": "create:pressing",
   "ingredients": [
     {
-      "type": "neoforge:compound",
-      "ingredients": [
-        {
-          "item": "byg:lush_grass"
-        }
-      ]
+      "fabric:type": "create:simple_datagen",
+      "item": "byg:lush_grass"
     }
   ],
   "results": [

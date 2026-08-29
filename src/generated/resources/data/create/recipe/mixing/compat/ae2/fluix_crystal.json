@@ -1,8 +1,10 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:mod_loaded",
-      "modid": "ae2"
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "ae2"
+      ]
     }
   ],
   "type": "create:mixing",
@@ -11,19 +13,15 @@
       "tag": "c:dusts/redstone"
     },
     {
-      "type": "neoforge:compound",
-      "ingredients": [
-        {
-          "item": "ae2:charged_certus_quartz_crystal"
-        }
-      ]
+      "fabric:type": "create:simple_datagen",
+      "item": "ae2:charged_certus_quartz_crystal"
     },
     {
       "tag": "c:gems/quartz"
     },
     {
       "type": "fluid_stack",
-      "amount": 250,
+      "amount": 27000,
       "fluid": "minecraft:water"
     }
   ],

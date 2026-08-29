@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "c:copper_ingots"
+            "items": "#c:ingots/copper"
           }
         ]
       },
@@ -20,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_item"
     ]
   ],
   "rewards": {
     "recipes": [
       "create:crafting/kinetics/fluid_valve"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

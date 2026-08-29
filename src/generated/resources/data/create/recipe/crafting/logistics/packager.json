@@ -6,7 +6,7 @@
       "item": "create:cardboard_block"
     },
     "C": {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     },
     "R": {
       "tag": "c:dusts/redstone"
@@ -18,7 +18,7 @@
     "RCR"
   ],
   "result": {
-    "item": "create:packager"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:packager"
+  }
 }

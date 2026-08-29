@@ -1,13 +1,19 @@
 {
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "modern_industrialization"
+      ]
+    }
+  ],
   "parent": "minecraft:recipes/root",
   "criteria": {
     "has_item": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "create:crushed_raw_tin"
-            ]
+            "items": "create:crushed_raw_tin"
           }
         ]
       },
@@ -22,14 +28,13 @@
   },
   "requirements": [
     [
-      "has_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_item"
     ]
   ],
   "rewards": {
     "recipes": [
       "create:blasting/tin_ingot_compat_modern_industrialization"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "C": {
-      "tag": "c:cobblestone"
+      "tag": "c:cobblestones"
     },
     "I": {
       "item": "create:andesite_alloy"
@@ -20,7 +20,7 @@
     "CRC"
   ],
   "result": {
-    "item": "create:sticker"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:sticker"
+  }
 }

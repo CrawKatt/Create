@@ -5,13 +5,16 @@
       "item": "minecraft:apple"
     },
     {
+      "type": "fluid_tag",
       "amount": 20250,
-      "fluidTag": "c:honey"
+      "fluid_tag": "c:honey"
     }
   ],
   "results": [
     {
-      "item": "create:honeyed_apple"
+      "item": {
+        "id": "create:honeyed_apple"
+      }
     }
   ]
 }

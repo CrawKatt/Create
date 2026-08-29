@@ -3,14 +3,14 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "c:brass_nuggets"
+      "tag": "c:nuggets/brass"
     }
   },
   "pattern": [
     "AAA"
   ],
   "result": {
-    "item": "create:crafter_slot_cover"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:crafter_slot_cover"
+  }
 }

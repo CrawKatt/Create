@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "c:brass_nuggets"
+      "tag": "c:nuggets/brass"
     },
     "S": {
       "tag": "minecraft:wool"
@@ -13,7 +13,7 @@
     "ASA"
   ],
   "result": {
-    "item": "create:attribute_filter"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:attribute_filter"
+  }
 }

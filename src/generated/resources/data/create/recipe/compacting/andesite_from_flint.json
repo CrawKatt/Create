@@ -11,14 +11,16 @@
       "item": "minecraft:gravel"
     },
     {
+      "type": "fluid_stack",
       "amount": 8100,
-      "fluid": "minecraft:lava",
-      "nbt": {}
+      "fluid": "minecraft:lava"
     }
   ],
   "results": [
     {
-      "item": "minecraft:andesite"
+      "item": {
+        "id": "minecraft:andesite"
+      }
     }
   ]
 }

@@ -10,10 +10,11 @@
   "type": "create:crushing",
   "ingredients": [
     {
+      "fabric:type": "create:simple_datagen",
       "item": "druidcraft:amber_ore"
     }
   ],
-  "processingTime": 300,
+  "processing_time": 300,
   "results": [
     {
       "count": 2,
@@ -25,7 +26,9 @@
     },
     {
       "chance": 0.125,
-      "item": "minecraft:cobblestone"
+      "item": {
+        "id": "minecraft:cobblestone"
+      }
     }
   ]
 }

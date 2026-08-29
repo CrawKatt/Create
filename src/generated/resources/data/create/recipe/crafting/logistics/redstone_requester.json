@@ -6,7 +6,7 @@
       "item": "create:stock_link"
     },
     "B": {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     },
     "C": {
       "tag": "c:dusts/redstone"
@@ -18,7 +18,7 @@
     "B"
   ],
   "result": {
-    "item": "create:redstone_requester"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:redstone_requester"
+  }
 }

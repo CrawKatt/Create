@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "B": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     },
     "C": {
-      "tag": "c:wooden_barrels"
+      "tag": "c:barrels/wooden"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     "B"
   ],
   "result": {
-    "item": "create:item_vault"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:item_vault"
+  }
 }

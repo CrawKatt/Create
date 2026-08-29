@@ -2,12 +2,14 @@
   "type": "create:pressing",
   "ingredients": [
     {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     }
   ],
   "results": [
     {
-      "item": "create:iron_sheet"
+      "item": {
+        "id": "create:iron_sheet"
+      }
     }
   ]
 }

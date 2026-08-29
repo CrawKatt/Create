@@ -13,8 +13,9 @@
       "item": "minecraft:glass_bottle"
     },
     {
+      "type": "fluid_tag",
       "amount": 27000,
-      "fluidTag": "c:milk"
+      "fluid_tag": "c:milk"
     }
   ],
   "results": [

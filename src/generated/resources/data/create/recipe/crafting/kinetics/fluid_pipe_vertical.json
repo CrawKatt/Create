@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "C": {
-      "tag": "c:copper_ingots"
+      "tag": "c:ingots/copper"
     },
     "S": {
-      "tag": "c:copper_plates"
+      "tag": "c:plates/copper"
     }
   },
   "pattern": [
@@ -16,7 +16,6 @@
   ],
   "result": {
     "count": 4,
-    "item": "create:fluid_pipe"
-  },
-  "show_notification": true
+    "id": "create:fluid_pipe"
+  }
 }

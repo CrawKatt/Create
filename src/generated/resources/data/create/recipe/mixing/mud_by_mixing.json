@@ -1,19 +1,40 @@
 {
   "type": "create:mixing",
   "ingredients": [
+    [
+      {
+        "item": "minecraft:dirt"
+      },
+      {
+        "item": "minecraft:grass_block"
+      },
+      {
+        "item": "minecraft:podzol"
+      },
+      {
+        "item": "minecraft:coarse_dirt"
+      },
+      {
+        "item": "minecraft:mycelium"
+      },
+      {
+        "item": "minecraft:rooted_dirt"
+      },
+      {
+        "item": "minecraft:moss_block"
+      }
+    ],
     {
-      "fabric:type": "create:block_tag_ingredient",
-      "tag": "minecraft:convertable_to_mud"
-    },
-    {
+      "type": "fluid_stack",
       "amount": 27000,
-      "fluid": "minecraft:water",
-      "nbt": {}
+      "fluid": "minecraft:water"
     }
   ],
   "results": [
     {
-      "item": "minecraft:mud"
+      "item": {
+        "id": "minecraft:mud"
+      }
     }
   ]
 }

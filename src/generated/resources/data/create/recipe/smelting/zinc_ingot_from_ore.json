@@ -4,7 +4,9 @@
   "cookingtime": 200,
   "experience": 1.0,
   "ingredient": {
-    "tag": "c:zinc_ores"
+    "tag": "c:ores/zinc"
   },
-  "result": "create:zinc_ingot"
+  "result": {
+    "id": "create:zinc_ingot"
+  }
 }

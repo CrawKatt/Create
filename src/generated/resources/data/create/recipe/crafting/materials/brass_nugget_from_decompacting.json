@@ -3,11 +3,11 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:brass_ingots"
+      "tag": "c:ingots/brass"
     }
   ],
   "result": {
     "count": 9,
-    "item": "create:brass_nugget"
+    "id": "create:brass_nugget"
   }
 }

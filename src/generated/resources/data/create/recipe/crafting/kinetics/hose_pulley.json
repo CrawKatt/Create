@@ -9,7 +9,7 @@
       "item": "minecraft:dried_kelp_block"
     },
     "I": {
-      "tag": "c:copper_plates"
+      "tag": "c:plates/copper"
     }
   },
   "pattern": [
@@ -18,7 +18,7 @@
     "I"
   ],
   "result": {
-    "item": "create:hose_pulley"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:hose_pulley"
+  }
 }

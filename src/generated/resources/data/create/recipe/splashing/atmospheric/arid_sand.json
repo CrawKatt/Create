@@ -1,19 +1,17 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:mod_loaded",
-      "modid": "atmospheric"
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "atmospheric"
+      ]
     }
   ],
   "type": "create:splashing",
   "ingredients": [
     {
-      "type": "neoforge:compound",
-      "ingredients": [
-        {
-          "item": "atmospheric:arid_sand"
-        }
-      ]
+      "fabric:type": "create:simple_datagen",
+      "item": "atmospheric:arid_sand"
     }
   ],
   "results": [

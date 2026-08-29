@@ -5,13 +5,16 @@
       "item": "minecraft:glass_bottle"
     },
     {
+      "type": "fluid_tag",
       "amount": 20250,
-      "fluidTag": "c:honey"
+      "fluid_tag": "c:honey"
     }
   ],
   "results": [
     {
-      "item": "minecraft:honey_bottle"
+      "item": {
+        "id": "minecraft:honey_bottle"
+      }
     }
   ]
 }

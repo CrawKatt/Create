@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:pink_dyes"
+      "tag": "c:dyes/pink"
     },
     {
       "tag": "create:seats"
     }
   ],
   "result": {
-    "item": "create:pink_seat"
+    "count": 1,
+    "id": "create:pink_seat"
   }
 }

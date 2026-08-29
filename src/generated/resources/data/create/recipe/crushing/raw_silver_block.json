@@ -1,17 +1,20 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:not",
+      "condition": "fabric:not",
       "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:storage_blocks/raw_silver"
+        "condition": "fabric:tags_populated",
+        "registry": "minecraft:item",
+        "values": [
+          "c:raw_silver_blocks"
+        ]
       }
     }
   ],
   "type": "create:crushing",
   "ingredients": [
     {
-      "tag": "c:storage_blocks/raw_silver"
+      "tag": "c:raw_silver_blocks"
     }
   ],
   "processing_time": 400,

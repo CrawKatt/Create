@@ -10,10 +10,11 @@
   "type": "create:crushing",
   "ingredients": [
     {
+      "fabric:type": "create:simple_datagen",
       "item": "aether:zanite_ore"
     }
   ],
-  "processingTime": 350,
+  "processing_time": 350,
   "results": [
     {
       "item": "aether:zanite_gemstone"
@@ -28,7 +29,9 @@
     },
     {
       "chance": 0.75,
-      "item": "create:experience_nugget"
+      "item": {
+        "id": "create:experience_nugget"
+      }
     }
   ]
 }

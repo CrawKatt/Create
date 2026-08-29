@@ -7,19 +7,20 @@
       ]
     }
   ],
-  "type": "create:emptying",
+  "type": "create:filling",
   "ingredients": [
-    {
-      "item": "alexsmobs:lava_bottle"
-    }
-  ],
-  "results": [
     {
       "item": "minecraft:glass_bottle"
     },
     {
+      "type": "fluid_stack",
       "amount": 27000,
       "fluid": "minecraft:lava"
+    }
+  ],
+  "results": [
+    {
+      "item": "alexsmobs:lava_bottle"
     }
   ]
 }

@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:magenta_dyes"
+      "tag": "c:dyes/magenta"
     },
     {
       "tag": "create:seats"
     }
   ],
   "result": {
-    "item": "create:magenta_seat"
+    "count": 1,
+    "id": "create:magenta_seat"
   }
 }

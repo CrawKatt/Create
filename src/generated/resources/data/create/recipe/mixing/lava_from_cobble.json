@@ -1,15 +1,15 @@
 {
   "type": "create:mixing",
-  "heatRequirement": "superheated",
+  "heat_requirement": "superheated",
   "ingredients": [
     {
-      "tag": "c:cobblestone"
+      "tag": "c:cobblestones"
     }
   ],
   "results": [
     {
       "amount": 4050,
-      "fluid": "minecraft:lava"
+      "id": "minecraft:lava"
     }
   ]
 }

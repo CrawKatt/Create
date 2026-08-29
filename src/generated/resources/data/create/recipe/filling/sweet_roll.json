@@ -5,13 +5,16 @@
       "item": "minecraft:bread"
     },
     {
+      "type": "fluid_tag",
       "amount": 27000,
-      "fluidTag": "c:milk"
+      "fluid_tag": "c:milk"
     }
   ],
   "results": [
     {
-      "item": "create:sweet_roll"
+      "item": {
+        "id": "create:sweet_roll"
+      }
     }
   ]
 }

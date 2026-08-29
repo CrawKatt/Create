@@ -1,19 +1,17 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:mod_loaded",
-      "modid": "the_vault"
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "the_vault"
+      ]
     }
   ],
   "type": "create:splashing",
   "ingredients": [
     {
-      "type": "neoforge:compound",
-      "ingredients": [
-        {
-          "item": "the_vault:ornate_chain"
-        }
-      ]
+      "fabric:type": "create:simple_datagen",
+      "item": "the_vault:ornate_chain"
     }
   ],
   "results": [

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "c:gold_plates"
+      "tag": "c:plates/gold"
     },
     "D": {
       "item": "create:depot"
@@ -18,7 +18,7 @@
     "I"
   ],
   "result": {
-    "item": "create:weighted_ejector"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:weighted_ejector"
+  }
 }

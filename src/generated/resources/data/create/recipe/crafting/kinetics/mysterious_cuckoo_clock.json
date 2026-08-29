@@ -6,7 +6,7 @@
       "item": "create:cuckoo_clock"
     },
     "C": {
-      "tag": "c:gunpowder"
+      "tag": "c:gunpowders"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     " C "
   ],
   "result": {
-    "item": "create:mysterious_cuckoo_clock"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:mysterious_cuckoo_clock"
+  }
 }

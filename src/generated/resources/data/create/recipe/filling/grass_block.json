@@ -5,14 +5,16 @@
       "item": "minecraft:dirt"
     },
     {
+      "type": "fluid_stack",
       "amount": 40500,
-      "fluid": "minecraft:water",
-      "nbt": {}
+      "fluid": "minecraft:water"
     }
   ],
   "results": [
     {
-      "item": "minecraft:grass_block"
+      "item": {
+        "id": "minecraft:grass_block"
+      }
     }
   ]
 }

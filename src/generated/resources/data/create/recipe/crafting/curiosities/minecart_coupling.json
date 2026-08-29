@@ -6,7 +6,7 @@
       "item": "create:andesite_alloy"
     },
     "O": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     "E  "
   ],
   "result": {
-    "item": "create:minecart_coupling"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:minecart_coupling"
+  }
 }

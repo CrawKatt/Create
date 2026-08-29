@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "c:iron_nuggets"
+      "tag": "c:nuggets/iron"
     },
     "S": {
       "tag": "minecraft:wool"
@@ -13,7 +13,7 @@
     "ASA"
   ],
   "result": {
-    "item": "create:filter"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:filter"
+  }
 }

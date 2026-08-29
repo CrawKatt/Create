@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "I": {
-      "tag": "c:brass_blocks"
+      "tag": "c:storage_blocks/brass"
     },
     "P": {
-      "tag": "c:brass_plates"
+      "tag": "c:plates/brass"
     }
   },
   "pattern": [
@@ -14,7 +14,7 @@
     "P"
   ],
   "result": {
-    "item": "create:peculiar_bell"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:peculiar_bell"
+  }
 }

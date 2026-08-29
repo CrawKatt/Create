@@ -6,7 +6,7 @@
       "item": "minecraft:andesite"
     },
     "B": {
-      "tag": "c:zinc_nuggets"
+      "tag": "c:nuggets/zinc"
     }
   },
   "pattern": [
@@ -14,7 +14,7 @@
     "AB"
   ],
   "result": {
-    "item": "create:andesite_alloy"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:andesite_alloy"
+  }
 }

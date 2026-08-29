@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:light_blue_dyes"
+      "tag": "c:dyes/light_blue"
     },
     {
       "tag": "create:dyed_table_cloths"
     }
   ],
   "result": {
-    "item": "create:light_blue_table_cloth"
+    "count": 1,
+    "id": "create:light_blue_table_cloth"
   }
 }

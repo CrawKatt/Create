@@ -6,10 +6,10 @@
       "tag": "c:slimeballs"
     },
     "N": {
-      "tag": "c:iron_nuggets"
+      "tag": "c:nuggets/iron"
     },
     "S": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     }
   },
   "pattern": [
@@ -17,7 +17,7 @@
     "NA"
   ],
   "result": {
-    "item": "create:super_glue"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:super_glue"
+  }
 }

@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "C": {
-      "tag": "c:zinc_ingots"
+      "tag": "c:ingots/zinc"
     },
     "S": {
-      "tag": "c:zinc_nuggets"
+      "tag": "c:nuggets/zinc"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     "S"
   ],
   "result": {
-    "item": "minecraft:chain"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "minecraft:chain"
+  }
 }

@@ -12,7 +12,7 @@
       "item": "create:precision_mechanism"
     },
     "L": {
-      "tag": "c:brass_plates"
+      "tag": "c:plates/brass"
     }
   },
   "pattern": [
@@ -21,7 +21,7 @@
     "IC "
   ],
   "result": {
-    "item": "create:mechanical_arm"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:mechanical_arm"
+  }
 }

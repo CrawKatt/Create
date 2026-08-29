@@ -2,12 +2,14 @@
   "type": "create:pressing",
   "ingredients": [
     {
-      "tag": "c:gold_ingots"
+      "tag": "c:ingots/gold"
     }
   ],
   "results": [
     {
-      "item": "create:golden_sheet"
+      "item": {
+        "id": "create:golden_sheet"
+      }
     }
   ]
 }

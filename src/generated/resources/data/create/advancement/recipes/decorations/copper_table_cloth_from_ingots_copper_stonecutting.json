@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "c:ingots/copper"
+            "items": "#c:ingots/copper"
           }
         ]
       },
@@ -20,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_ingots_copper",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_ingots_copper"
     ]
   ],
   "rewards": {
     "recipes": [
       "create:copper_table_cloth_from_ingots_copper_stonecutting"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

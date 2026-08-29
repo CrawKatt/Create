@@ -9,7 +9,7 @@
       "tag": "minecraft:wool"
     },
     "I": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     }
   },
   "pattern": [
@@ -18,7 +18,7 @@
     "I"
   ],
   "result": {
-    "item": "create:rope_pulley"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:rope_pulley"
+  }
 }

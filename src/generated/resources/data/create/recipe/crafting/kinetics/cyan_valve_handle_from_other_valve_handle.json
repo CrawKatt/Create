@@ -3,13 +3,14 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:cyan_dyes"
+      "tag": "c:dyes/cyan"
     },
     {
       "tag": "create:valve_handles"
     }
   ],
   "result": {
-    "item": "create:cyan_valve_handle"
+    "count": 1,
+    "id": "create:cyan_valve_handle"
   }
 }

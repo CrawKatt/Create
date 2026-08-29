@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:orange_dyes"
+      "tag": "c:dyes/orange"
     },
     {
       "tag": "create:postboxes"
     }
   ],
   "result": {
-    "item": "create:orange_postbox"
+    "count": 1,
+    "id": "create:orange_postbox"
   }
 }

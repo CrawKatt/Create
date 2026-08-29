@@ -13,7 +13,7 @@
       "tag": "c:ores/lignite"
     }
   ],
-  "processingTime": 300,
+  "processing_time": 300,
   "results": [
     {
       "count": 2,
@@ -26,7 +26,9 @@
     },
     {
       "chance": 0.75,
-      "item": "create:experience_nugget"
+      "item": {
+        "id": "create:experience_nugget"
+      }
     },
     {
       "chance": 0.125,

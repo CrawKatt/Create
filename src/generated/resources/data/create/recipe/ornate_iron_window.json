@@ -6,7 +6,7 @@
       "item": "minecraft:iron_nugget"
     },
     "X": {
-      "tag": "c:colorless_glass"
+      "tag": "c:glass_blocks/colorless"
     }
   },
   "pattern": [
@@ -15,7 +15,6 @@
   ],
   "result": {
     "count": 2,
-    "item": "create:ornate_iron_window"
-  },
-  "show_notification": true
+    "id": "create:ornate_iron_window"
+  }
 }

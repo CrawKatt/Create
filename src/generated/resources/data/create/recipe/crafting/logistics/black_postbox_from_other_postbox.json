@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:black_dyes"
+      "tag": "c:dyes/black"
     },
     {
       "tag": "create:postboxes"
     }
   ],
   "result": {
-    "item": "create:black_postbox"
+    "count": 1,
+    "id": "create:black_postbox"
   }
 }

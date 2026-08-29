@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:obsidian_plates"
+      "tag": "c:plates/obsidian"
     },
     {
       "item": "minecraft:paper"
@@ -11,6 +11,6 @@
   ],
   "result": {
     "count": 4,
-    "item": "create:schedule"
+    "id": "create:schedule"
   }
 }

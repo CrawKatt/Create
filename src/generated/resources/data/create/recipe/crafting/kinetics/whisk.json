@@ -6,7 +6,7 @@
       "item": "create:andesite_alloy"
     },
     "S": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     "SSS"
   ],
   "result": {
-    "item": "create:whisk"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:whisk"
+  }
 }

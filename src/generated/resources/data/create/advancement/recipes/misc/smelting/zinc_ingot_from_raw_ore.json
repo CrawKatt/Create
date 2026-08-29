@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "c:raw_zinc_ores"
+            "items": "#c:raw_materials/zinc"
           }
         ]
       },
@@ -20,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_item"
     ]
   ],
   "rewards": {
     "recipes": [
       "create:smelting/zinc_ingot_from_raw_ore"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

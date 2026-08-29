@@ -6,10 +6,11 @@
       "item": "create:andesite_casing"
     },
     {
-      "tag": "c:gold_plates"
+      "tag": "c:plates/gold"
     }
   ],
   "result": {
-    "item": "create:desk_bell"
+    "count": 1,
+    "id": "create:desk_bell"
   }
 }

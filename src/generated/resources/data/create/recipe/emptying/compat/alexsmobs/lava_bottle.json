@@ -1,19 +1,17 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:mod_loaded",
-      "modid": "alexsmobs"
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "alexsmobs"
+      ]
     }
   ],
   "type": "create:emptying",
   "ingredients": [
     {
-      "type": "neoforge:compound",
-      "ingredients": [
-        {
-          "item": "alexsmobs:lava_bottle"
-        }
-      ]
+      "fabric:type": "create:simple_datagen",
+      "item": "alexsmobs:lava_bottle"
     }
   ],
   "results": [
@@ -23,7 +21,7 @@
       }
     },
     {
-      "amount": 250,
+      "amount": 27000,
       "id": "minecraft:lava"
     }
   ]

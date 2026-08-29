@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "c:wooden_barrels"
+            "items": "#c:barrels/wooden"
           }
         ]
       },
@@ -20,14 +20,13 @@
   },
   "requirements": [
     [
-      "has_item",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_item"
     ]
   ],
   "rewards": {
     "recipes": [
       "create:crafting/kinetics/item_vault"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

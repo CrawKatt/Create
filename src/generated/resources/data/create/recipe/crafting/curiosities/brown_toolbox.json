@@ -6,13 +6,13 @@
       "item": "create:cogwheel"
     },
     "L": {
-      "tag": "c:leather"
+      "tag": "c:leathers"
     },
     "S": {
-      "tag": "c:gold_plates"
+      "tag": "c:plates/gold"
     },
     "W": {
-      "tag": "c:wooden_chests"
+      "tag": "c:chests/wooden"
     }
   },
   "pattern": [
@@ -21,7 +21,7 @@
     " L "
   ],
   "result": {
-    "item": "create:brown_toolbox"
-  },
-  "show_notification": true
+    "count": 1,
+    "id": "create:brown_toolbox"
+  }
 }

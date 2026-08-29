@@ -6,7 +6,7 @@
       "item": "minecraft:cherry_planks"
     },
     "X": {
-      "tag": "c:colorless_glass"
+      "tag": "c:glass_blocks/colorless"
     }
   },
   "pattern": [
@@ -15,7 +15,6 @@
   ],
   "result": {
     "count": 2,
-    "item": "create:cherry_window"
-  },
-  "show_notification": true
+    "id": "create:cherry_window"
+  }
 }

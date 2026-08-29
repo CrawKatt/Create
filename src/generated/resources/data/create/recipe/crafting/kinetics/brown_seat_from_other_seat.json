@@ -3,13 +3,14 @@
   "category": "building",
   "ingredients": [
     {
-      "tag": "c:brown_dyes"
+      "tag": "c:dyes/brown"
     },
     {
       "tag": "create:seats"
     }
   ],
   "result": {
-    "item": "create:brown_seat"
+    "count": 1,
+    "id": "create:brown_seat"
   }
 }

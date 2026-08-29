@@ -6,7 +6,7 @@
       "item": "create:industrial_iron_block"
     },
     "X": {
-      "tag": "c:colorless_glass"
+      "tag": "c:glass_blocks/colorless"
     }
   },
   "pattern": [
@@ -15,7 +15,6 @@
   ],
   "result": {
     "count": 2,
-    "item": "create:industrial_iron_window"
-  },
-  "show_notification": true
+    "id": "create:industrial_iron_window"
+  }
 }

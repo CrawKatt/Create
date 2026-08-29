@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "tag": "c:iron_plates"
+      "tag": "c:plates/iron"
     },
     "I": {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     }
   },
   "pattern": [
@@ -16,7 +16,6 @@
   ],
   "result": {
     "count": 4,
-    "item": "create:chute"
-  },
-  "show_notification": true
+    "id": "create:chute"
+  }
 }

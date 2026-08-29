@@ -1,17 +1,20 @@
 {
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:not",
+      "condition": "fabric:not",
       "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:raw_materials/platinum"
+        "condition": "fabric:tags_populated",
+        "registry": "minecraft:item",
+        "values": [
+          "c:raw_platinum"
+        ]
       }
     }
   ],
   "type": "create:crushing",
   "ingredients": [
     {
-      "tag": "c:raw_materials/platinum"
+      "tag": "c:raw_platinum"
     }
   ],
   "processing_time": 400,

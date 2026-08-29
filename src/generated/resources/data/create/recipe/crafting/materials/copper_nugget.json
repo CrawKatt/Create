@@ -3,11 +3,11 @@
   "category": "misc",
   "ingredients": [
     {
-      "tag": "c:copper_ingots"
+      "tag": "c:ingots/copper"
     }
   ],
   "result": {
     "count": 9,
-    "item": "create:copper_nugget"
+    "id": "create:copper_nugget"
   }
 }

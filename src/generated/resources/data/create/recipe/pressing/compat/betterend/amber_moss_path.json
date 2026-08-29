@@ -10,6 +10,7 @@
   "type": "create:pressing",
   "ingredients": [
     {
+      "fabric:type": "create:simple_datagen",
       "item": "betterend:amber_moss"
     }
   ],
