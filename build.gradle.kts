@@ -4,13 +4,21 @@ val parchmentVersion = "2024.11.17"
 // https://fabricmc.net/develop/
 val minecraftVersion = "1.21.1"
 val loaderVersion = "0.16.10"
-val fapiVersion = "0.115.1+1.21.1"
+val fapiVersion = "0.116.1+1.21.1"
 
 // in-house dependencies
 val flywheelVersion = "1.0.1-11"
-val ponderVersion = "1.0.44"
+val ponderVersion = "1.0.69"
 val registrateVersion = "1.3.77-MC1.21.1"
-val milkLibVersion = "1.2.60"
+// last 3.x version that still publishes all modules this project uses
+// (accessors, lazy_registration, extensions and asm were removed in later betas)
+val portLibVersion = "3.1.0-beta.54+1.21.1"
+val portLibModules = listOf(
+	"accessors", "asm", "attributes", "base", "blocks", "brewing", "client_events", "common",
+	"conditions", "config", "core", "data", "entity", "extensions", "fluids",
+	"gui_utils", "item_abilities", "lazy_registration", "level_events",
+	"mixin_extensions", "model_loader", "models", "obj_loader", "render_types", "tags", "transfer"
+)
 
 // external dependencies
 val configApiVersion = "21.1.3"
@@ -42,8 +50,8 @@ val trinketsVersion = "3.10.0"
 val ccaVersion = "6.1.2"
 // https://modrinth.com/mod/journeymap
 val jmVersion = "1.21.1-6.0.0-beta.39+fabric"
-// check the jm jar, it's JiJ
-val jmApiVersion = "1.20-1.9-SNAPSHOT"
+// matches the journeymap-api JiJed inside the journeymap jar
+val jmApiVersion = "2.0.0-1.21.1-SNAPSHOT"
 
 // dev stuff
 val ccRuntime = false
@@ -60,7 +68,7 @@ val buildNum = providers.environmentVariable("GITHUB_RUN_NUMBER")
     .orElse("-local")
     .getOrElse("")
 
-version = "6.0.0.0+mc$minecraftVersion$buildNum"
+version = "6.0.2.0+mc$minecraftVersion$buildNum"
 
 group = "com.simibubi.create"
 base.archivesName = "create-fabric"
@@ -82,12 +90,19 @@ repositories {
         content { includeGroup("com.jamieswhiteshirt") }
     }
     maven("https://maven.ladysnake.org/releases") // CCA, for Trinkets
-    maven("https://maven.saps.dev/releases") // FTB
+    maven("https://maven.ftb.dev/releases") // FTB
+    maven("https://maven.ftb.dev/snapshots") { content { includeGroup("dev.ftb.mods") } }
     maven("https://maven.architectury.dev") // Architectury API
     maven("https://jm.gserv.me/repository/maven-public/") // Journey map
 }
 
 val ponder = file("Ponder")
+val journeyMapArchive = configurations.detachedConfiguration(
+    dependencies.create("maven.modrinth:journeymap:$jmVersion")
+).apply { isTransitive = false }
+val journeyMapApiJar = zipTree(journeyMapArchive.singleFile)
+    .matching { include("META-INF/jars/journeymap-api-fabric-$jmApiVersion.jar") }
+    .singleFile
 
 dependencies {
     // setup
@@ -101,18 +116,24 @@ dependencies {
     // dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
+    // deprecated module still provides RenderAttachedBlockView used by our block models
+    modCompileOnly("net.fabricmc.fabric-api:fabric-rendering-data-attachment-v1:0.3.48+73761d2e19")
+
+    for (module in portLibModules) {
+        modImplementation("io.github.fabricators_of_create.Porting-Lib:$module:$portLibVersion")
+    }
+
     modApi(include("com.tterrag.registrate_fabric:Registrate:$registrateVersion")!!)
 
     modApi(include("com.electronwill.night-config:core:$nightConfigVersion")!!)
     modApi(include("com.electronwill.night-config:toml:$nightConfigVersion")!!)
     modApi(include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$configApiVersion")!!)
     modApi(include("dev.engine-room.flywheel:flywheel-fabric-$minecraftVersion:$flywheelVersion")!!)
-    modApi(include("io.github.tropheusj:milk-lib:$milkLibVersion")!!)
     api(include("com.google.code.findbugs:jsr305:$jsr305Version")!!)
 
     if (ponder.exists()) {
         implementation("net.createmod.ponder:Ponder-Fabric-$minecraftVersion:$ponderVersion") { isTransitive = false }
-        implementation("net.createmod.ponder:Ponder-Common-$minecraftVersion:$ponderVersion")
+		implementation("net.createmod.ponder:Ponder-Common-$minecraftVersion:$ponderVersion")
     } else {
         modRuntimeOnly(include("net.createmod.ponder:Ponder-Fabric-$minecraftVersion:$ponderVersion")!!)
         modCompileOnly("net.createmod.ponder:Ponder-Fabric-$minecraftVersion:$ponderVersion") {
@@ -123,9 +144,7 @@ dependencies {
     // compat
     modCompileOnly("cc.tweaked:cc-tweaked-$minecraftVersion-fabric-api:$ccVersion")
 
-    modCompileOnly("vazkii.botania:Botania:$botaniaVersion") { isTransitive = false }
     modCompileOnly("com.terraformersmc:modmenu:$modmenuVersion")
-    modCompileOnly("maven.modrinth:sandwichable:$sandwichableVersion")
     modCompileOnly("maven.modrinth:sodium:$sodiumVersion")
 
     modCompileOnly("dev.emi:trinkets:$trinketsVersion")
@@ -134,13 +153,13 @@ dependencies {
     modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:$ccaVersion")
 
     // FIXME - Use gradle.properties for these versions, make change to concealed for this
-    modCompileOnly("dev.architectury:architectury-fabric:9.1.12")
+    modCompileOnly("dev.architectury:architectury-fabric:13.0.6")
     modCompileOnly("dev.ftb.mods:ftb-chunks-fabric:2001.3.1")
     modCompileOnly("dev.ftb.mods:ftb-teams-fabric:2001.3.0")
     modCompileOnly("dev.ftb.mods:ftb-library-fabric:2001.2.4")
 
     modCompileOnly("maven.modrinth:journeymap:$jmVersion")
-    modCompileOnly("info.journeymap:journeymap-api:$jmApiVersion")
+    modCompileOnly(files(journeyMapApiJar))
 
     // EMI
     modCompileOnly("dev.emi:emi-fabric:$emiVersion:api") { isTransitive = false }
@@ -181,20 +200,21 @@ loom {
     accessWidenerPath = file("src/main/resources/create.accesswidener")
 
     runs {
-        register("datagen") {
-            client()
-            name("Data Generation")
-            vmArg("-Dfabric-api.datagen")
-            vmArg("-Dfabric-api.datagen.output-dir=${file("src/generated/resources")}")
-            vmArg("-Dfabric-api.datagen.modid=create")
-        }
+		register("datagen") {
+			client()
+			name("Data Generation")
+			vmArg("-Dfabric-api.datagen")
+			vmArg("-Dfabric-api.datagen.output-dir=${file("src/generated/resources")}")
+			vmArg("-Dfabric-api.datagen.modid=create")
+			property("porting_lib.datagen.existing_resources", file("src/main/resources").absolutePath)
+		}
 
         register("gametestServer") {
             server()
             name("Headlesss GameTests")
             ideConfigGenerated(false) // this run is for CI
             vmArg("-Dfabric-api.gametest")
-            vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory}/junit.xml")
+            vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory.file("junit.xml").get().asFile.absolutePath}")
             runDir("run/gametest")
         }
 
@@ -211,6 +231,10 @@ loom {
 }
 
 configurations {
+    configureEach {
+        exclude(group = "io.github.fabricators_of_create.Porting-Lib", module = "gametest")
+    }
+
     // this avoids remapping ponder when it's local
     named("runtimeClasspath") {
         attributes {
@@ -228,7 +252,7 @@ tasks.named<ProcessResources>("processResources") {
         "loader_version" to loaderVersion,
         "fabric_version" to fapiVersion,
         "forge_config_version" to configApiVersion,
-        "milk_lib_version" to milkLibVersion
+        "port_lib_version" to portLibVersion,
     )
 
     inputs.properties(properties)
