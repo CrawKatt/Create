@@ -31,3 +31,8 @@ accessible field net/minecraft/world/entity/Mob targetSelector Lnet/minecraft/wo
 accessible field net/minecraft/client/particle/Particle stoppedByCollision Z
 accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundTickCount I
 accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundVehicleTickCount I
+
+accessible field net/minecraft/world/level/block/LiquidBlock fluid Lnet/minecraft/world/level/material/FlowingFluid;
+accessible field net/minecraft/world/item/BucketItem content Lnet/minecraft/world/level/material/Fluid;
+
+accessible class net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData
