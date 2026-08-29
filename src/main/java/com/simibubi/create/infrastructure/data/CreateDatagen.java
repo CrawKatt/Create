@@ -9,6 +9,7 @@ import com.simibubi.create.AllKeys;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 import com.simibubi.create.compat.archEx.ArchExCompat;
+import com.simibubi.create.compat.curios.CuriosDataGenerator;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.data.CreateDatamapProvider;
 import com.simibubi.create.foundation.data.DamageTypeTagGen;
@@ -20,9 +21,9 @@ import com.simibubi.create.foundation.data.recipe.StandardRecipeGen;
 import com.simibubi.create.foundation.ponder.CreatePonderPlugin;
 import com.simibubi.create.foundation.utility.FilesHelper;
 import com.tterrag.registrate.providers.ProviderType;
-import com.tterrag.registrate.providers.RegistrateDataProvider;
 
 import net.createmod.ponder.foundation.PonderIndex;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.RegistrySetBuilder;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
@@ -35,8 +36,9 @@ public class CreateDatagen implements DataGeneratorEntrypoint {
 	public void onInitializeDataGenerator(FabricDataGenerator generator) {
 		ExistingFileHelper helper = ExistingFileHelper.withResourcesFromArg();
 		FabricDataGenerator.Pack pack = generator.createPack();
-		Create.registrate().setupDatagen(pack, helper);
+		// all addDataGenerator calls must happen before setupDatagen constructs the root provider
 		gatherData(pack, helper);
+		Create.registrate().setupDatagen(pack, helper);
 	}
 
 	public static void gatherData(FabricDataGenerator.Pack pack, ExistingFileHelper existingFileHelper) {
@@ -49,24 +51,21 @@ public class CreateDatagen implements DataGeneratorEntrypoint {
 
 		// fabric: pretty much redone, make sure all providers make it through merges
 
-		generator.addProvider(event.includeServer(), new CreateRecipeSerializerTagsProvider(output, lookupProvider, existingFileHelper));
-		generator.addProvider(event.includeServer(), new CreateContraptionTypeTagsProvider(output, lookupProvider, existingFileHelper));
-		generator.addProvider(event.includeServer(), new CreateMountedItemStorageTypeTagsProvider(output, lookupProvider, existingFileHelper));
-		generator.addProvider(event.includeServer(), new DamageTypeTagGen(output, lookupProvider, existingFileHelper));
-		generator.addProvider(event.includeServer(), new AllAdvancements(output, lookupProvider));
-		generator.addProvider(event.includeServer(), new StandardRecipeGen(output, lookupProvider));
-		generator.addProvider(event.includeServer(), new MechanicalCraftingRecipeGen(output, lookupProvider));
-		generator.addProvider(event.includeServer(), new SequencedAssemblyRecipeGen(output, lookupProvider));
-		generator.addProvider(event.includeServer(), new CreateDatamapProvider(output, lookupProvider));
-		generator.addProvider(event.includeServer(), new VanillaHatOffsetGenerator(output));
-		generator.addProvider(event.includeServer(), new CuriosDataGenerator(output, lookupProvider, existingFileHelper));
-		generator.addProvider(event.includeServer(), new CreateEnchantmentTagsProvider(output, lookupProvider, existingFileHelper));
-
-		if (event.includeServer()) {
-			ProcessingRecipeGen.registerAll(generator, output, lookupProvider);
-		}
-
-		event.getGenerator().addProvider(true, Create.registrate().setDataProvider(new RegistrateDataProvider(Create.registrate(), Create.ID, event)));
+		pack.addProvider(AllSoundEvents::provider);
+		pack.addProvider(GeneratedEntriesProvider::new);
+		pack.addProvider(CreateRecipeSerializerTagsProvider::new);
+		pack.addProvider(CreateContraptionTypeTagsProvider::new);
+		pack.addProvider(CreateMountedItemStorageTypeTagsProvider::new);
+		pack.addProvider(DamageTypeTagGen::new);
+		pack.addProvider(AllAdvancements::new);
+		pack.addProvider(StandardRecipeGen::new);
+		pack.addProvider(MechanicalCraftingRecipeGen::new);
+		pack.addProvider(SequencedAssemblyRecipeGen::new);
+		pack.addProvider((output, registries) -> ProcessingRecipeGen.registerAll(output, registries));
+		pack.addProvider(CreateDatamapProvider::new);
+		pack.addProvider(VanillaHatOffsetGenerator::new);
+		pack.addProvider((output, registries) -> new CuriosDataGenerator(output, registries, null));
+		pack.addProvider(CreateEnchantmentTagsProvider::new);
 	}
 
 	@Override
@@ -104,9 +103,36 @@ public class CreateDatagen implements DataGeneratorEntrypoint {
 	}
 
 	private static void providePonderLang(BiConsumer<String, String> consumer) {
+		// Ponder 1.0.44 needs a client world to compile scenes; headless datagen has none,
+		// so keep the previously generated ponder translations instead
+		if (net.minecraft.client.Minecraft.getInstance().level == null) {
+			Create.LOGGER.warn("No client world during datagen; preserving existing ponder lang");
+			preserveExistingPonderLang(consumer);
+			return;
+		}
+
 		// Register this since FMLClientSetupEvent does not run during datagen
 		PonderIndex.addPlugin(new CreatePonderPlugin());
 
 		PonderIndex.getLangAccess().provideLang(Create.ID, consumer);
+	}
+
+	private static void preserveExistingPonderLang(BiConsumer<String, String> consumer) {
+		for (String base : new String[] {"src/generated/resources", "../src/generated/resources"}) {
+			java.nio.file.Path path = java.nio.file.Path.of(base, "assets", "create", "lang", "en_us.json");
+			if (!java.nio.file.Files.isRegularFile(path))
+				continue;
+			try (java.io.Reader reader = java.nio.file.Files.newBufferedReader(path)) {
+				com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
+				for (java.util.Map.Entry<String, com.google.gson.JsonElement> entry : obj.entrySet()) {
+					if (entry.getKey().startsWith("create.ponder.") || entry.getKey().startsWith("create.subtitle.")
+							|| entry.getKey().startsWith("create.gui.goggles.") || entry.getKey().startsWith("create.generic."))
+						consumer.accept(entry.getKey(), entry.getValue().getAsString());
+				}
+				return;
+			} catch (Exception e) {
+				Create.LOGGER.warn("Failed to read existing lang at {}", path, e);
+			}
+		}
 	}
 }

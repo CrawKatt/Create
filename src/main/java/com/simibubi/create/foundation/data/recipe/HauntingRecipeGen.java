@@ -9,7 +9,7 @@ import com.simibubi.create.Create;
 
 import net.createmod.catnip.registry.RegisteredObjectsHelper;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -80,7 +80,7 @@ public class HauntingRecipeGen extends ProcessingRecipeGen {
 				.whenModLoaded(mod.getId()));
 	}
 
-	public HauntingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public HauntingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 

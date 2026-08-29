@@ -36,8 +36,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 
-import net.neoforged.neoforge.common.conditions.WithConditions;
-
 @ApiStatus.Internal
 public class RuntimeDataGenerator {
 	// (1. variant_prefix, optional, can be null)stripped_(2. wood name)(3. type)(4. empty group)endofline
@@ -64,7 +62,7 @@ public class RuntimeDataGenerator {
 		Create.LOGGER.info("Created {} tags which will be injected into the game", TAGS.size());
 		for (Map.Entry<ResourceLocation, Collection<TagEntry>> tags : TAGS.asMap().entrySet()) {
 			TagFile tagFile = new TagFile(new ArrayList<>(tags.getValue()), false);
-			dynamicPack.put(tags.getKey().withPrefix("tags/items/"), TagFile.CODEC.encodeStart(JsonOps.INSTANCE, tagFile).result().orElseThrow());
+			dynamicPack.put(tags.getKey().withPrefix("tags/item/"), TagFile.CODEC.encodeStart(JsonOps.INSTANCE, tagFile).result().orElseThrow());
 		}
 
 		JSON_FILES.clear();
@@ -189,7 +187,7 @@ public class RuntimeDataGenerator {
 			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(recipe.id.getNamespace(),
 				typeId.getPath() + "/" + recipe.id.getPath());
 
-			Optional<JsonElement> serialized = CatnipCodecUtils.encode(Recipe.CONDITIONAL_CODEC, JsonOps.INSTANCE, Optional.of(new WithConditions<>(recipe)));
+			Optional<JsonElement> serialized = CatnipCodecUtils.encode(Recipe.CODEC, JsonOps.INSTANCE, recipe);
 			serialized.ifPresent(r -> JSON_FILES.put(id.withPrefix("recipe/"), r));
 			return recipe;
 		}

@@ -10,7 +10,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -18,7 +18,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
 
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
@@ -728,7 +727,7 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 
 	protected GeneratedRecipe metalOre(String name, ItemEntry<? extends Item> crushed, int duration) {
 		return create(name + "_ore", b -> b.duration(duration)
-			.withCondition(new NotCondition(new TagEmptyCondition("c", "ores/" + name)))
+			.withCondition(notTagEmpty("ores/" + name))
 			.require(AllTags.commonItemTag("ores/" + name))
 			.output(crushed.get()));
 	}
@@ -851,13 +850,19 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		}
 	}
 
-	public MillingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public MillingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 
 	@Override
 	protected AllRecipeTypes getRecipeType() {
 		return AllRecipeTypes.MILLING;
+	}
+
+	private static net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition notTagEmpty(String path) {
+		return net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions.not(
+			net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions.tagsPopulated(
+				com.simibubi.create.AllTags.commonItemTag(path)));
 	}
 
 }

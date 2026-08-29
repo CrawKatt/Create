@@ -1,33 +1,49 @@
 package com.simibubi.create.foundation.data;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
+import com.google.common.collect.BiMap;
 import com.simibubi.create.foundation.block.CopperRegistries;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.data.DataMapProvider;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
-import net.neoforged.neoforge.registries.datamaps.builtin.Oxidizable;
-import net.neoforged.neoforge.registries.datamaps.builtin.Waxable;
+import net.minecraft.world.level.block.WeatheringCopper;
 
-public class CreateDatamapProvider extends DataMapProvider {
-	public CreateDatamapProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-		super(packOutput, lookupProvider);
+/**
+ * fabric: neoforge datamaps do not exist here, so the weathering/waxing pairs are
+ * injected directly into the vanilla lookup maps instead of being datagen'd.
+ */
+public class CreateDatamapProvider implements DataProvider {
+	public CreateDatamapProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {}
+
+	public static void registerInteractions() {
+		BiMap<Block, Block> nextByBlock = WeatheringCopper.NEXT_BY_BLOCK.get();
+		BiMap<Block, Block> previousByBlock = WeatheringCopper.PREVIOUS_BY_BLOCK.get();
+		CopperRegistries.getWeatheringView().forEach((now, after) -> {
+			nextByBlock.put(now.get(), after.get());
+			previousByBlock.put(after.get(), now.get());
+		});
+
+		BiMap<Block, Block> waxables = HoneycombItem.WAXABLES.get();
+		BiMap<Block, Block> waxOffByBlock = HoneycombItem.WAX_OFF_BY_BLOCK.get();
+		CopperRegistries.getWaxableView().forEach((now, after) -> {
+			waxables.put(now.get(), after.get());
+			waxOffByBlock.put(after.get(), now.get());
+		});
 	}
 
 	@Override
-	protected void gather() {
-		final Builder<Oxidizable, Block> oxidizables = builder(NeoForgeDataMaps.OXIDIZABLES);
-		CopperRegistries.getWeatheringView().forEach((now, after) -> add(oxidizables, now, new Oxidizable(after.get())));
-
-		final Builder<Waxable, Block> waxables = builder(NeoForgeDataMaps.WAXABLES);
-		CopperRegistries.getWaxableView().forEach((now, after) -> add(waxables, now, new Waxable(after.get())));
+	public CompletableFuture<?> run(CachedOutput cachedOutput) {
+		registerInteractions();
+		return CompletableFuture.completedFuture(null);
 	}
 
-	public static <T> void add(Builder<T, Block> b, Supplier<Block> now, T after) {
-		b.add(now.get().builtInRegistryHolder(), after, false);
+	@Override
+	public String getName() {
+		return "Create datamaps";
 	}
 }

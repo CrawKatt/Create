@@ -8,6 +8,8 @@ import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.foundation.data.recipe.CreateRecipeProvider.GeneratedRecipe;
 
+import net.minecraft.core.HolderLookup;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -132,7 +134,7 @@ public class CuttingRecipeGen extends ProcessingRecipeGen {
 		return null;
 	}
 
-	public CuttingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public CuttingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 

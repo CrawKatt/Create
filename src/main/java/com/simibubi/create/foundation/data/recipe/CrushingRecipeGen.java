@@ -25,7 +25,7 @@ import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -36,7 +36,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
 
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
@@ -477,9 +476,9 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 	protected GeneratedRecipe moddedOre(CompatMetals metal, Supplier<ItemLike> result) {
 		String name = metal.getName();
 		return create(name + "_ore", b -> {
-			String suffix = "_ores";
+			String prefix = "ores/";
 			return b.duration(400)
-				.withCondition(new NotCondition(new TagEmptyCondition("c", prefix + name)))
+				.withCondition(notTagEmpty(prefix + name))
 				.require(AllTags.commonItemTag(prefix + name))
 				.output(result.get(), 1)
 				.output(.75f, result.get(), 1)
@@ -519,7 +518,7 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 			int amount = block ? 9 : 1;
 			String tagPath = block ? "raw_" + name + "_blocks" : "raw_" + name;
 			return b.duration(400)
-				.withCondition(new NotCondition(new TagEmptyCondition("c", tagPath)))
+				.withCondition(notTagEmpty(tagPath))
 				.require(AllTags.commonItemTag(tagPath))
 				.output(result.get(), amount)
 				.output(.75f, AllItems.EXP_NUGGET.get(), amount);
@@ -623,13 +622,19 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 		return null;
 	}
 
-	public CrushingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public CrushingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 
 	@Override
 	protected AllRecipeTypes getRecipeType() {
 		return AllRecipeTypes.CRUSHING;
+	}
+
+	private static net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition notTagEmpty(String path) {
+		return net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions.not(
+			net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions.tagsPopulated(
+				com.simibubi.create.AllTags.commonItemTag(path)));
 	}
 
 }

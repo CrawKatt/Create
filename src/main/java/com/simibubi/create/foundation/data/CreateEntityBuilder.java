@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BuilderCallback;
 import com.tterrag.registrate.builders.EntityBuilder;
-import com.tterrag.registrate.fabric.EnvExecutor;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 
 import dev.engine_room.flywheel.lib.visualization.SimpleBlockEntityVisualizer;
@@ -20,7 +19,6 @@ import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 import net.fabricmc.api.EnvType;
 

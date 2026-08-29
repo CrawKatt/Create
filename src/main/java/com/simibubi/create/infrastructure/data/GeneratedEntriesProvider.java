@@ -1,6 +1,5 @@
 package com.simibubi.create.infrastructure.data;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import com.simibubi.create.AllDamageTypes;
@@ -14,15 +13,13 @@ import com.simibubi.create.infrastructure.worldgen.AllPlacedFeatures;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 
-import io.github.fabricators_of_create.porting_lib.data.DatapackBuiltinEntriesProvider;
+import net.minecraft.data.registries.RegistriesDatapackGenerator;
 
-public class GeneratedEntriesProvider extends DatapackBuiltinEntriesProvider {
-	private static final RegistrySetBuilder BUILDER = addBootstraps(new RegistrySetBuilder());
-
-	public GeneratedEntriesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, BUILDER, Set.of(Create.ID));
+public class GeneratedEntriesProvider extends RegistriesDatapackGenerator {
+	public GeneratedEntriesProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+		super(output, registries);
 	}
 
 	// fabric: this must be reused in the entrypoint, moved to a method
@@ -33,10 +30,5 @@ public class GeneratedEntriesProvider extends DatapackBuiltinEntriesProvider {
 			.add(Registries.PLACED_FEATURE, AllPlacedFeatures::bootstrap)
 			.add(CreateRegistries.POTATO_PROJECTILE_TYPE, AllPotatoProjectileTypes::bootstrap);
 		// fabric: biome modifiers are not a registry, remove
-	}
-
-	@Override
-	public String getName() {
-		return "Create's Generated Registry Entries";
 	}
 }

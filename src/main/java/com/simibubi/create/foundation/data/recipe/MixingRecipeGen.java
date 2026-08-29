@@ -7,10 +7,11 @@ import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
@@ -66,7 +67,8 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 			.require(I.zincNugget())
 			.output(I.andesiteAlloy(), 1)),
 
-		MUD = create("mud_by_mixing", b -> b.require(new BlockTagIngredient(BlockTags.CONVERTABLE_TO_MUD).toVanilla())
+		MUD = create("mud_by_mixing", b -> b.require(Ingredient.of(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.PODZOL,
+			Blocks.COARSE_DIRT, Blocks.MYCELIUM, Blocks.ROOTED_DIRT, Blocks.MOSS_BLOCK))
 			.require(Fluids.WATER, FluidConstants.BOTTLE)
 			.output(Blocks.MUD, 1)),
 
@@ -102,7 +104,7 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 				.whenModLoaded(mod.getId()));
 	}
 
-	public MixingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public MixingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 

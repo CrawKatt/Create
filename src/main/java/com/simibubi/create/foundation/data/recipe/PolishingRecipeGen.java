@@ -3,8 +3,10 @@ package com.simibubi.create.foundation.data.recipe;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 
 import java.util.concurrent.CompletableFuture;
 
@@ -16,7 +18,7 @@ public class PolishingRecipeGen extends ProcessingRecipeGen {
 
 	;
 
-	public PolishingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public PolishingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 

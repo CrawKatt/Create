@@ -11,7 +11,7 @@ import com.simibubi.create.foundation.block.CopperBlockSet;
 import com.simibubi.create.foundation.block.CopperBlockSet.Variant;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -118,7 +118,7 @@ public class DeployingRecipeGen extends ProcessingRecipeGen {
 			.output(waxed.get()));
 	}
 
-	public DeployingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public DeployingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 

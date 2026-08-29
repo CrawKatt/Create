@@ -4,8 +4,10 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
@@ -130,7 +132,7 @@ public class PressingRecipeGen extends ProcessingRecipeGen {
 				.whenModLoaded(mod.getId()));
 	}
 
-	public PressingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public PressingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 

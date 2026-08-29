@@ -10,7 +10,7 @@ import com.simibubi.create.Create;
 
 import net.createmod.catnip.registry.RegisteredObjectsHelper;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -21,6 +21,11 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
 public class MechanicalCraftingRecipeGen extends CreateRecipeProvider {
+	@Override
+	public String getName() {
+		return "Create's Mechanical Crafting Recipes";
+	}
+
 
 	GeneratedRecipe
 
@@ -69,7 +74,7 @@ public class MechanicalCraftingRecipeGen extends CreateRecipeProvider {
 
 	;
 
-	public MechanicalCraftingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public MechanicalCraftingRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 
@@ -110,10 +115,4 @@ public class MechanicalCraftingRecipeGen extends CreateRecipeProvider {
 			});
 		}
 	}
-
-	@Override
-	public String getName() {
-		return "Create's Mechanical Crafting Recipes";
-	}
-
 }

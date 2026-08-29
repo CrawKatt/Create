@@ -18,9 +18,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -34,7 +32,7 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 	protected static final long BUCKET = FluidConstants.BUCKET;
 	protected static final long BOTTLE = FluidConstants.BOTTLE;
 
-	public static void registerAll(DataGenerator gen, PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public static DataProvider registerAll(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		GENERATORS.add(new CrushingRecipeGen(output, registries));
 		GENERATORS.add(new MillingRecipeGen(output, registries));
 		GENERATORS.add(new CuttingRecipeGen(output, registries));
@@ -65,7 +63,7 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 		};
 	}
 
-	public ProcessingRecipeGen(PackOutput generator, CompletableFuture<HolderLookup.Provider> registries) {
+	public ProcessingRecipeGen(FabricDataOutput generator, CompletableFuture<HolderLookup.Provider> registries) {
 		super(generator, registries);
 	}
 
@@ -137,12 +135,6 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 					.asItem());
 			return Create.asResource(registryName.getPath() + suffix);
 		};
-	}
-
-	@Override
-	public String getName() {
-		return "Create's Processing Recipes: " + getRecipeType().getId()
-			.getPath();
 	}
 
 }

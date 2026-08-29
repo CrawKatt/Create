@@ -7,7 +7,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -20,7 +20,7 @@ import io.github.fabricators_of_create.porting_lib.tags.Tags;
 public class ItemApplicationRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe BOUND_CARDBOARD_BLOCK = create("bound_cardboard_inworld",
-		b -> b.require(AllBlocks.CARDBOARD_BLOCK.asItem())
+		b -> b.require(AllBlocks.CARDBOARD_BLOCK.get())
 			.require(Tags.Items.STRINGS)
 			.output(AllBlocks.BOUND_CARDBOARD_BLOCK.asStack()));
 
@@ -41,15 +41,15 @@ public class ItemApplicationRecipeGen extends ProcessingRecipeGen {
 
 	protected GeneratedRecipe woodCasingIngredient(String type, Supplier<Ingredient> ingredient,
 		Supplier<ItemLike> output) {
-		create(type + "_casing_from_log", b -> b.require(Tags.Items.STRIPPED_LOGS)
+		create(type + "_casing_from_log", b -> b.require(Ingredient.of(com.simibubi.create.AllTags.commonItemTag("stripped_logs")))
 			.require(ingredient.get())
 			.output(output.get()));
-		return create(type + "_casing_from_wood", b -> b.require(Tags.Items.STRIPPED_WOODS)
+		return create(type + "_casing_from_wood", b -> b.require(Ingredient.of(com.simibubi.create.AllTags.commonItemTag("stripped_woods")))
 			.require(ingredient.get())
 			.output(output.get()));
 	}
 
-	public ItemApplicationRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+	public ItemApplicationRecipeGen(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, registries);
 	}
 
