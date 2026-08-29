@@ -34,7 +34,7 @@ public class CreateSlotWidget extends SlotWidget {
 		List<ClientTooltipComponent> tooltip = super.getTooltip(mouseX, mouseY);
 		if (stack instanceof EmiStack emiStack && emiStack.getKey() instanceof Fluid fluid) {
 			// add custom fluid tooltip
-			FluidVariant variant = FluidVariant.of(fluid, emiStack.getNbt());
+			FluidVariant variant = FluidVariant.of(fluid, emiStack.getComponentChanges());
 			addCreateAmount(tooltip, variant);
 			removeEmiAmount(tooltip, variant);
 		}
@@ -42,8 +42,9 @@ public class CreateSlotWidget extends SlotWidget {
 	}
 
 	private void addCreateAmount(List<ClientTooltipComponent> tooltip, FluidVariant fluid) {
-		FluidUnit unit = AllConfigs.client().fluidUnitType.get();
-		String amount = FluidTextUtil.getUnicodeMillibuckets(stack.getAmount(), unit, AllConfigs.client().simplifyFluidUnit.get());
+		com.simibubi.create.infrastructure.fabric.util.FluidUnit configUnit = AllConfigs.client().fluidUnitType.get();
+		FluidUnit unit = configUnit == com.simibubi.create.infrastructure.fabric.util.FluidUnit.DROPLETS ? FluidUnit.DROPLETS : FluidUnit.MILLIBUCKETS;
+		String amount = FluidTextUtil.getUnicodeMillibuckets(stack.getAmount(), unit, false);
 
 		Component amountComponent = Component.literal(" " + amount)
 				.append(CreateLang.translateDirect(unit.getTranslationKey()))

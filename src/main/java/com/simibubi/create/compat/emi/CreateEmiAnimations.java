@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -410,7 +411,7 @@ public class CreateEmiAnimations {
 			.render(graphics);
 
 		DEFAULT_LIGHTING.applyLighting();
-		MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+		MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(new ByteBufferBuilder(256));
 		matrices.pushPose();
 		UIRenderHelper.flipForGuiRender(matrices);
 		matrices.scale(16, 16, 16);
@@ -418,7 +419,7 @@ public class CreateEmiAnimations {
 		float to = 17f / 16f;
 		FluidStack fluid = fluids.get(0);
 		FluidRenderer.renderFluidBox(fluid.getFluid(), fluid.getAmount(), from, from, from, to, to, to, buffer, matrices,
-			LightTexture.FULL_BRIGHT, false, true, fluid.getTag());
+			LightTexture.FULL_BRIGHT, false, true, fluid.getComponentsPatch());
 		matrices.popPose();
 
 		float width = 1 / 128f * squeeze;
@@ -429,7 +430,7 @@ public class CreateEmiAnimations {
 		from = -width / 2 + 0.5f;
 		to = width / 2 + 0.5f;
 		FluidRenderer.renderFluidBox(fluid.getFluid(), fluid.getAmount(), from, 0, from, to, 2, to, buffer, matrices,
-			LightTexture.FULL_BRIGHT, false, true, fluid.getTag());
+			LightTexture.FULL_BRIGHT, false, true, fluid.getComponentsPatch());
 		buffer.endBatch();
 		Lighting.setupFor3DItems();
 	}
@@ -446,14 +447,14 @@ public class CreateEmiAnimations {
 				.scale(scale)
 				.render(graphics);
 
-			MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+			MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(new ByteBufferBuilder(256));
 			//MatrixStack ms = new MatrixStack();
 			UIRenderHelper.flipForGuiRender(matrices);
 			matrices.scale(scale, scale, scale);
 			float from = 2 / 16f;
 			float to = 1f - from;
 			FluidRenderer.renderFluidBox(fluid.getFluid(), fluid.getAmount(), from, from, from, to, 3/4f, to, buffer, matrices,
-				LightTexture.FULL_BRIGHT, false, true, fluid.getTag());
+				LightTexture.FULL_BRIGHT, false, true, fluid.getComponentsPatch());
 			buffer.endBatch();
 		});
 	}

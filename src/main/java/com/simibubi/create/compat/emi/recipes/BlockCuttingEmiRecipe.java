@@ -52,7 +52,7 @@ public class BlockCuttingEmiRecipe extends CreateEmiRecipe<CondensedBlockCutting
 		private List<ItemStack> outputs = Lists.newArrayList();
 
 		public CondensedBlockCuttingRecipe(Ingredient ingredient) {
-			super(new ResourceLocation(""), "", ingredient, ItemStack.EMPTY);
+			super("", ingredient, ItemStack.EMPTY);
 		}
 
 		public void addOutput(ItemStack stack) {

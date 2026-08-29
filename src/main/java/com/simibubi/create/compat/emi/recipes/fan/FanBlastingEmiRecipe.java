@@ -7,14 +7,15 @@ import net.createmod.catnip.gui.element.GuiGameElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.material.Fluids;
 
 public class FanBlastingEmiRecipe extends FanEmiRecipe<AbstractCookingRecipe> {
 
-	public FanBlastingEmiRecipe(AbstractCookingRecipe recipe) {
-		super(CreateEmiPlugin.FAN_BLASTING, recipe);
-		ResourceLocation rid = recipe.getId();
-		this.id = new ResourceLocation("emi", "create/fan_blasting/" + rid.getNamespace() + "/" + rid.getPath());
+	public FanBlastingEmiRecipe(RecipeHolder<? extends AbstractCookingRecipe> holder) {
+		super(CreateEmiPlugin.FAN_BLASTING, holder.value());
+		ResourceLocation rid = holder.id();
+		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/fan_blasting/" + rid.getNamespace() + "/" + rid.getPath());
 	}
 
 	@Override

@@ -19,8 +19,8 @@ public class AutomaticPackingEmiRecipe extends CreateEmiRecipe<BasinRecipe> {
 		if (recipe.getRequiredHeat() == HeatCondition.NONE) {
 			height = 90;
 		}
-		ResourceLocation id = recipe.getId();
-		this.id = new ResourceLocation("emi", "create/automatic_packing/" + id.getNamespace() + "/" + id.getPath());
+		ResourceLocation id = recipe.id;
+		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/automatic_packing/" + id.getNamespace() + "/" + id.getPath());
 	}
 
 	@Override

@@ -13,6 +13,8 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
 
+import net.minecraft.world.item.crafting.RecipeHolder;
+
 public class DeployingEmiRecipe extends CreateEmiRecipe<DeployerApplicationRecipe> {
 
 	public DeployingEmiRecipe(DeployerApplicationRecipe recipe) {
@@ -40,11 +42,11 @@ public class DeployingEmiRecipe extends CreateEmiRecipe<DeployerApplicationRecip
 		CreateEmiAnimations.addDeployer(widgets, widgets.getWidth() / 2 - 13, 30);
 	}
 
-	public static DeployingEmiRecipe fromSandpaper(SandPaperPolishingRecipe recipe) {
-		return new DeployingEmiRecipe(DeployerApplicationRecipe.convert(recipe));
+	public static DeployingEmiRecipe fromSandpaper(RecipeHolder<SandPaperPolishingRecipe> holder) {
+		return new DeployingEmiRecipe(DeployerApplicationRecipe.convert(holder).value());
 	}
 
-	public static DeployingEmiRecipe fromItemApplication(ManualApplicationRecipe recipe) {
-		return new DeployingEmiRecipe(ManualApplicationRecipe.asDeploying(recipe));
+	public static DeployingEmiRecipe fromItemApplication(RecipeHolder<ManualApplicationRecipe> holder) {
+		return new DeployingEmiRecipe(ManualApplicationRecipe.asDeploying(holder).value());
 	}
 }

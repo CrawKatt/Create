@@ -47,7 +47,7 @@ public abstract class CreateEmiRecipe<T extends Recipe<?>> implements EmiRecipe 
 	public CreateEmiRecipe(EmiRecipeCategory category, T recipe, int width, int height) {
 		this.category = category;
 		this.recipe = recipe;
-		this.id = recipe.getId();
+		this.id = recipe instanceof ProcessingRecipe<?> processing ? processing.id : null;
 		this.width = width;
 		this.height = height;
 		if (recipe instanceof BasinRecipe basin) {
@@ -103,7 +103,7 @@ public abstract class CreateEmiRecipe<T extends Recipe<?>> implements EmiRecipe 
 	public CreateEmiRecipe(EmiRecipeCategory category, T recipe, int width, int height, Consumer<CreateEmiRecipe<T>> setup) {
 		this.category = category;
 		this.recipe = recipe;
-		this.id = recipe.getId();
+		this.id = recipe instanceof ProcessingRecipe<?> processing ? processing.id : null;
 		this.width = width;
 		this.height = height;
 		setup.accept(this);
@@ -117,6 +117,10 @@ public abstract class CreateEmiRecipe<T extends Recipe<?>> implements EmiRecipe 
 	@Override
 	public @Nullable ResourceLocation getId() {
 		return id;
+	}
+
+	public void setId(ResourceLocation id) {
+		this.id = id;
 	}
 
 	@Override
@@ -149,7 +153,7 @@ public abstract class CreateEmiRecipe<T extends Recipe<?>> implements EmiRecipe 
 	}
 
 	public static EmiStack fluidStack(FluidStack stack) {
-		return EmiStack.of(stack.getFluid(), stack.getTag(), stack.getAmount());
+		return EmiStack.of(stack.getFluid(), stack.getComponentsPatch(), stack.getAmount());
 	}
 
 	public static TextureWidget addTexture(WidgetHolder widgets, AllGuiTextures texture, int x, int y) {
