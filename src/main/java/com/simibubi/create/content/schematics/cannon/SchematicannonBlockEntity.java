@@ -743,7 +743,10 @@ if (printer.isErrored())
 			dontUpdateChecklist = true;
 			ItemStack extractItem = inventory.getStackInSlot(BookInput);
 			// non-empty, would early exit above
-			TransferUtil.extract(inventory, ItemVariant.of(extractItem), 1);
+			try (Transaction t = Transaction.openOuter()) {
+				inventory.extract(ItemVariant.of(extractItem), 1, t);
+				t.commit();
+			}
 			ItemStack stack = AllBlocks.CLIPBOARD.isIn(extractItem) ? checklist.createWrittenClipboard()
 				: checklist.createWrittenBook();
 			stack.setCount(inventory.getStackInSlot(BookOutput)
@@ -888,7 +891,8 @@ if (printer.isErrored())
 	@Override
 	@Environment(EnvType.CLIENT)
 	public AABB getRenderBoundingBox() {
-		return AABB.INFINITE;
+		return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+			Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
 	@Override

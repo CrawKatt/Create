@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.IBE;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import io.github.fabricators_of_create.porting_lib.util.NetworkHooks;
 
 public class SchematicannonBlock extends Block implements IBE<SchematicannonBlockEntity> {
 
@@ -51,7 +51,7 @@ public class SchematicannonBlock extends Block implements IBE<SchematicannonBloc
 		if (level.isClientSide)
 			return InteractionResult.SUCCESS;
 		withBlockEntityDo(level, pos,
-				be -> player.openMenu(be, be::sendToMenu));
+				be -> player.openMenu(WrappedExtendedMenuProvider.of(be, be::sendToMenu)));
 		return InteractionResult.SUCCESS;
 	}
 
