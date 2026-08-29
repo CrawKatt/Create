@@ -2,7 +2,6 @@ package com.simibubi.create.content.decoration;
 
 import java.util.function.Predicate;
 
-import com.jamieswhiteshirt.reachentityattributes.ReachEntityAttributes;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.equipment.extendoGrip.ExtendoGripItem;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;

@@ -7,6 +7,7 @@ import io.github.fabricators_of_create.porting_lib.block.CustomFrictionBlock;
 
 import io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock;
 import io.github.fabricators_of_create.porting_lib.block.CustomRunningEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.block.EntityDestroyBlock;
 import io.github.fabricators_of_create.porting_lib.block.ExplosionResistanceBlock;
 import io.github.fabricators_of_create.porting_lib.block.LightEmissiveBlock;
 
@@ -82,8 +83,8 @@ import io.github.fabricators_of_create.porting_lib.enchant.EnchantmentBonusBlock
 
 public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEntity>, IWrenchable,
 		CustomFrictionBlock, CustomSoundTypeBlock, LightEmissiveBlock, ExplosionResistanceBlock,
-		BlockPickInteractionAware, CustomLandingEffectsBlock, CustomRunningEffectsBlock, EnchantmentBonusBlock,
-		ValidSpawnBlock {
+			BlockPickInteractionAware, CustomLandingEffectsBlock, CustomRunningEffectsBlock, EnchantmentBonusBlock,
+			ValidSpawnBlock, EntityDestroyBlock {
 
 	public CopycatBlock(Properties pProperties) {
 		super(pProperties);
@@ -122,7 +123,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 
 	@Override
 	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-								 if (player == null || AdventureUtil.isAdventure(pPlayer))
+								 if (player == null || AdventureUtil.isAdventure(player))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
 		Direction face = hitResult.getDirection();
@@ -355,7 +356,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 		return maybeMaterialAs(
 				level, pos, BlockPickInteractionAware.class,
 				(mat, block) -> block.getPickedStack(mat, level, pos, player, result),
-				mat -> mat.getBlock().getCloneItemStack(level, pos, mat)
+				mat -> mat.getBlock().getCloneItemStack((LevelReader) level, pos, mat)
 		);
 	}
 
@@ -387,11 +388,10 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 		);
 	}
 
-	// fabric: unsupported
-//	@Override
-//	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
-//		return getMaterial(level, pos).canEntityDestroy(level, pos, entity);
-//	}
+	@Override
+	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
+		return getMaterial(level, pos).canEntityDestroy(level, pos, entity);
+	}
 
 	@Override
 	public void fallOn(Level pLevel, BlockState pState, BlockPos pPos, Entity pEntity, float p_152430_) {

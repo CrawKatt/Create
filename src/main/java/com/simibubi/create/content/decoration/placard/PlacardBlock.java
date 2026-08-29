@@ -44,6 +44,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 public class PlacardBlock extends FaceAttachedHorizontalDirectionalBlock
