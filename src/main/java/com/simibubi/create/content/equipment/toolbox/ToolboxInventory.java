@@ -7,9 +7,11 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
@@ -190,7 +192,7 @@ public class ToolboxInventory extends ItemStackHandler {
 				break;
 		}
 
-		return ItemHandlerHelper.copyStackWithSize(stack, toInsert - inserted);
+		return stack.copyWithCount(toInsert - inserted);
 	}
 
 	public ItemStack takeFromCompartment(int amount, int compartment, TransactionContext ctx) {
@@ -201,7 +203,7 @@ public class ToolboxInventory extends ItemStackHandler {
 		int extracted = 0;
 		for (int i = STACKS_PER_COMPARTMENT - 1; i >= 0; i--) {
 			int slot = compartment * STACKS_PER_COMPARTMENT + i;
-			ItemStackHandlerSlot handlerSlot = getSlot(slot);
+			SingleSlotStorage<ItemVariant> handlerSlot = getSlot(slot);
 			if (handlerSlot.isResourceBlank())
 				continue;
 			if (toExtract == null)

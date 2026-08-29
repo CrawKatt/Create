@@ -14,7 +14,6 @@ import net.minecraft.core.Direction;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -96,14 +95,6 @@ public class ToolboxBlockEntity extends SmartBlockEntity implements MenuProvider
 			return DyeColor.BROWN;
 		});
 		setLazyTickRate(10);
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.TOOLBOX.get(),
-				(be, context) -> be.inventory
-		);
 	}
 
 	public DyeColor getColor() {

@@ -20,7 +20,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-import io.github.fabricators_of_create.porting_lib.event.client.RenderHandCallback.RenderHandEvent;
+import io.github.fabricators_of_create.porting_lib.client_events.event.client.RenderHandEvent;
 import io.github.fabricators_of_create.porting_lib.util.FirstPersonRendererHelper;
 
 public class ExtendoGripRenderHandler {
@@ -112,8 +112,11 @@ public class ExtendoGripRenderHandler {
 				event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
 
 			if (!notInOffhand) {
-				ClientHooks.handleCameraTransforms(ms, mc.getItemRenderer()
-					.getModel(offhandItem, null, null, 0), transform, !rightHand);
+				mc.getItemRenderer()
+					.getModel(offhandItem, null, null, 0)
+					.getTransforms()
+					.getTransform(transform)
+					.apply(!rightHand, ms);
 				ms.translate(flip * -.05f, .15f, -1.2f);
 				ms.translate(0, 0, -animation * 2.25f);
 				if (blockItem && mc.getItemRenderer()

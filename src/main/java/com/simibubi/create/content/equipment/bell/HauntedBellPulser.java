@@ -18,6 +18,8 @@ import net.minecraft.world.level.ChunkPos;
 
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 
+import io.github.fabricators_of_create.porting_lib.entity.events.tick.PlayerTickEvent;
+
 public class HauntedBellPulser {
 
 	public static final int DISTANCE = 3;

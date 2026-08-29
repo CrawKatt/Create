@@ -4,16 +4,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.simibubi.create.AllTags.AllFluidTags;
-import com.simibubi.create.AllTags.AllFluidTags;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 
-
-import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
+import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
 import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentLevelItem;
 import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentsItem;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.RegistryLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -27,14 +29,9 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 
-import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
-import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentLevelItem;
-import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentsItem;
-
-public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantingBehaviorItem, CustomEnchantmentLevelItem, CustomEnchantmentsItem {
+public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantmentLevelItem, CustomEnchantmentsItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.HEAD;
 	public static final ArmorItem.Type TYPE = ArmorItem.Type.HELMET;
 
@@ -43,24 +40,29 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantingB
 	}
 
 	@Override
-	public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-		if (enchantment.is(Enchantments.AQUA_AFFINITY))
-			return false;
-		return super.supportsEnchantment(stack, enchantment);
+	public int modifyEnchantmentLevel(ItemStack stack, Enchantment enchantment, int level) {
+		if (enchantment == aquaAffinity())
+			return Math.max(1, level);
+		return level;
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static Enchantment aquaAffinity() {
+		Registry registry = BuiltInRegistries.REGISTRY;
+		return (Enchantment) registry.get(Registries.ENCHANTMENT);
 	}
 
 	@Override
-	public int getEnchantmentLevel(ItemStack stack, Holder<Enchantment> enchantment) {
-		if (enchantment.is(Enchantments.AQUA_AFFINITY))
-			return 1;
-		return super.getEnchantmentLevel(stack, enchantment);
+	public void modifyEnchantments(Map<Enchantment, Integer> enchantments, ItemStack stack) {
+		Enchantment aquaAffinity = enchantmentRegistry().get(Enchantments.AQUA_AFFINITY);
+		if (aquaAffinity != null)
+			enchantments.put(aquaAffinity, 1);
 	}
 
-	@Override
-	public ItemEnchantments getAllEnchantments(ItemStack stack, RegistryLookup<Enchantment> lookup) {
-		ItemEnchantments.Mutable enchants = new ItemEnchantments.Mutable(super.getAllEnchantments(stack, lookup));
-		enchants.set(lookup.getOrThrow(Enchantments.AQUA_AFFINITY), 1);
-		return enchants.toImmutable();
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static Registry<Enchantment> enchantmentRegistry() {
+		Registry registry = BuiltInRegistries.REGISTRY;
+		return (Registry<Enchantment>) registry.get(Registries.ENCHANTMENT);
 	}
 
 	public static boolean isWornBy(Entity entity) {
@@ -78,7 +80,9 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantingB
 		return stack;
 	}
 
-	public static void breatheUnderwater(LivingEntity entity) {
+	public static void breatheUnderwater(EntityTickEvent.Pre event) {
+		if (!(event.getEntity() instanceof LivingEntity entity))
+			return;
 		Level world = entity.level();
 		boolean second = world.getGameTime() % 20 == 0;
 		boolean drowning = entity.getAirSupply() == 0;

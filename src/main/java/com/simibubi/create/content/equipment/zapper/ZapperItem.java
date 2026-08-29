@@ -18,6 +18,9 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
+import io.github.fabricators_of_create.porting_lib.item.EntitySwingListenerItem;
+import io.github.fabricators_of_create.porting_lib.item.ReequipAnimationItem;
+
 import net.createmod.catnip.nbt.NBTProcessors;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.ChatFormatting;
@@ -55,7 +58,7 @@ public abstract class ZapperItem extends Item implements CustomArmPoseItem, Enti
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
 		if (stack.has(AllDataComponents.SHAPER_BLOCK_USED)) {
 			MutableComponent usedBlock = stack.get(AllDataComponents.SHAPER_BLOCK_USED).getBlock().getName();
 			tooltip.add(CreateLang.translateDirect("terrainzapper.usingBlock", usedBlock.withStyle(ChatFormatting.GRAY))

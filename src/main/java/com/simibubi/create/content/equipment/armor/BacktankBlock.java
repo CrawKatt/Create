@@ -17,6 +17,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -111,7 +112,9 @@ public class BacktankBlock extends HorizontalKineticBlock implements IBE<Backtan
 		if (stack == null)
 			return;
 		withBlockEntityDo(worldIn, pos, be -> {
-			be.setCapacityEnchantLevel(stack.getEnchantmentLevel(worldIn.holderOrThrow(AllEnchantments.CAPACITY)));
+			be.setCapacityEnchantLevel(stack.getEnchantments()
+				.getLevel(worldIn.holderLookup(Registries.ENCHANTMENT)
+					.getOrThrow(AllEnchantments.CAPACITY)));
 			be.setAirLevel(stack.getOrDefault(AllDataComponents.BACKTANK_AIR, 0));
 			if (stack.has(DataComponents.CUSTOM_NAME))
 				be.setCustomName(stack.getHoverName());

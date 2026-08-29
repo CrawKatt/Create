@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class AllPotatoProjectileBlockHitActions {
@@ -58,10 +59,11 @@ public class AllPotatoProjectileBlockHitActions {
 			if (!level.getBlockState(placePos)
 				.canBeReplaced())
 				return false;
-			if (!(cropBlock.value() instanceof SpecialPlantable specialPlantable))
+			if (!(cropBlock.value() instanceof CropBlock crop))
 				return false;
-			if (specialPlantable.canPlacePlantAtPosition(projectile, level, placePos, null))
-				specialPlantable.spawnPlantAtPosition(projectile, level, placePos, null);
+			if (crop.defaultBlockState()
+				.canSurvive(level, placePos))
+				level.setBlock(placePos, crop.defaultBlockState(), 3);
 			return true;
 		}
 

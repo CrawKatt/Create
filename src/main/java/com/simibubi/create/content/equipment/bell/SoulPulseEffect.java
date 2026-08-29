@@ -6,7 +6,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Streams;
-import com.simibubi.create.content.equipment.bell.SoulParticle.ExpandingPerimeterData;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.SoulBaseData;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.SoulData;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.SoulExpandingPerimeterData;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.SoulPerimeterData;
 
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
@@ -101,12 +104,12 @@ public class SoulPulseEffect {
 		Vec3 p = Vec3.atLowerCornerOf(at);
 		if (canOverlap())
 			world.addAlwaysVisibleParticle(((int) Math.round(VecHelper.getCenterOf(pos)
-				.distanceTo(VecHelper.getCenterOf(at)))) >= distance ? new SoulParticle.PerimeterData()
-					: new ExpandingPerimeterData(),
+					.distanceTo(VecHelper.getCenterOf(at)))) >= distance ? new SoulPerimeterData()
+						: new SoulExpandingPerimeterData(),
 				p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
 		if (SoulPulseEffect.isDark(world, at)) {
-			world.addAlwaysVisibleParticle(new SoulParticle.Data(), p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
-			world.addParticle(new SoulBaseParticle.Data(), p.x + 0.5, p.y + 0.01, p.z + 0.5, 0, 0, 0);
+			world.addAlwaysVisibleParticle(new SoulData(), p.x + 0.5, p.y + 0.5, p.z + 0.5, 0, 0, 0);
+			world.addParticle(new SoulBaseData(), p.x + 0.5, p.y + 0.01, p.z + 0.5, 0, 0, 0);
 		}
 	}
 

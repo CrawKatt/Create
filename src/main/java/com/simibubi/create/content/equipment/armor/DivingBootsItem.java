@@ -16,6 +16,7 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
 import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.LivingEntityAccessor;
 
 public class DivingBootsItem extends BaseArmorItem {
@@ -41,7 +42,9 @@ public class DivingBootsItem extends BaseArmorItem {
 		return stack;
 	}
 
-	public static void accelerateDescentUnderwater(LivingEntity entity) {
+	public static void accelerateDescentUnderwater(EntityTickEvent.Pre event) {
+		if (!(event.getEntity() instanceof LivingEntity entity))
+			return;
 		if (!affects(entity))
 			return;
 

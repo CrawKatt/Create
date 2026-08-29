@@ -27,7 +27,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -54,11 +57,15 @@ import net.minecraft.world.phys.Vec3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
+import net.fabricmc.fabric.api.item.v1.FabricItem;
+
 import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
 import io.github.fabricators_of_create.porting_lib.item.EntitySwingListenerItem;
 import io.github.fabricators_of_create.porting_lib.item.ReequipAnimationItem;
 
-public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmPoseItem, EntitySwingListenerItem, ReequipAnimationItem, CustomEnchantingBehaviorItem {
+public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmPoseItem, EntitySwingListenerItem, ReequipAnimationItem, CustomEnchantingBehaviorItem, FabricItem {
+
 
 	public PotatoCannonItem(Properties properties) {
 		super(properties);
@@ -188,8 +195,8 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 			return;
 
 		HolderLookup<Enchantment> lookup = registries.lookupOrThrow(Registries.ENCHANTMENT);
-		int power = stack.getEnchantmentLevel(lookup.getOrThrow(Enchantments.POWER));
-		int punch = stack.getEnchantmentLevel(lookup.getOrThrow(Enchantments.PUNCH));
+		int power = EnchantmentHelper.getItemEnchantmentLevel(lookup.getOrThrow(Enchantments.POWER), stack);
+		int punch = EnchantmentHelper.getItemEnchantmentLevel(lookup.getOrThrow(Enchantments.PUNCH), stack);
 		final float additionalDamageMult = 1 + power * .2f;
 		final float additionalKnockback = punch * .5f;
 
@@ -247,7 +254,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 	}
 
 	@Override
-	public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
+	public boolean canBeEnchantedWith(ItemStack stack, Holder<Enchantment> enchantment, EnchantingContext context) {
 		if (enchantment.is(Enchantments.POWER))
 			return true;
 		if (enchantment.is(Enchantments.PUNCH))
@@ -258,7 +265,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 			return true;
 		if (enchantment.is(AllEnchantments.POTATO_RECOVERY))
 			return true;
-		return super.supportsEnchantment(stack, enchantment);
+		return true;
 	}
 
 	@Override
@@ -281,7 +288,7 @@ public class PotatoCannonItem extends ProjectileWeaponItem implements CustomArmP
 	}
 
 	@Override
-	public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
+	public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
 		return false;
 	}
 

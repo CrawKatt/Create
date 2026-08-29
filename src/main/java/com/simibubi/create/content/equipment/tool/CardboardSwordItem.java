@@ -8,15 +8,20 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 
 import net.createmod.catnip.platform.CatnipServices;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -29,41 +34,50 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
-import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
-import io.github.fabricators_of_create.porting_lib.entity.events.LivingAttackEvent;
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
+import net.fabricmc.fabric.api.item.v1.FabricItem;
 
-public class CardboardSwordItem extends SwordItem implements CustomEnchantingBehaviorItem {
+import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
+import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingAttackEvent;
+
+public class CardboardSwordItem extends SwordItem implements CustomEnchantingBehaviorItem, FabricItem {
+
 
 	public CardboardSwordItem(Properties pProperties) {
 		super(AllToolMaterials.CARDBOARD, pProperties);
 	}
 
 	@Override
-	public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-		return enchantment == Enchantments.KNOCKBACK;
+	public boolean canBeEnchantedWith(ItemStack stack, Holder<Enchantment> enchantment, EnchantingContext context) {
+		return enchantment.is(Enchantments.KNOCKBACK);
 	}
 
 	public static InteractionResult cardboardSwordsMakeNoiseOnClick(Player player, Level level, InteractionHand hand, BlockPos pos, Direction direction) {
+		if (player.isSpectator())
+			return InteractionResult.PASS;
+
+		ItemStack itemStack = player.getItemInHand(hand);
 		if (!AllItems.CARDBOARD_SWORD.isIn(itemStack))
-			return;
-		if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START)
-			return;
-		if (event.getSide() == LogicalSide.CLIENT)
-			AllSoundEvents.CARDBOARD_SWORD.playAt(event.getLevel(), event.getPos(), 0.5f, 1.85f, false);
+			return InteractionResult.PASS;
+		if (!level.getBlockState(pos).isAir())
+			return InteractionResult.PASS;
+
+		if (level.isClientSide)
+			AllSoundEvents.CARDBOARD_SWORD.playAt(level, pos, 0.5f, 1.85f, false);
 		else
 			AllSoundEvents.CARDBOARD_SWORD.play(level, player, pos, 0.5f, 1.85f);
 
-		return InteractionResult.SUCCESS;
+		return InteractionResult.PASS;
 	}
 
-	public static void cardboardSwordsCannotHurtYou(io.github.fabricators_of_create.porting_lib.entity.events.LivingAttackEvent event) {
+	public static void cardboardSwordsCannotHurtYou(LivingAttackEvent event) {
 		Entity attacker = event.getSource()
 			.getEntity();
 		LivingEntity target = event.getEntity();
 		if (target == null || target.getType().is(EntityTypeTags.ARTHROPOD))
 			return;
-		ItemStack stack = attacker.getItemInHand(InteractionHand.MAIN_HAND);
-		if (!(AllItems.CARDBOARD_SWORD.isIn(stack)))
+		if (!(attacker instanceof LivingEntity livingAttacker
+			&& AllItems.CARDBOARD_SWORD.isIn(livingAttacker.getItemInHand(InteractionHand.MAIN_HAND))))
 			return;
 
 		AllSoundEvents.CARDBOARD_SWORD.playFrom(attacker, 0.75f, 1.85f);
@@ -73,16 +87,18 @@ public class CardboardSwordItem extends SwordItem implements CustomEnchantingBeh
 		// Reference player.attack()
 		// This section replicates knockback behaviour without hurting the target
 
-		float knockbackStrength = (float) (attacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK) + 2);
-		if (attacker.level() instanceof ServerLevel serverLevel)
-			knockbackStrength = EnchantmentHelper.modifyKnockback(serverLevel, stack, target, serverLevel.damageSources().playerAttack(attacker), knockbackStrength);
-		if (attacker.isSprinting() && attacker.getAttackStrengthScale(0.5f) > 0.9f)
+		float knockbackStrength = (float) (livingAttacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK) + 2);
+		if (livingAttacker instanceof Player attackingPlayer && livingAttacker.level() instanceof ServerLevel serverLevel)
+			knockbackStrength = EnchantmentHelper.modifyKnockback(serverLevel, livingAttacker.getWeaponItem(), target,
+				serverLevel.damageSources().playerAttack(attackingPlayer), knockbackStrength);
+		if (livingAttacker instanceof Player attackingPlayer && attackingPlayer.isSprinting()
+			&& attackingPlayer.getAttackStrengthScale(0.5f) > 0.9f)
 			++knockbackStrength;
 
 		if (knockbackStrength <= 0)
 			return;
 
-		float yRot = attacker.getYRot();
+		float yRot = livingAttacker.getYRot();
 		knockback(target, knockbackStrength, yRot);
 
 		boolean targetIsPlayer = target instanceof Player;
@@ -94,9 +110,9 @@ public class CardboardSwordItem extends SwordItem implements CustomEnchantingBeh
 		if ((targetType == MobCategory.MISC || targetType == MobCategory.CREATURE) && !targetIsPlayer)
 			target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 9, true, false, false));
 
-		attacker.setDeltaMovement(attacker.getDeltaMovement()
+		livingAttacker.setDeltaMovement(livingAttacker.getDeltaMovement()
 			.multiply(0.6D, 1.0D, 0.6D));
-		attacker.setSprinting(false);
+		livingAttacker.setSprinting(false);
 	}
 
 	public static void knockback(LivingEntity target, double knockbackStrength, float yRot) {

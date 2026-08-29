@@ -2,7 +2,6 @@ package com.simibubi.create.content.equipment.zapper.terrainzapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.equipment.zapper.PlacementPatterns;
@@ -24,19 +23,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
 public class WorldshaperItem extends ZapperItem {
 
 	public WorldshaperItem(Properties properties) {
 		super(properties);
-	}
-
-	@Override
-	@Environment(EnvType.CLIENT)
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(SimpleCustomRenderer.create(this, new WorldshaperItemRenderer()));
 	}
 
 	@Override

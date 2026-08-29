@@ -17,6 +17,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 
+import io.github.fabricators_of_create.porting_lib.client_events.event.client.RenderArmEvent;
+
 public class NetheriteBacktankFirstPersonRenderer {
 
 	private static final ResourceLocation BACKTANK_ARMOR_LOCATION =
@@ -30,14 +32,19 @@ public class NetheriteBacktankFirstPersonRenderer {
 			mc.player != null && AllItems.NETHERITE_BACKTANK.isIn(mc.player.getItemBySlot(EquipmentSlot.CHEST));
 	}
 
-	public static boolean onRenderPlayerHand(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player, HumanoidArm arm) {
+	public static void onRenderPlayerHand(RenderArmEvent event) {
+		PoseStack poseStack = event.getPoseStack();
+		MultiBufferSource buffer = event.getMultiBufferSource();
+		HumanoidArm arm = event.getArm();
+		AbstractClientPlayer player = event.getPlayer();
+
 		if (!rendererActive)
-			return false;
+			return;
 
 		Minecraft mc = Minecraft.getInstance();
 		if (!(mc.getEntityRenderDispatcher()
 			.getRenderer(player) instanceof PlayerRenderer pr))
-			return false;
+			return;
 
 		PlayerModel<AbstractClientPlayer> model = pr.getModel();
 		model.attackTime = 0.0F;
@@ -48,7 +55,7 @@ public class NetheriteBacktankFirstPersonRenderer {
 		armPart.xRot = 0.0F;
 		armPart.render(poseStack, buffer.getBuffer(RenderType.entitySolid(BACKTANK_ARMOR_LOCATION)),
 			LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
-		return true;
+		event.setCanceled(true);
 	}
 
 }

@@ -42,6 +42,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
@@ -265,11 +266,12 @@ public class BlueprintOverlayRenderer {
 
 				if (success) {
 					CraftingContainer craftingInventory = new BlueprintCraftingInventory(craftingGrid);
+					CraftingInput craftingInput = craftingInventory.asCraftInput();
 					if (!recipe.isPresent())
 						recipe = mc.level.getRecipeManager()
-								.getRecipeFor(RecipeType.CRAFTING, craftingInventory, mc.level);
-					ItemStack resultFromRecipe = recipe.filter(r -> r.matches(craftingInventory, mc.level))
-							.map(r -> r.value().assemble(craftingInventory, mc.level.registryAccess()))
+								.getRecipeFor(RecipeType.CRAFTING, craftingInput, mc.level);
+					ItemStack resultFromRecipe = recipe.filter(r -> r.value().matches(craftingInput, mc.level))
+							.map(r -> r.value().assemble(craftingInput, mc.level.registryAccess()))
 							.orElse(ItemStack.EMPTY);
 
 					if (resultFromRecipe.isEmpty()) {
@@ -347,8 +349,7 @@ public class BlueprintOverlayRenderer {
 		int y = guiGraphics.guiHeight() - 100;
 
 		if (shopContext != null) {
-			TooltipRenderUtil.renderTooltipBackground(guiGraphics, x - 2, y + 1, w + 4, 19, 0, 0x55_000000, 0x55_000000, 0,
-				0);
+			TooltipRenderUtil.renderTooltipBackground(guiGraphics, x - 2, y + 1, w + 4, 19, 0x55000000);
 
 			AllGuiTextures.TRADE_OVERLAY.render(guiGraphics, guiGraphics.guiWidth() / 2 - 48, y - 19);
 			if (shopContext.purchases() > 0) {

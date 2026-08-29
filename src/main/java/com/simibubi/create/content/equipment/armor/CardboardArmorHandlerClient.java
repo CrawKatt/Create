@@ -18,11 +18,14 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
+import io.github.fabricators_of_create.porting_lib.entity.events.tick.PlayerTickEvent;
+
 public class CardboardArmorHandlerClient {
 
 	private static final Cache<UUID, Integer> BOXES_PLAYERS_ARE_HIDING_AS = new TickBasedCache<>(20, true);
 
-	public static void keepCacheAliveDesignDespiteNotRendering(Player player) {
+	public static void keepCacheAliveDesignDespiteNotRendering(PlayerTickEvent.Post event) {
+		Player player = event.getEntity();
 		if (!CardboardArmorHandler.testForStealth(player))
 			return;
 		try {

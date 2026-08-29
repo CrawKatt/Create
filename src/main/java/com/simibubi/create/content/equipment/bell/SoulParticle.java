@@ -4,14 +4,12 @@ import org.joml.Quaternionf;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import com.simibubi.create.AllParticleTypes;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.util.Mth;
 
 import io.github.fabricators_of_create.porting_lib.util.ParticleHelper;
@@ -59,8 +57,8 @@ public class SoulParticle extends CustomRotationParticle {
 		ParticleHelper.setStoppedByCollision(this, true); // disable movement
 		this.mirror = this.random.nextBoolean();
 
-		this.isPerimeter = data instanceof PerimeterData;
-		this.isExpandingPerimeter = data instanceof ExpandingPerimeterData;
+		this.isPerimeter = data instanceof BasicParticleData.SoulPerimeterData;
+		this.isExpandingPerimeter = data instanceof BasicParticleData.SoulExpandingPerimeterData;
 		this.animationStage = !isPerimeter ? new StartAnimation(this) : new PerimeterAnimation(this);
 		if (isPerimeter) {
 			yo = y -= .5f - 1 / 128f;
@@ -102,39 +100,6 @@ public class SoulParticle extends CustomRotationParticle {
 		if (isPerimeter)
 			return Axis.XP.rotationDegrees(90);
 		return new Quaternionf().rotationXYZ(0, -camera.getYRot() * Mth.DEG_TO_RAD, 0);
-	}
-
-	public static class Data extends BasicParticleData<SoulParticle> {
-		@Override
-		public IBasicParticleFactory<SoulParticle> getBasicFactory() {
-			return (worldIn, x, y, z, vx, vy, vz, spriteSet) -> new SoulParticle(worldIn, x, y, z, vx, vy, vz,
-				spriteSet, this);
-		}
-
-		@Override
-		public ParticleType<?> getType() {
-			return AllParticleTypes.SOUL.get();
-		}
-	}
-
-	public static class PerimeterData extends BasicParticleData<SoulParticle> {
-		@Override
-		public IBasicParticleFactory<SoulParticle> getBasicFactory() {
-			return (worldIn, x, y, z, vx, vy, vz, spriteSet) -> new SoulParticle(worldIn, x, y, z, vx, vy, vz,
-				spriteSet, this);
-		}
-
-		@Override
-		public ParticleType<?> getType() {
-			return AllParticleTypes.SOUL_PERIMETER.get();
-		}
-	}
-
-	public static class ExpandingPerimeterData extends PerimeterData {
-		@Override
-		public ParticleType<?> getType() {
-			return AllParticleTypes.SOUL_EXPANDING_PERIMETER.get();
-		}
 	}
 
 	public static abstract class AnimationStage {
