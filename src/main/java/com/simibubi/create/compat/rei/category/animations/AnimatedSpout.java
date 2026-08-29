@@ -3,6 +3,7 @@ package com.simibubi.create.compat.rei.category.animations;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Axis;
@@ -69,15 +70,14 @@ public class AnimatedSpout extends AnimatedKinetics {
 			.render(graphics);
 
 		AnimatedKinetics.DEFAULT_LIGHTING.applyLighting();
-		BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance()
-			.getBuilder());
+		BufferSource buffer = MultiBufferSource.immediate(new ByteBufferBuilder(256));
 		matrixStack.pushPose();
 		UIRenderHelper.flipForGuiRender(matrixStack);
 		matrixStack.scale(16, 16, 16);
 		float from = 3f / 16f;
 		float to = 17f / 16f;
 		FluidStack fluidStack = fluids.get(0);
-		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, from, from, to, to, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getTag());
+		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, from, from, to, to, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getComponentsPatch());
 		matrixStack.popPose();
 
 		float width = 1 / 128f * squeeze;
@@ -87,7 +87,7 @@ public class AnimatedSpout extends AnimatedKinetics {
 		matrixStack.translate(-0.5f, 0, -0.5f);
 		from = -width / 2 + 0.5f;
 		to = width / 2 + 0.5f;
-		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, 0, from, to, 2, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getTag());
+		FluidRenderer.renderFluidBox(fluidStack.getFluid(), fluidStack.getAmount(), from, 0, from, to, 2, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluidStack.getComponentsPatch());
 		buffer.endBatch();
 		Lighting.setupFor3DItems();
 

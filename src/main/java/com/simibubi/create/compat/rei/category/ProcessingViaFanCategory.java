@@ -33,8 +33,12 @@ public abstract class ProcessingViaFanCategory<T extends Recipe<?>> extends Crea
 	}
 
 	public static Supplier<ItemStack> getFan(String name) {
-		return () -> AllBlocks.ENCASED_FAN.asStack()
-			.setHoverName(CreateLang.translateDirect("recipe." + name + ".fan").withStyle(style -> style.withItalic(false)));
+		return () -> {
+			ItemStack fan = AllBlocks.ENCASED_FAN.asStack();
+			fan.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
+				CreateLang.translateDirect("recipe." + name + ".fan").withStyle(style -> style.withItalic(false)));
+			return fan;
+		};
 	}
 
 	@Override

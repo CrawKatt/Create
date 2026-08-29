@@ -1,5 +1,6 @@
 package com.simibubi.create.compat.rei.category.animations;
 
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Axis;
@@ -36,13 +37,12 @@ public class AnimatedItemDrain extends AnimatedKinetics {
 			.scale(scale)
 			.render(graphics);
 
-		BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance()
-			.getBuilder());
+		BufferSource buffer = MultiBufferSource.immediate(new ByteBufferBuilder(256));
 		UIRenderHelper.flipForGuiRender(matrixStack);
 		matrixStack.scale(scale, scale, scale);
 		float from = 2/16f;
 		float to = 1f - from;
-		FluidRenderer.renderFluidBox(fluid.getFluid(), fluid.getAmount(), from, from, from, to, 3/4f, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluid.getTag());
+		FluidRenderer.renderFluidBox(fluid.getFluid(), fluid.getAmount(), from, from, from, to, 3/4f, to, buffer, matrixStack, LightTexture.FULL_BRIGHT, false, true, fluid.getComponentsPatch());
 		buffer.endBatch();
 
 		matrixStack.popPose();

@@ -56,10 +56,6 @@ public class PolishingCategory extends CreateRecipeCategory<SandPaperPolishingRe
 		if (matchingStacks.length == 0)
 			return;
 
-
-		CompoundTag tag = renderedSandpaper.getOrCreateTag();
-		tag.put("Polishing", NBTSerializer.serializeNBT(matchingStacks[0]));
-		tag.putBoolean("JEI", true);
 		GuiGameElement.of(renderedSandpaper)
 				.<GuiGameElement.GuiRenderBuilder>at(getDisplayWidth(null) / 2 - 16, 0, 0)
 				.scale(2)

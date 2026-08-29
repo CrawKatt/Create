@@ -195,7 +195,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements Displ
 			Slot slot = (Slot) widget;
 			ClientEntryStacks.setTooltipProcessor(slot.getCurrentEntry(), (entryStack, tooltip) -> {
 				dev.architectury.fluid.FluidStack fluidStack = entryStack.castValue();
-				FluidStack fluid = new FluidStack(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getTag());
+				FluidStack fluid = new FluidStack(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getPatch());
 				if (fluid.getFluid()
 						.isSame(AllFluids.POTION.get())) {
 					Component name = FluidVariantAttributes.getName(fluid.getVariant());
@@ -205,7 +205,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements Displ
 						tooltip.entries().set(0, Tooltip.entry(name));
 
 					ArrayList<Component> potionTooltip = new ArrayList<>();
-					PotionFluidHandler.addPotionTooltip(fluid, potionTooltip, 1);
+					PotionFluidHandler.addPotionTooltip(fluid, potionTooltip::add, 1);
 					ArrayList<Tooltip.Entry> potionEntries = new ArrayList<>();
 					potionTooltip.forEach(component -> potionEntries.add(Tooltip.entry(component)));
 					// why 2 here??? it works though
@@ -230,7 +230,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements Displ
 	public static void setFluidTooltip(Slot slot) {
 		ClientEntryStacks.setTooltipProcessor(slot.getCurrentEntry(), (entryStack, tooltip) -> {
 			dev.architectury.fluid.FluidStack fluidStack = entryStack.castValue();
-			FluidStack fluid = new FluidStack(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getTag());
+			FluidStack fluid = new FluidStack(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getPatch());
 			if (fluid.getFluid()
 					.isSame(AllFluids.POTION.get())) {
 				Component name = FluidVariantAttributes.getName(fluid.getVariant());
@@ -240,7 +240,7 @@ public abstract class CreateRecipeCategory<T extends Recipe<?>> implements Displ
 					tooltip.entries().set(0, Tooltip.entry(name));
 
 				ArrayList<Component> potionTooltip = new ArrayList<>();
-				PotionFluidHandler.addPotionTooltip(fluid, potionTooltip, 1);
+				PotionFluidHandler.addPotionTooltip(fluid, potionTooltip::add, 1);
 				ArrayList<Tooltip.Entry> potionEntries = new ArrayList<>();
 				potionTooltip.forEach(component -> potionEntries.add(Tooltip.entry(component)));
 				tooltip.entries().addAll(1, potionEntries.stream().toList());

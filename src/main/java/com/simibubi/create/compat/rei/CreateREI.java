@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -92,13 +91,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
-
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.RecipeManagerAccessor;
 
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
@@ -174,11 +173,11 @@ public class CreateREI implements REIClientPlugin {
 
 		autoShapeless = builder(BasinRecipe.class)
 				.enableWhen(c -> c.allowShapelessInMixer)
-				.addAllRecipesIf(r -> r instanceof CraftingRecipe && !(r instanceof ShapedRecipe)
-								&& r.getIngredients()
+				.addAllRecipesIf(r -> r.value() instanceof CraftingRecipe && !(r.value() instanceof ShapedRecipe)
+								&& r.value().getIngredients()
 								.size() > 1
-								&& !MechanicalPressBlockEntity.canCompress(r) && !AllRecipeTypes.shouldIgnoreInAutomation(r),
-						BasinRecipe::convertShapeless)
+								&& !MechanicalPressBlockEntity.canCompress(r.value()) && !AllRecipeTypes.shouldIgnoreInAutomation(r),
+						holder -> BasinRecipe.convertShapeless(holder).value())
 				.catalyst(AllBlocks.MECHANICAL_MIXER::get)
 				.catalyst(AllBlocks.BASIN::get)
 				.doubleItemIcon(AllBlocks.MECHANICAL_MIXER.get(), Items.CRAFTING_TABLE)
@@ -187,7 +186,9 @@ public class CreateREI implements REIClientPlugin {
 				.build("automatic_shapeless", MixingCategory::autoShapeless),
 
 		brewing = builder(BasinRecipe.class)
-				.addRecipes(() -> PotionMixingRecipes.ALL)
+				.addRecipes(() -> PotionMixingRecipes.createRecipes(Minecraft.getInstance().level).stream()
+					.map(RecipeHolder::value)
+					.toList())
 				.catalyst(AllBlocks.MECHANICAL_MIXER::get)
 				.catalyst(AllBlocks.BASIN::get)
 				.doubleItemIcon(AllBlocks.MECHANICAL_MIXER.get(), Blocks.BREWING_STAND)
@@ -207,9 +208,9 @@ public class CreateREI implements REIClientPlugin {
 		autoSquare = builder(BasinRecipe.class)
 				.enableWhen(c -> c.allowShapedSquareInPress)
 				.addAllRecipesIf(
-						r -> (r instanceof CraftingRecipe) && !(r instanceof MechanicalCraftingRecipe)
-								&& MechanicalPressBlockEntity.canCompress(r) && !AllRecipeTypes.shouldIgnoreInAutomation(r),
-						BasinRecipe::convertShapeless)
+						r -> (r.value() instanceof CraftingRecipe) && !(r.value() instanceof MechanicalCraftingRecipe)
+								&& MechanicalPressBlockEntity.canCompress(r.value()) && !AllRecipeTypes.shouldIgnoreInAutomation(r),
+						holder -> BasinRecipe.convertShapeless(holder).value())
 				.catalyst(AllBlocks.MECHANICAL_PRESS::get)
 				.catalyst(AllBlocks.BASIN::get)
 				.doubleItemIcon(AllBlocks.MECHANICAL_PRESS.get(), Blocks.CRAFTING_TABLE)
@@ -226,8 +227,7 @@ public class CreateREI implements REIClientPlugin {
 
 		blockCutting = builder(CondensedBlockCuttingRecipe.class)
 				.enableWhen(c -> c.allowStonecuttingOnSaw)
-				.addRecipes(() -> CondensedBlockCuttingRecipe.condenseRecipes(getTypedRecipesExcluding(RecipeType.STONECUTTING, AllRecipeTypes::shouldIgnoreInAutomation)))
-				.catalyst(AllBlocks.MECHANICAL_SAW::get)
+				.addRecipes(() -> CondensedBlockCuttingRecipe.condenseRecipes(getTypedRecipesExcluding(RecipeType.STONECUTTING, AllRecipeTypes::shouldIgnoreInAutomation)))				.catalyst(AllBlocks.MECHANICAL_SAW::get)
 				.doubleItemIcon(AllBlocks.MECHANICAL_SAW.get(), Items.STONE_BRICK_STAIRS)
 				.emptyBackground(177, 76)
 				.build("block_cutting", BlockCuttingCategory::new),
@@ -242,15 +242,15 @@ public class CreateREI implements REIClientPlugin {
 
 		item_application = builder(ItemApplicationRecipe.class)
 				.addTypedRecipes(AllRecipeTypes.ITEM_APPLICATION)
-				.addRecipes(LogStrippingFakeRecipes::createRecipes)
+				.addRecipes(() -> LogStrippingFakeRecipes.createRecipes().stream().map(RecipeHolder::value).toList())
 				.itemIcon(AllItems.BRASS_HAND.get())
 				.emptyBackground(177, 66)
 				.build("item_application", ItemApplicationCategory::new),
 
 		deploying = builder(DeployerApplicationRecipe.class)
 				.addTypedRecipes(AllRecipeTypes.DEPLOYING)
-				.addTypedRecipes(AllRecipeTypes.SANDPAPER_POLISHING::getType, DeployerApplicationRecipe::convert)
-				.addTypedRecipes(AllRecipeTypes.ITEM_APPLICATION::getType, ManualApplicationRecipe::asDeploying)
+				.addTypedRecipes(AllRecipeTypes.SANDPAPER_POLISHING::getType, holder -> DeployerApplicationRecipe.convert(holder).value())
+				.addTypedRecipes(AllRecipeTypes.ITEM_APPLICATION::getType, holder -> ManualApplicationRecipe.asDeploying(holder).value())
 				.catalyst(AllBlocks.DEPLOYER::get)
 				.catalyst(AllBlocks.DEPOT::get)
 				.catalyst(AllItems.BELT_CONNECTOR::get)
@@ -277,12 +277,12 @@ public class CreateREI implements REIClientPlugin {
 
 		autoShaped = builder(CraftingRecipe.class)
 				.enableWhen(c -> c.allowRegularCraftingInCrafter)
-				.addAllRecipesIf(r -> r instanceof CraftingRecipe && !(r instanceof ShapedRecipe)
-						&& r.getIngredients()
+				.addAllRecipesIf(r -> r.value() instanceof CraftingRecipe && !(r.value() instanceof ShapedRecipe)
+						&& r.value().getIngredients()
 						.size() == 1
 						&& !AllRecipeTypes.shouldIgnoreInAutomation(r))
 				.addTypedRecipesIf(() -> RecipeType.CRAFTING,
-						recipe -> recipe instanceof ShapedRecipe && !AllRecipeTypes.shouldIgnoreInAutomation(recipe))
+						r -> r.value() instanceof ShapedRecipe && !AllRecipeTypes.shouldIgnoreInAutomation(r))
 				.catalyst(AllBlocks.MECHANICAL_CRAFTER::get)
 				.itemIcon(AllBlocks.MECHANICAL_CRAFTER.get())
 				.emptyBackground(177, 107)
@@ -422,18 +422,18 @@ public class CreateREI implements REIClientPlugin {
 			return addRecipeListConsumer(recipes -> recipes.addAll(collection.get()));
 		}
 
-		public CategoryBuilder<T> addAllRecipesIf(Predicate<Recipe<?>> pred) {
-			return addRecipeListConsumer(recipes -> consumeAllRecipes(recipe -> {
-				if (pred.test(recipe)) {
-					recipes.add((T) recipe);
+		public CategoryBuilder<T> addAllRecipesIf(Predicate<RecipeHolder<?>> pred) {
+			return addRecipeListConsumer(recipes -> consumeAllRecipeHolders(holder -> {
+				if (pred.test(holder)) {
+					recipes.add((T) holder.value());
 				}
 			}));
 		}
 
-		public CategoryBuilder<T> addAllRecipesIf(Predicate<Recipe<?>> pred, Function<Recipe<?>, T> converter) {
-			return addRecipeListConsumer(recipes -> consumeAllRecipes(recipe -> {
-				if (pred.test(recipe)) {
-					recipes.add(converter.apply(recipe));
+		public CategoryBuilder<T> addAllRecipesIf(Predicate<RecipeHolder<?>> pred, Function<RecipeHolder<?>, T> converter) {
+			return addRecipeListConsumer(recipes -> consumeAllRecipeHolders(holder -> {
+				if (pred.test(holder)) {
+					recipes.add(converter.apply(holder));
 				}
 			}));
 		}
@@ -442,18 +442,19 @@ public class CreateREI implements REIClientPlugin {
 			return addTypedRecipes(recipeTypeEntry::getType);
 		}
 
-		public CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<? extends T>> recipeType) {
+		public <I extends RecipeInput, R extends Recipe<I>> CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<R>> recipeType) {
 			return addRecipeListConsumer(recipes -> CreateREI.<T>consumeTypedRecipes(recipes::add, recipeType.get()));
 		}
 
-		public CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<? extends T>> recipeType, Function<Recipe<?>, T> converter) {
-			return addRecipeListConsumer(recipes -> CreateREI.<T>consumeTypedRecipes(recipe -> recipes.add(converter.apply(recipe)), recipeType.get()));
+		public CategoryBuilder<T> addTypedRecipes(Supplier<RecipeType<? extends T>> recipeType, Function<RecipeHolder<?>, T> converter) {
+			return addRecipeListConsumer(recipes -> CreateREI.<T>consumeTypedRecipeHolders(recipe -> recipes.add(converter.apply(recipe)), recipeType.get()));
 		}
 
-		public CategoryBuilder<T> addTypedRecipesIf(Supplier<RecipeType<? extends T>> recipeType, Predicate<Recipe<?>> pred) {
-			return addRecipeListConsumer(recipes -> CreateREI.<T>consumeTypedRecipes(recipe -> {
+		@SuppressWarnings("unchecked")
+		public CategoryBuilder<T> addTypedRecipesIf(Supplier<RecipeType<? extends T>> recipeType, Predicate<RecipeHolder<?>> pred) {
+			return addRecipeListConsumer(recipes -> CreateREI.<T>consumeTypedRecipeHolders(recipe -> {
 				if (pred.test(recipe)) {
-					recipes.add(recipe);
+					recipes.add((T) recipe.value());
 				}
 			}, recipeType.get()));
 		}
@@ -461,7 +462,9 @@ public class CreateREI implements REIClientPlugin {
 		public CategoryBuilder<T> addTypedRecipesExcluding(Supplier<RecipeType<? extends T>> recipeType,
 			Supplier<RecipeType<? extends T>> excluded) {
 			return addRecipeListConsumer(recipes -> {
-				List<Recipe<?>> excludedRecipes = getTypedRecipes(excluded.get());
+				List<? extends Recipe<?>> excludedRecipes = getTypedRecipes(excluded.get()).stream()
+					.map(RecipeHolder::value)
+					.toList();
 				CreateREI.<T>consumeTypedRecipes(recipe -> {
 					for (Recipe<?> excludedRecipe : excludedRecipes) {
 						if (doInputsMatch(recipe, excludedRecipe)) {
@@ -475,7 +478,9 @@ public class CreateREI implements REIClientPlugin {
 
 		public CategoryBuilder<T> removeRecipes(Supplier<RecipeType<? extends T>> recipeType) {
 			return addRecipeListConsumer(recipes -> {
-				List<Recipe<?>> excludedRecipes = getTypedRecipes(recipeType.get());
+				List<? extends Recipe<?>> excludedRecipes = getTypedRecipes(recipeType.get()).stream()
+					.map(RecipeHolder::value)
+					.toList();
 				recipes.removeIf(recipe -> {
 					for (Recipe<?> excludedRecipe : excludedRecipes) {
 						if (doInputsMatch(recipe, excludedRecipe)) {
@@ -575,28 +580,47 @@ public class CreateREI implements REIClientPlugin {
 	public static void consumeAllRecipes(Consumer<Recipe<?>> consumer) {
 		Minecraft.getInstance().level.getRecipeManager()
 			.getRecipes()
+			.stream()
+			.map(RecipeHolder::value)
 			.forEach(consumer);
 	}
 
+	public static void consumeAllRecipeHolders(Consumer<RecipeHolder<?>> consumer) {
+		Minecraft.getInstance().level.getRecipeManager()
+			.getRecipes()
+			.forEach(consumer);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <T extends Recipe<?>> void consumeTypedRecipes(Consumer<T> consumer, RecipeType<?> type) {
-		Map<ResourceLocation, Recipe<?>> map = ((RecipeManagerAccessor) Minecraft.getInstance()
+		List<? extends RecipeHolder<?>> recipes = Minecraft.getInstance()
 			.getConnection()
-			.getRecipeManager()).port_lib$getRecipes().get(type);
-		if (map != null) {
-			map.values().forEach(recipe -> consumer.accept((T) recipe));
-		}
+			.getRecipeManager()
+			.getAllRecipesFor((RecipeType) type);
+		if (!recipes.isEmpty())
+			recipes.forEach(holder -> consumer.accept((T) holder.value()));
 	}
 
-	public static List<Recipe<?>> getTypedRecipes(RecipeType<?> type) {
-		List<Recipe<?>> recipes = new ArrayList<>();
-		consumeTypedRecipes(recipes::add, type);
+	public static List<RecipeHolder<?>> getTypedRecipes(RecipeType<?> type) {
+		List<RecipeHolder<?>> recipes = new ArrayList<>();
+		consumeTypedRecipeHolders(recipes::add, type);
 		return recipes;
 	}
 
-	public static List<Recipe<?>> getTypedRecipesExcluding(RecipeType<?> type, Predicate<Recipe<?>> exclusionPred) {
-		List<Recipe<?>> recipes = getTypedRecipes(type);
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static void consumeTypedRecipeHolders(Consumer<RecipeHolder<?>> consumer, RecipeType<?> type) {
+		List<? extends RecipeHolder<?>> recipes = Minecraft.getInstance()
+			.getConnection()
+			.getRecipeManager()
+			.getAllRecipesFor((RecipeType) type);
+		if (!recipes.isEmpty())
+			recipes.forEach(consumer);
+	}
+
+	public static List<Recipe<?>> getTypedRecipesExcluding(RecipeType<?> type, Predicate<RecipeHolder<?>> exclusionPred) {
+		List<RecipeHolder<?>> recipes = getTypedRecipes(type);
 		recipes.removeIf(exclusionPred);
-		return recipes;
+		return recipes.stream().<Recipe<?>>map(RecipeHolder::value).toList();
 	}
 
 	public static boolean doInputsMatch(Recipe<?> recipe1, Recipe<?> recipe2) {

@@ -38,6 +38,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAssemblyRecipe> {
@@ -109,12 +111,12 @@ public class SequencedAssemblyCategory extends CreateRecipeCategory<SequencedAss
 
 			@Override
 			public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-				TooltipContext context = TooltipContext.of(new Point(mouseX, mouseY));
+				TooltipContext context = TooltipContext.of(new Point(mouseX, mouseY), Item.TooltipContext.EMPTY);
 				Point mouse = context.getPoint();
 				if (containsMouse(mouse)) {
 					for (Slot slot : Widgets.<Slot>walk(ingredients, listener -> listener instanceof Slot)) {
 						if (slot.containsMouse(mouse) && slot.isHighlightEnabled()) {
-							if (slot.getCurrentTooltip(TooltipContext.of(mouse)) != null) {
+							if (slot.getCurrentTooltip(TooltipContext.of(mouse, Item.TooltipContext.EMPTY)) != null) {
 								return;
 							}
 						}
