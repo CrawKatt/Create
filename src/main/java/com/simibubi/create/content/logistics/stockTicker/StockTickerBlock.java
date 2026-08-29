@@ -9,6 +9,7 @@ import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBlockItem;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.utility.CreateLang;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 
@@ -47,7 +48,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.util.NetworkHooks;
 
 public class StockTickerBlock extends HorizontalDirectionalBlock implements IBE<StockTickerBlockEntity>, IWrenchable {
 
@@ -80,25 +80,25 @@ public class StockTickerBlock extends HorizontalDirectionalBlock implements IBE<
 			if (!stbe.behaviour.mayInteractMessage(player))
 				return ItemInteractionResult.SUCCESS;
 
-			if (!pLevel.isClientSide() && !stbe.receivedPayments.isEmpty()) {
+			if (!level.isClientSide() && !stbe.receivedPayments.isEmpty()) {
 				try (Transaction t = Transaction.openOuter()) {
 					for (StorageView<ItemVariant> view : stbe.receivedPayments.nonEmptyViews()) {
 						ItemVariant resource = view.getResource();
 						long extracted = view.extract(resource, view.getAmount(), t);
 						if (extracted > 0) {
-							ItemStack stack = resource.toStack(TransferUtil.truncateLong(extracted));
-							pPlayer.getInventory().placeItemBackInInventory(stack);
+							ItemStack paymentStack = resource.toStack(TransferUtil.truncateLong(extracted));
+							player.getInventory().placeItemBackInInventory(paymentStack);
 						}
 					}
 					t.commit();
 				}
-				AllSoundEvents.playItemPickup(pPlayer);
+				AllSoundEvents.playItemPickup(player);
 				return ItemInteractionResult.SUCCESS;
 			}
 
 			if (player instanceof ServerPlayer sp) {
 				if (stbe.isKeeperPresent())
-					sp.openMenu(stbe.new CategoryMenuProvider(), stbe.getBlockPos());
+					sp.openMenu(WrappedExtendedMenuProvider.of(stbe.new CategoryMenuProvider(), buf -> buf.writeBlockPos(stbe.getBlockPos())));
 				else
 					CreateLang.translate("stock_ticker.keeper_missing")
 						.sendStatus(player);

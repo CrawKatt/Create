@@ -11,7 +11,6 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCall
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
@@ -111,14 +110,6 @@ public class PackagerBlockEntity extends SmartBlockEntity implements SidedStorag
 		queuedExitingPackages = new LinkedList<>();
 		signBasedAddress = "";
 		buttonCooldown = 0;
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-			Capabilities.ItemHandler.BLOCK,
-			AllBlockEntityTypes.PACKAGER.get(),
-			(be, context) -> be.inventory
-		);
 	}
 
 	@Override

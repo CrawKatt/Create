@@ -21,8 +21,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
-import net.minecraftforge.registries.ForgeRegistries;
-
 public class FrogportVisual extends AbstractBlockEntityVisual<FrogportBlockEntity> implements SimpleDynamicVisual {
 	private final TransformedInstance body;
 	private TransformedInstance head;
@@ -135,7 +133,7 @@ public class FrogportVisual extends AbstractBlockEntityVisual<FrogportBlockEntit
 
 		headPitch = Math.max(headPitch, blockEntity.manualOpenAnimationProgress.getValue(partialTicks) * 60);
 		tongueLength = Math.max(tongueLength, blockEntity.manualOpenAnimationProgress.getValue(partialTicks) * 0.25f);
-if (yaw != lastYaw) {
+		if (yaw != lastYaw) {
 			body.setIdentityTransform()
 				.translate(getVisualPosition())
 				.center()

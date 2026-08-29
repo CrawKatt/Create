@@ -2,6 +2,7 @@ package com.simibubi.create.content.logistics.tableCloth;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -16,10 +17,14 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import io.netty.buffer.ByteBuf;
+import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
+
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.IntAttached;
+import net.fabricmc.api.EnvType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
@@ -133,7 +138,9 @@ public class ShoppingListItem extends Item {
 		ShoppingList list = getList(stack);
 
 		if (list != null) {
-			Couple<InventorySummary> lists = list.bakeEntries(context.level(), null);
+			Level[] levelHolder = new Level[1];
+			EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> levelHolder[0] = Minecraft.getInstance().level);
+			Couple<InventorySummary> lists = levelHolder[0] == null ? null : list.bakeEntries(levelHolder[0], null);
 
 			if (lists != null) {
 				for (InventorySummary items : lists) {

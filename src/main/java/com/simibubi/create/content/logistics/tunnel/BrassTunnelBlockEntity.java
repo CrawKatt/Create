@@ -20,7 +20,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
@@ -123,14 +122,6 @@ public class BrassTunnelBlockEntity extends BeltTunnelBlockEntity implements IHa
 		tunnelCapability = new BrassTunnelItemHandler(this);
 		previousOutputIndex = 0;
 		syncedOutputActive = false;
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.BRASS_TUNNEL.get(),
-				(be, context) -> be.tunnelCapability
-		);
 	}
 
 	@Override

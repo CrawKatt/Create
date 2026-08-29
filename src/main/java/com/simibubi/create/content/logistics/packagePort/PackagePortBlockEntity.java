@@ -11,6 +11,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.animatedContainer.AnimatedContainerBehaviour;
 import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.foundation.utility.CreateLang;
 
@@ -151,7 +152,7 @@ public abstract class PackagePortBlockEntity extends SmartBlockEntity implements
 			return ItemInteractionResult.SUCCESS;
 		}
 
-		player.openMenu(this, worldPosition);
+		player.openMenu(WrappedExtendedMenuProvider.of(this, buf -> buf.writeBlockPos(worldPosition)));
 		return ItemInteractionResult.SUCCESS;
 	}
 

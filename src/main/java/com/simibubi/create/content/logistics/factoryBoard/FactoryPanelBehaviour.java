@@ -44,6 +44,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -602,7 +603,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 			// Open screen for setting an item through JEI
 			if (heldItem.isEmpty()) {
 				if (!isClientSide && player instanceof ServerPlayer sp)
-					sp.openMenu(this, buf -> FactoryPanelPosition.STREAM_CODEC.encode(buf, getPanelPosition()));
+					sp.openMenu(WrappedExtendedMenuProvider.of(this, buf -> FactoryPanelPosition.STREAM_CODEC.encode(buf, getPanelPosition())));
 				return;
 			}
 

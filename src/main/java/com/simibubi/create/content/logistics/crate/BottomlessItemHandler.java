@@ -6,35 +6,20 @@ import java.util.function.Supplier;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
-
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
-
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-
-import net.minecraft.nbt.CompoundTag;
-
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class BottomlessItemHandler extends ItemStackHandler implements SingleSlotStorage<ItemVariant> { // must extend ItemStackHandler for mounted storages
+public class BottomlessItemHandler extends ItemStackHandler implements net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage<ItemVariant> { // must extend ItemStackHandler for mounted storages
 
 	private Supplier<ItemStack> suppliedItemStack;
 
@@ -45,7 +30,7 @@ public class BottomlessItemHandler extends ItemStackHandler implements SingleSlo
 	}
 
 	@Override
-	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+	protected Slot makeSlot(int index, ItemStack stack) {
 		return new BottomlessSlot();
 	}
 
@@ -93,7 +78,7 @@ public class BottomlessItemHandler extends ItemStackHandler implements SingleSlo
 
 	@Override
 	public Iterator<StorageView<ItemVariant>> iterator() {
-		return SingleSlotStorage.super.iterator(); // singleton iterator on this
+		return net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage.super.iterator(); // singleton iterator on this
 	}
 
 	@Override
@@ -106,9 +91,9 @@ public class BottomlessItemHandler extends ItemStackHandler implements SingleSlo
 		return isResourceBlank() ? Collections.emptyIterator() : iterator();
 	}
 
-	private class BottomlessSlot extends ItemStackHandlerSlot {
+	private class BottomlessSlot extends Slot {
 		public BottomlessSlot() {
-			super(0, BottomlessItemHandler.this, ItemStack.EMPTY);
+			super(0, ItemStack.EMPTY);
 		}
 
 		@Override
@@ -131,13 +116,8 @@ public class BottomlessItemHandler extends ItemStackHandler implements SingleSlo
 		}
 
 		@Override
-		@Nullable
-		public CompoundTag save() {
-			return null;
-		}
-
-		@Override
-		protected void onFinalCommit() {
+		public Tag save(HolderLookup.Provider provider, Tag tag) {
+			return null; // never save contents
 		}
 	}
 }

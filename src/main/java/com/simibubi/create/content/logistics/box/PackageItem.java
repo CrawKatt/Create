@@ -15,7 +15,6 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.box.PackageStyles.PackageStyle;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.foundation.item.ItemHelper;
-
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
@@ -56,12 +55,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-
-import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
-public class PackageItem extends Item {
+import io.github.fabricators_of_create.porting_lib.entity.ext.ItemExt;
+
+public class PackageItem extends Item implements ItemExt {
 
 	public static final int SLOTS = 9;
 
@@ -138,11 +136,7 @@ public class PackageItem extends Item {
 	}
 
 	public static int getOrderId(ItemVariant box) {
-		CompoundTag tag = box.getNbt();
-		if (tag == null || !tag.contains("Fragment"))
-			return -1;
-		return tag.getCompound("Fragment")
-			.getInt("OrderId");
+		return getOrderId(box.getItem() instanceof PackageItem ? box.toStack() : ItemStack.EMPTY);
 	}
 
 	public static PackageOrder getOrderContext(ItemStack box) {
@@ -182,11 +176,8 @@ public class PackageItem extends Item {
 		return box.getOrDefault(AllDataComponents.PACKAGE_ADDRESS, "");
 	}
 
-	public static String getAddress(ItemVariant variant) {
-		String boxAddress = !variant.hasNbt() ? ""
-			: variant.getNbt()
-			.getString("Address");
-		return boxAddress;
+	public static String getAddress(ItemVariant box) {
+		return getAddress(box.toStack());
 	}
 
 	public static float getWidth(ItemStack box) {

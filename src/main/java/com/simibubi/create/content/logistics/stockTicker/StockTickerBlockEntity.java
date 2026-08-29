@@ -14,13 +14,13 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
 import com.simibubi.create.content.contraptions.actors.seat.SeatEntity;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.WiFiData;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
-import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.SmartInventory;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -74,14 +74,6 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 		receivedPayments = new SmartInventory(27, this, 64, false);
 		categories = new ArrayList<>();
 		hiddenCategoriesByPlayer = new HashMap<>();
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-			Capabilities.ItemHandler.BLOCK,
-			AllBlockEntityTypes.STOCK_TICKER.get(),
-			(be, context) -> be.receivedPayments
-		);
 	}
 
 	public void refreshClientStockSnapshot() {
@@ -261,7 +253,7 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 	public void playEffect() {
 		AllSoundEvents.STOCK_LINK.playAt(level, worldPosition, 1.0f, 1.0f, false);
 		Vec3 vec3 = Vec3.atCenterOf(worldPosition);
-		level.addParticle(new WiFiParticle.Data(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
+		level.addParticle(new WiFiData(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
 	}
 
 	public class CategoryMenuProvider implements MenuProvider {

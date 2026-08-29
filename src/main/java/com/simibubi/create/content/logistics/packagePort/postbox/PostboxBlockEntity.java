@@ -2,7 +2,6 @@ package com.simibubi.create.content.logistics.packagePort.postbox;
 
 import java.lang.ref.WeakReference;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.packagePort.PackagePortBlockEntity;
@@ -21,8 +20,6 @@ import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 public class PostboxBlockEntity extends PackagePortBlockEntity {
 
@@ -38,14 +35,6 @@ public class PostboxBlockEntity extends PackagePortBlockEntity {
 		trackedGlobalStation = new WeakReference<>(null);
 		flag = LerpedFloat.linear()
 			.startWithValue(0);
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-			Capabilities.ItemHandler.BLOCK,
-			AllBlockEntityTypes.PACKAGE_POSTBOX.get(),
-			(be, context) -> be.itemHandler
-		);
 	}
 
 	@Override

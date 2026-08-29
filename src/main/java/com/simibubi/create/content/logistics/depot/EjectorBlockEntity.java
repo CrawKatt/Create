@@ -7,7 +7,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
@@ -71,6 +70,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
@@ -118,14 +118,6 @@ public class EjectorBlockEntity extends KineticBlockEntity implements SidedStora
 		this.state = State.RETRACTING;
 		launchedItems = new ArrayList<>();
 		powered = false;
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.WEIGHTED_EJECTOR.get(),
-				(be, context) -> be.depotBehaviour.itemHandler
-		);
 	}
 
 	@Override
@@ -396,7 +388,7 @@ public class EjectorBlockEntity extends KineticBlockEntity implements SidedStora
 		Vec3 source = getLaunchedItemLocation(time);
 		Vec3 target = getLaunchedItemLocation(time + 1);
 
-		BlockHitResult rayTraceBlocks = level.clip(new ClipContext(source, target, Block.COLLIDER, Fluid.NONE, CollisionContext.empty()));
+		BlockHitResult rayTraceBlocks = level.clip(new ClipContext(source, target, Block.COLLIDER, Fluid.NONE, CollisionContext.empty()));;
 		boolean miss = rayTraceBlocks.getType() == Type.MISS;
 
 		if (!miss && rayTraceBlocks.getType() == Type.BLOCK) {
@@ -634,7 +626,8 @@ public class EjectorBlockEntity extends KineticBlockEntity implements SidedStora
 	@Override
 	@Environment(EnvType.CLIENT)
 	public AABB getRenderBoundingBox() {
-		return AABB.INFINITE;
+		return new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+			Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 
 	private static abstract class EntityHack extends Entity {

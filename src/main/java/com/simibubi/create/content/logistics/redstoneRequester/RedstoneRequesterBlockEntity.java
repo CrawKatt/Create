@@ -1,12 +1,13 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.WiFiData;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
-import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.StockCheckingBlockEntity;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 
 import net.createmod.catnip.codecs.CatnipCodecUtils;
 import net.createmod.catnip.platform.CatnipServices;
@@ -27,7 +28,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.entity.FakePlayer;
 
-import io.github.fabricators_of_create.porting_lib.util.NetworkHooks;
 
 public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity implements MenuProvider {
 
@@ -128,7 +128,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 		if (!behaviour.mayInteractMessage(player))
 			return InteractionResult.SUCCESS;
 
-		player.openMenu(this, worldPosition);
+		player.openMenu(WrappedExtendedMenuProvider.of(this, buf -> buf.writeBlockPos(worldPosition)));
 		return InteractionResult.SUCCESS;
 	}
 
@@ -147,7 +147,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 		if (success) {
 			AllSoundEvents.CONFIRM.playAt(level, worldPosition, 0.5f, 1.5f, false);
 			AllSoundEvents.STOCK_LINK.playAt(level, worldPosition, 1.0f, 1.0f, false);
-			level.addParticle(new WiFiParticle.Data(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
+			level.addParticle(new WiFiData(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
 		} else {
 			AllSoundEvents.DENY.playAt(level, worldPosition, 0.5f, 1, false);
 			level.addParticle(ParticleTypes.ENCHANTED_HIT, vec3.x, vec3.y + 1, vec3.z, 0, 0, 0);

@@ -18,6 +18,9 @@ import com.simibubi.create.content.logistics.item.filter.attribute.attributes.In
 import com.simibubi.create.content.logistics.item.filter.attribute.attributes.ItemNameAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.attributes.ShulkerFillLevelAttribute;
 
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -39,7 +42,7 @@ public class AllItemAttributeTypes {
 	public static final ItemAttributeType
 		PLACEABLE = singleton("placeable", s -> s.getItem() instanceof BlockItem),
 		CONSUMABLE = singleton("consumable", s -> s.has(DataComponents.FOOD)),
-		FLUID_CONTAINER = singleton("fluid_container", s -> s.getCapability(Capabilities.FluidHandler.ITEM) != null),
+		FLUID_CONTAINER = singleton("fluid_container", s -> ContainerItemContext.withConstant(s).find(FluidStorage.ITEM) != null),
 		ENCHANTED = singleton("enchanted", ItemStack::isEnchanted),
 		MAX_ENCHANTED = singleton("max_enchanted", AllItemAttributeTypes::maxEnchanted),
 		RENAMED = singleton("renamed", s -> s.has(DataComponents.CUSTOM_NAME)),
@@ -79,7 +82,7 @@ public class AllItemAttributeTypes {
 	}
 
 	private static boolean maxEnchanted(ItemStack s) {
-		for (Object2IntMap.Entry<Holder<Enchantment>> entry : s.getTagEnchantments().entrySet()) {
+		for (Object2IntMap.Entry<Holder<Enchantment>> entry : s.getEnchantments().entrySet()) {
 			if (entry.getKey().value().getMaxLevel() <= entry.getIntValue())
 				return true;
 		}

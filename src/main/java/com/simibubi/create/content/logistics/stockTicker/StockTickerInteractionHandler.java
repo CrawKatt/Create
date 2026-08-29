@@ -18,6 +18,7 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem.ShoppingList;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 import com.simibubi.create.foundation.utility.CreateLang;
 
 import net.createmod.catnip.data.Couple;
@@ -40,7 +41,6 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.util.NetworkHooks;
 
 public class StockTickerInteractionHandler {
 
@@ -84,11 +84,11 @@ public class StockTickerInteractionHandler {
 				stbe.behaviour.mayAdministrate(player) && Create.LOGISTICS.isLockable(stbe.behaviour.freqId);
 			boolean isCurrentlyLocked = Create.LOGISTICS.isLocked(stbe.behaviour.freqId);
 
-			sp.openMenu(stbe.new RequestMenuProvider(), buf -> {
+			sp.openMenu(WrappedExtendedMenuProvider.of(stbe.new RequestMenuProvider(), buf -> {
 				buf.writeBoolean(showLockOption);
 				buf.writeBoolean(isCurrentlyLocked);
 				buf.writeBlockPos(targetPos);
-			});
+			}));
 			stbe.getRecentSummary()
 				.divideAndSendTo(sp, targetPos);
 		}

@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.WiFiData;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
@@ -75,7 +76,7 @@ public class PackagerLinkBlockEntity extends LinkWithBulbBlockEntity {
 			.scale(f * 0.125));
 
 		pulse();
-		level.addParticle(new WiFiParticle.Data(), vec3.x, vec3.y, vec3.z, 1, face == AttachFace.CEILING ? -1 : 1, 1);
+		level.addParticle(new WiFiData(), vec3.x, vec3.y, vec3.z, 1, face == AttachFace.CEILING ? -1 : 1, 1);
 	}
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
