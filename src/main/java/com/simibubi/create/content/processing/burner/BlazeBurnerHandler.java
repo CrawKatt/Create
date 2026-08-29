@@ -25,9 +25,10 @@ import net.minecraft.world.phys.Vec3;
 
 public class BlazeBurnerHandler {
 
-	public static boolean onThrowableImpact(io.github.fabricators_of_create.porting_lib.entity.events.ProjectileImpactEvent event) {
+	public static void onThrowableImpact(io.github.fabricators_of_create.porting_lib.entity.events.ProjectileImpactEvent event) {
 		splashExtinguishesBurner(event.getProjectile(), event.getRayTraceResult());
-		return thrownEggsGetEatenByBurner(event.getProjectile(), event.getRayTraceResult());
+		if (thrownEggsGetEatenByBurner(event.getProjectile(), event.getRayTraceResult()))
+			event.setCanceled(true);
 	}
 
 	public static boolean thrownEggsGetEatenByBurner(Projectile projectile, HitResult hitResult) {
@@ -82,7 +83,7 @@ public class BlazeBurnerHandler {
 		ItemStack stack = entity.getItem();
 		PotionContents potionContents = stack.get(DataComponents.POTION_CONTENTS);
 		if (potionContents != null && potionContents.is(Potions.WATER) && !potionContents.hasEffects()) {
-			BlockHitResult result = (BlockHitResult) event.getRayTraceResult();
+			BlockHitResult result = (BlockHitResult) hitResult;
 			Level world = entity.level();
 			Direction face = result.getDirection();
 			BlockPos pos = result.getBlockPos()

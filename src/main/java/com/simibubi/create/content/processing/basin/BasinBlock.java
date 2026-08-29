@@ -89,16 +89,16 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 								 return onBlockEntityUseItemOn(level, pos, be -> {
 			if (!stack.isEmpty()) {
-				if (FluidHelper.tryEmptyItemIntoBE(level, player, hand, stack, be))
+				if (FluidHelper.tryEmptyItemIntoBE(level, player, hand, stack, be, hitResult.getDirection()))
 					return ItemInteractionResult.SUCCESS;
-				if (FluidHelper.tryFillItemFromBE(level, player, hand, stack, be))
+				if (FluidHelper.tryFillItemFromBE(level, player, hand, stack, be, hitResult.getDirection()))
 					return ItemInteractionResult.SUCCESS;
 
 				if (GenericItemEmptying.canItemBeEmptied(level, stack)
 					|| GenericItemFilling.canItemBeFilled(level, stack))
 					return ItemInteractionResult.SUCCESS;
 				if (stack.getItem().equals(Items.SPONGE)) {
-					Storage<FluidVariant> storage = be.getFluidStorage(direction);
+					Storage<FluidVariant> storage = be.getFluidStorage(hitResult.getDirection());
 					if (storage != null && !TransferUtil.extractAnyFluid(storage, Long.MAX_VALUE).isEmpty()) {
 						return ItemInteractionResult.SUCCESS;
 					}
@@ -107,7 +107,7 @@ public class BasinBlock extends Block implements IBE<BasinBlockEntity>, IWrencha
 			}
 
 			Storage<ItemVariant> inv = be.itemCapability;
-			if (inv == null) return InteractionResult.PASS;
+			if (inv == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 			List<ItemStack> extracted = TransferUtil.extractAllAsStacks(inv);
 			if (extracted.size() > 0) {
 				extracted.forEach(s -> player.getInventory().placeItemBackInInventory(s));

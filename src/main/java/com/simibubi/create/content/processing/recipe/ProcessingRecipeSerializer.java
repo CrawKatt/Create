@@ -32,12 +32,17 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> implement
 
 	private final ProcessingRecipeFactory<T> factory;
 
-	public final MapCodec<T> CODEC = AllRecipeTypes.CODEC.dispatchMap(ProcessingRecipe::getRecipeType, AllRecipeTypes::processingCodec);
+	private MapCodec<T> lazyCodec;
 
 	public final StreamCodec<RegistryFriendlyByteBuf, T> STREAM_CODEC = StreamCodec.of(this::toNetwork, this::fromNetwork);
 
 	public ProcessingRecipeSerializer(ProcessingRecipeFactory<T> factory) {
 		this.factory = factory;
+	}
+
+	// computed lazily: AllRecipeTypes.CODEC is still null while the enum constructs its constants
+	private MapCodec<T> createCodec() {
+		return AllRecipeTypes.CODEC.dispatchMap(ProcessingRecipe::getRecipeType, AllRecipeTypes::processingCodec);
 	}
 
 	public static <T extends ProcessingRecipe<?>> MapCodec<T> codec(AllRecipeTypes recipeTypes) {
@@ -57,10 +62,10 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> implement
 			ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("processing_time", 0).forGetter(T::getProcessingDuration),
 			HeatCondition.CODEC.optionalFieldOf("heat_requirement", HeatCondition.NONE).forGetter(T::getRequiredHeat)
 		).apply(instance, (ingredients, results, processingTime, heatRequirement) -> {
-			if (!(recipeTypes.serializerSupplier.get() instanceof ProcessingRecipeSerializer processingRecipeSerializer))
-				throw new RuntimeException("Not a processing recipe serializer " + recipeTypes.serializerSupplier.get());
+			if (!(recipeTypes.getSerializer() instanceof ProcessingRecipeSerializer processingRecipeSerializer))
+				throw new RuntimeException("Not a processing recipe serializer " + recipeTypes.getSerializer());
 
-			ProcessingRecipeBuilder<T> builder = new ProcessingRecipeBuilder<T>(processingRecipeSerializer.getFactory(), recipeTypes.id);
+			ProcessingRecipeBuilder<T> builder = new ProcessingRecipeBuilder<T>(processingRecipeSerializer.getFactory(), recipeTypes.getId());
 
 			NonNullList<Ingredient> ingredientList = NonNullList.create();
 			NonNullList<FluidIngredient> fluidIngredientList = NonNullList.create();
@@ -124,7 +129,9 @@ public class ProcessingRecipeSerializer<T extends ProcessingRecipe<?>> implement
 
 	@Override
 	public MapCodec<T> codec() {
-		return CODEC;
+		if (lazyCodec == null)
+			lazyCodec = createCodec();
+		return lazyCodec;
 	}
 
 	@Override
