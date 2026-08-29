@@ -3,7 +3,6 @@ package com.simibubi.create.content.contraptions.mounted;
 import java.util.List;
 import java.util.UUID;
 
-import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.content.contraptions.IDisplayAssemblyExceptions;

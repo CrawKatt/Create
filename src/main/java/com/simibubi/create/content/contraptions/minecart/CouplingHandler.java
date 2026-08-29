@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
@@ -24,18 +23,22 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import io.github.fabricators_of_create.porting_lib.entity.events.EntityMountEvent;
+
 public class CouplingHandler {
 
-	public static boolean preventEntitiesFromMoutingOccupiedCart(Entity vehicle, Entity passenger) {
+	public static void preventEntitiesFromMoutingOccupiedCart(EntityMountEvent event) {
+		if (!event.isMounting())
+			return;
+		Entity vehicle = event.getEntityBeingMounted();
+		Entity passenger = event.getEntityMounting();
 		if (vehicle instanceof AbstractMinecart cart) {
 			if (passenger instanceof AbstractContraptionEntity)
-				return true;
+				return;
 			MinecartController controller = cart.create$getController();
-			if (controller.isCoupledThroughContraption()) {
-				return false;
-			}
+			if (controller.isCoupledThroughContraption())
+				event.setCanceled(true);
 		}
-		return true;
 	}
 
 	public static void forEachLoadedCoupling(Level world, Consumer<Couple<MinecartController>> consumer) {

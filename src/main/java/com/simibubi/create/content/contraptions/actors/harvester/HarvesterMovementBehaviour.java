@@ -2,8 +2,6 @@ package com.simibubi.create.content.contraptions.actors.harvester;
 
 import javax.annotation.Nullable;
 
-import net.neoforged.neoforge.common.SpecialPlantable;
-
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.AllTags.AllBlockTags;
@@ -155,7 +153,7 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 				return false;
 			}
 
-			if (state.getBlock() instanceof SpecialPlantable)
+			if (state.getBlock() instanceof IPlantable)
 				return true;
 		}
 

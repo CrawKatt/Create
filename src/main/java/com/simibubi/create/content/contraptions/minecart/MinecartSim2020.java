@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.content.contraptions.minecart.capability.MinecartController;
 
 import io.github.fabricators_of_create.porting_lib.util.MinecartAndRailUtil;

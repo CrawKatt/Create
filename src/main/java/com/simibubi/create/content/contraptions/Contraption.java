@@ -1145,8 +1145,7 @@ public abstract class Contraption {
 						});
 				});
 
-			world.markAndNotifyBlock(add, world.getChunkAt(add), block.state(), Blocks.AIR.defaultBlockState(), flags,
-					512);
+			world.sendBlockUpdated(add, block.state(), Blocks.AIR.defaultBlockState(), flags);
 			block.state().updateIndirectNeighbourShapes(world, add, flags & -2);
 		}
 	}
@@ -1255,8 +1254,8 @@ public abstract class Contraption {
 			if (!shouldUpdateAfterMovement(block))
 				continue;
 			BlockPos targetPos = transform.apply(block.pos());
-			world.markAndNotifyBlock(targetPos, world.getChunkAt(targetPos), block.state(), block.state(),
-					Block.UPDATE_MOVE_BY_PISTON | Block.UPDATE_ALL, 512);
+			world.sendBlockUpdated(targetPos, block.state(), block.state(),
+					Block.UPDATE_MOVE_BY_PISTON | Block.UPDATE_ALL);
 		}
 
 		for (AABB box : superglue) {

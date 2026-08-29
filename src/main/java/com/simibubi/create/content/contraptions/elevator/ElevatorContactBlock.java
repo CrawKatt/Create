@@ -61,7 +61,7 @@ import net.fabricmc.api.Environment;
 
 import io.github.fabricators_of_create.porting_lib.block.ConnectableRedstoneBlock;
 import com.simibubi.create.infrastructure.fabric.block.WeakPowerCheckingBlock;
-import io.github.fabricators_of_create.porting_lib.util.EnvExecutor;
+import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
 
 public class ElevatorContactBlock extends WrenchableDirectionalBlock
 	implements IBE<ElevatorContactBlockEntity>, SpecialBlockItemRequirement, WeakPowerCheckingBlock, ConnectableRedstoneBlock {
@@ -210,7 +210,7 @@ public class ElevatorContactBlock extends WrenchableDirectionalBlock
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
 		return AllBlocks.REDSTONE_CONTACT.asStack();
 	}
 

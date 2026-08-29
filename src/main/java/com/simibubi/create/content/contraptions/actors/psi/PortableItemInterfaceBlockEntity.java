@@ -4,11 +4,11 @@ import java.util.Iterator;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.foundation.item.ItemHandlerWrapper;
 import com.simibubi.create.foundation.utility.fabric.ListeningStorageView;
 import com.simibubi.create.infrastructure.fabric.ProcessingIterator;
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -22,7 +22,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 
 public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBlockEntity implements SidedStorageBlockEntity {
 
@@ -31,14 +30,6 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 	public PortableItemInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		capability = createEmptyHandler();
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.ItemHandler.BLOCK,
-				AllBlockEntityTypes.PORTABLE_STORAGE_INTERFACE.get(),
-				(be, context) -> be.capability
-		);
 	}
 
 	@Override
@@ -94,11 +85,6 @@ public class PortableItemInterfaceBlockEntity extends PortableStorageInterfaceBl
 				TransactionSuccessCallback.register(transaction, PortableItemInterfaceBlockEntity.this::onContentTransferred);
 			}
 			return inserted;
-		}
-
-		@Override
-		public @Nullable StorageView<ItemVariant> exactView(ItemVariant resource) {
-			return listen(super.exactView(resource));
 		}
 
 		@Override

@@ -42,7 +42,7 @@ public record ContraptionSeatMappingPacket(int entityId, Map<UUID, Integer> mapp
 		if (dismountedId == player.getId()) {
 			Vec3 transformedVector = contraptionEntity.getPassengerPosition(player, 1);
 			if (transformedVector != null)
-				player.getPersistentData()
+				player.getCustomData()
 						.put("ContraptionDismountLocation", VecHelper.writeNBT(transformedVector));
 		}
 

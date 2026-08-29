@@ -1,6 +1,5 @@
 package com.simibubi.create.content.contraptions.actors.psi;
 
-import com.simibubi.create.AllBlockEntityTypes;
 import java.util.Iterator;
 
 import org.jetbrains.annotations.Nullable;
@@ -8,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.foundation.utility.fabric.ListeningStorageView;
 import com.simibubi.create.infrastructure.fabric.ProcessingIterator;
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import io.github.fabricators_of_create.porting_lib.transfer.WrappedStorage;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 
 public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceBlockEntity implements SidedStorageBlockEntity {
 
@@ -31,14 +30,6 @@ public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceB
 	public PortableFluidInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		capability = createEmptyHandler();
-	}
-
-	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		event.registerBlockEntity(
-				Capabilities.FluidHandler.BLOCK,
-				AllBlockEntityTypes.PORTABLE_FLUID_INTERFACE.get(),
-				(be, context) -> be.capability
-		);
 	}
 
 	@Override
@@ -91,11 +82,6 @@ public class PortableFluidInterfaceBlockEntity extends PortableStorageInterfaceB
 			if (drain != 0)
 				TransactionSuccessCallback.register(transaction, this::keepAlive);
 			return drain;
-		}
-
-		@Override
-		public @Nullable StorageView<FluidVariant> exactView(FluidVariant resource) {
-			return listen(super.exactView(resource));
 		}
 
 		@Override
