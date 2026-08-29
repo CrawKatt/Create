@@ -158,13 +158,13 @@ public class AllCreativeModeTabs {
 			exclusions.addAll(PackageStyles.RARE_BOXES);
 
 			for (ItemProviderEntry<?, ?> entry : simpleExclusions) {
-				exclusions.add(entry.asItem());
+				exclusions.add(entry.get().asItem());
 			}
 
 			for (ItemEntry<TagDependentIngredientItem> entry : tagDependentExclusions) {
 				TagDependentIngredientItem item = entry.get();
 				if (item.shouldHide()) {
-					exclusions.add(entry.asItem());
+					exclusions.add(entry.get().asItem());
 				}
 			}
 
@@ -186,15 +186,15 @@ public class AllCreativeModeTabs {
 			);
 
 			simpleBeforeOrderings.forEach((entry, otherEntry) -> {
-				orderings.add(ItemOrdering.before(entry.asItem(), otherEntry.asItem()));
+				orderings.add(ItemOrdering.before(entry.get().asItem(), otherEntry.get().asItem()));
 			});
 
 			simpleAfterOrderings.forEach((entry, otherEntry) -> {
-				orderings.add(ItemOrdering.after(entry.asItem(), otherEntry.asItem()));
+				orderings.add(ItemOrdering.after(entry.get().asItem(), otherEntry.get().asItem()));
 			});
 
 			PackageStyles.STANDARD_BOXES.forEach(item -> {
-				orderings.add(ItemOrdering.after(item, AllBlocks.PACKAGER.asItem()));
+				orderings.add(ItemOrdering.after(item, AllBlocks.PACKAGER.get().asItem()));
 			});
 
 			return orderings;
@@ -217,7 +217,7 @@ public class AllCreativeModeTabs {
 			);
 
 			simpleFactories.forEach((entry, factory) -> {
-				factories.put(entry.asItem(), factory);
+				factories.put(entry.get().asItem(), factory);
 			});
 
 			return item -> {
@@ -237,38 +237,38 @@ public class AllCreativeModeTabs {
 			);
 
 			simpleVisibilities.forEach((entry, factory) -> {
-				visibilities.put(entry.asItem(), factory);
+				visibilities.put(entry.get().asItem(), factory);
 			});
 
 			for (BlockEntry<ValveHandleBlock> entry : AllBlocks.DYED_VALVE_HANDLES) {
-				visibilities.put(entry.asItem(), TabVisibility.SEARCH_TAB_ONLY);
+				visibilities.put(entry.get().asItem(), TabVisibility.SEARCH_TAB_ONLY);
 			}
 
 			for (BlockEntry<SeatBlock> entry : AllBlocks.SEATS) {
 				SeatBlock block = entry.get();
 				if (block.getColor() != DyeColor.RED) {
-					visibilities.put(entry.asItem(), TabVisibility.SEARCH_TAB_ONLY);
+					visibilities.put(entry.get().asItem(), TabVisibility.SEARCH_TAB_ONLY);
 				}
 			}
 
 			for (BlockEntry<TableClothBlock> entry : AllBlocks.TABLE_CLOTHS) {
 				TableClothBlock block = entry.get();
 				if (block.getColor() != DyeColor.RED) {
-					visibilities.put(entry.asItem(), TabVisibility.SEARCH_TAB_ONLY);
+					visibilities.put(entry.get().asItem(), TabVisibility.SEARCH_TAB_ONLY);
 				}
 			}
 
 			for (BlockEntry<PostboxBlock> entry : AllBlocks.PACKAGE_POSTBOXES) {
 				PostboxBlock block = entry.get();
 				if (block.getColor() != DyeColor.WHITE) {
-					visibilities.put(entry.asItem(), TabVisibility.SEARCH_TAB_ONLY);
+					visibilities.put(entry.get().asItem(), TabVisibility.SEARCH_TAB_ONLY);
 				}
 			}
 
 			for (BlockEntry<ToolboxBlock> entry : AllBlocks.TOOLBOXES) {
 				ToolboxBlock block = entry.get();
 				if (block.getColor() != DyeColor.BROWN) {
-					visibilities.put(entry.asItem(), TabVisibility.SEARCH_TAB_ONLY);
+					visibilities.put(entry.get().asItem(), TabVisibility.SEARCH_TAB_ONLY);
 				}
 			}
 

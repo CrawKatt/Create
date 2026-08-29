@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.decoration.palettes.AllPaletteStoneTypes;
 import com.simibubi.create.content.fluids.VirtualFluid;
 import com.simibubi.create.content.fluids.potion.PotionFluid;
@@ -21,15 +22,17 @@ import com.tterrag.registrate.util.entry.FluidEntry;
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
 import net.createmod.catnip.data.Iterate;
-import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -129,6 +132,23 @@ public class AllFluids {
 					})
 					.register();
 
+	// fabric: replaces the abandoned milk-lib dependency
+	public static final TagKey<Fluid> MILK_FLUID_TAG = AllTags.commonFluidTag("milk");
+
+	public static final FluidEntry<SimpleFlowableFluid.Flowing> MILK =
+			REGISTRATE.standardFluid("milk")
+					.lang("Milk")
+					.tag(MILK_FLUID_TAG, FluidTags.WATER) // fabric: water tag controls physics
+					.fluidProperties(p -> p.levelDecreasePerBlock(2)
+							.tickRate(25)
+							.flowSpeed(3)
+							.blastResistance(100f))
+					.fluidAttributes(() -> new CreateAttributeHandler("block.create.milk", 1000, 1030))
+					.source(SimpleFlowableFluid.Source::new)
+					.bucket()
+					.build()
+					.register();
+
 	// Load this class
 
 	public static void register() {
@@ -203,12 +223,14 @@ public class AllFluids {
 	public static class PotionFluidVariantRenderHandler implements FluidVariantRenderHandler {
 		@Override
 		public int getColor(FluidVariant fluidVariant, @Nullable BlockAndTintGetter view, @Nullable BlockPos pos) {
-			return PotionUtils.getColor(PotionUtils.getAllEffects(fluidVariant.getNbt())) | 0xff000000;
+			PotionContents contents = fluidVariant.getComponentMap()
+				.get(DataComponents.POTION_CONTENTS);
+			return (contents == null ? PotionContents.EMPTY : contents).getColor() | 0xff000000;
 		}
 
 		@Override
 		public void appendTooltip(FluidVariant fluidVariant, List<Component> tooltip, TooltipFlag tooltipContext) {
-			PotionFluidHandler.addPotionTooltip(fluidVariant, tooltip, 1);
+			PotionFluidHandler.addPotionTooltip(fluidVariant, tooltip::add, 1);
 		}
 	}
 
@@ -219,14 +241,15 @@ public class AllFluids {
 		}
 
 		public String getTranslationKey(FluidVariant stack) {
-			CompoundTag tag = stack.getNbt();
-			if (tag == null)
-				return "create.potion.invalid";
+			DataComponentMap components = stack.getComponentMap();
+			BottleType bottleType = components.get(AllDataComponents.POTION_FLUID_BOTTLE_TYPE);
 			ItemLike itemFromBottleType =
-					PotionFluidHandler.itemFromBottleType(NBTHelper.readEnum(tag, "Bottle", BottleType.class));
-			return PotionUtils.getPotion(tag)
-					.getName(itemFromBottleType.asItem()
-							.getDescriptionId() + ".effect.");
+					PotionFluidHandler.itemFromBottleType(bottleType == null ? BottleType.REGULAR : bottleType);
+			PotionContents contents = components.get(DataComponents.POTION_CONTENTS);
+			if (contents == null)
+				return "create.potion.invalid";
+			return Potion.getName(contents.potion(), itemFromBottleType.asItem()
+					.getDescriptionId() + ".effect.");
 		}
 	}
 

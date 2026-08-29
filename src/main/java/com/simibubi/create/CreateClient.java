@@ -1,5 +1,8 @@
 package com.simibubi.create;
 
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -12,7 +15,10 @@ import com.simibubi.create.content.contraptions.render.ContraptionRenderInfo;
 import com.simibubi.create.content.contraptions.render.ContraptionRenderInfoManager;
 import com.simibubi.create.content.decoration.encasing.CasingConnectivity;
 import com.simibubi.create.content.equipment.armor.RemainingAirOverlay;
+import com.simibubi.create.content.equipment.bell.BasicParticleData;
 import com.simibubi.create.content.equipment.bell.SoulPulseEffectHandler;
+import com.simibubi.create.content.equipment.bell.SoulBaseParticle;
+import com.simibubi.create.content.equipment.bell.SoulParticle;
 import com.simibubi.create.content.equipment.blueprint.BlueprintOverlayRenderer;
 import com.simibubi.create.content.equipment.goggles.GoggleOverlayRenderer;
 import com.simibubi.create.content.equipment.potatoCannon.PotatoCannonRenderHandler;
@@ -21,6 +27,7 @@ import com.simibubi.create.content.equipment.zapper.ZapperRenderHandler;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;
 import com.simibubi.create.content.kinetics.waterwheel.WaterWheelRenderer;
+import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerClientHandler;
 import com.simibubi.create.content.schematics.client.ClientSchematicLoader;
 import com.simibubi.create.content.schematics.client.SchematicAndQuillHandler;
@@ -29,7 +36,11 @@ import com.simibubi.create.content.trains.GlobalRailwayManager;
 import com.simibubi.create.content.trains.TrainHUD;
 import com.simibubi.create.content.trains.track.TrackPlacementOverlay;
 import com.simibubi.create.foundation.ClientResourceReloadListener;
+import com.simibubi.create.foundation.block.connected.CTModel;
+import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsClient;
+import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
+import com.simibubi.create.foundation.item.render.CustomRenderedItems;
 import com.simibubi.create.foundation.model.ModelSwapper;
 import com.simibubi.create.foundation.events.ClientEvents;
 import com.simibubi.create.foundation.events.InputEvents;
@@ -43,19 +54,28 @@ import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.catnip.config.ui.ConfigScreen;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBufferCache;
+import net.createmod.catnip.registry.RegisteredObjectsHelper;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
+import com.tterrag.registrate.builders.ItemBuilder;
+import com.tterrag.registrate.util.nullness.NonNullFunction;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 public class CreateClient implements ClientModInitializer {
@@ -74,7 +94,55 @@ public class CreateClient implements ClientModInitializer {
 	public static final GlobalRailwayManager RAILWAYS = new GlobalRailwayManager();
 	public static final ValueSettingsClient VALUE_SETTINGS_HANDLER = new ValueSettingsClient();
 
+	public static void registerBasicParticleFactory(ParticleType<BasicParticleData> type, BasicParticleData data) {
+		if (data instanceof BasicParticleData.WiFiData) {
+			ParticleFactoryRegistry.getInstance().register(type,
+				sprites -> (options, level, x, y, z, vx, vy, vz) ->
+					new WiFiParticle(level, x, y, z, vx, vy, vz, sprites));
+		} else if (data instanceof BasicParticleData.SoulBaseData) {
+			ParticleFactoryRegistry.getInstance().register(type,
+				sprites -> (options, level, x, y, z, vx, vy, vz) ->
+					new SoulBaseParticle(level, x, y, z, vx, vy, vz, sprites));
+		} else {
+			ParticleFactoryRegistry.getInstance().register(type,
+				sprites -> (options, level, x, y, z, vx, vy, vz) ->
+					new SoulParticle(level, x, y, z, vx, vy, vz, sprites, options));
+		}
+	}
+
 	public static final ClientResourceReloadListener RESOURCE_RELOAD_LISTENER = new ClientResourceReloadListener();
+
+	public static <T extends Block> void registerCasingConnectivity(T entry,
+			BiConsumer<T, CasingConnectivity> consumer) {
+		consumer.accept(entry, CASING_CONNECTIVITY);
+	}
+
+	public static void registerBlockModel(Block entry,
+			Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> factory) {
+		MODEL_SWAPPER.getCustomBlockModels()
+			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), factory.get());
+	}
+
+	public static void registerItemModel(Item entry,
+			Supplier<NonNullFunction<BakedModel, ? extends BakedModel>> factory) {
+		MODEL_SWAPPER.getCustomItemModels()
+			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), factory.get());
+	}
+
+	public static <B> void registerConnectedTextures(Block entry, Supplier<B> factory) {
+		ConnectedTextureBehaviour behavior = (ConnectedTextureBehaviour) factory.get();
+		MODEL_SWAPPER.getCustomBlockModels()
+			.register(RegisteredObjectsHelper.getKeyOrThrow(entry), model -> new CTModel(model, behavior));
+	}
+
+	public static <T extends Item, P, R> void registerCustomRenderedItem(ItemBuilder<T, P> builder,
+			Supplier<Supplier<R>> factory) {
+		builder.onRegister(entry -> {
+			CustomRenderedItemModelRenderer renderer = (CustomRenderedItemModelRenderer) factory.get().get();
+			BuiltinItemRendererRegistry.INSTANCE.register(entry, renderer);
+			CustomRenderedItems.register(entry);
+		});
+	}
 
 	@Override
 	public void onInitializeClient() {
@@ -86,7 +154,6 @@ public class CreateClient implements ClientModInitializer {
 		POTATO_CANNON_RENDER_HANDLER.registerListeners();
 
 		Mods.FTBLIBRARY.executeIfInstalled(() -> () -> FTBIntegration.init());
-		Mods.SODIUM.executeIfInstalled(() -> () -> SodiumCompat.init());
 
 		// clientInit start
 
@@ -128,24 +195,18 @@ public class CreateClient implements ClientModInitializer {
 	private static void initCompat() {
 		Mods.TRINKETS.executeIfInstalled(() -> () -> Trinkets.clientInit());
 		Mods.SODIUM.executeIfInstalled(() -> () -> SodiumCompat.init());
-		Mods.FTBCHUNKS.executeIfInstalled(() -> () -> FTBIntegration.init());
 	}
 
 	private static void registerOverlays() {
-		HudRenderCallback.EVENT.register((graphics, partialTicks) -> {
-			Window window = Minecraft.getInstance().getWindow();
-			Gui gui = Minecraft.getInstance().gui;
-
-			RemainingAirOverlay.render(graphics, window.getGuiScaledWidth(), window.getGuiScaledHeight()); // Create's Remaining Air
-			TrainHUD.renderOverlay(graphics, partialTicks, window); // Create's Train Driver HUD
-			GoggleOverlayRenderer.renderOverlay(graphics, partialTicks, window.getGuiScaledWidth(), window.getGuiScaledHeight()); // Create's Goggle Information
-			BlueprintOverlayRenderer.renderOverlay(gui, graphics, partialTicks, window); // Create's Blueprints
-			LinkedControllerClientHandler.renderOverlay(graphics, partialTicks, window); // Create's Linked Controller
-			SCHEMATIC_HANDLER.renderOverlay(graphics, partialTicks, window); // Create's Schematics
-			ToolboxHandlerClient.renderOverlay(graphics, partialTicks, window); // Create's Toolboxes
-			VALUE_SETTINGS_HANDLER.render(graphics, window.getGuiScaledWidth(), window.getGuiScaledHeight()); // Create's Value Settings
-			TrackPlacementOverlay.renderOverlay(gui, graphics); // Create's Track Placement
-		});
+		HudRenderCallback.EVENT.register(RemainingAirOverlay.INSTANCE::render);
+		HudRenderCallback.EVENT.register(TrainHUD.OVERLAY::render);
+		HudRenderCallback.EVENT.register(GoggleOverlayRenderer.OVERLAY::render);
+		HudRenderCallback.EVENT.register(BlueprintOverlayRenderer.OVERLAY::render);
+		HudRenderCallback.EVENT.register(LinkedControllerClientHandler.OVERLAY::render);
+		HudRenderCallback.EVENT.register(SCHEMATIC_HANDLER::render);
+		HudRenderCallback.EVENT.register(ToolboxHandlerClient.OVERLAY::render);
+		HudRenderCallback.EVENT.register(VALUE_SETTINGS_HANDLER::render);
+		HudRenderCallback.EVENT.register(TrackPlacementOverlay.INSTANCE::render);
 	}
 
 	private static void setupConfigUIBackground() {

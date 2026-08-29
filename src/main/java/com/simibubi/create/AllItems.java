@@ -79,6 +79,7 @@ import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -91,10 +92,10 @@ import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
-import net.neoforged.neoforge.common.Tags;
 
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 public class AllItems {
 	private static final CreateRegistrate REGISTRATE = Create.registrate();
@@ -108,7 +109,7 @@ public class AllItems {
 		DOUGH = taggedIngredient("dough", commonItemTag("doughs"), commonItemTag("doughs/wheat")),
 		CINDER_FLOUR = ingredient("cinder_flour"), ROSE_QUARTZ = ingredient("rose_quartz"),
 		POLISHED_ROSE_QUARTZ = ingredient("polished_rose_quartz"), POWDERED_OBSIDIAN = ingredient("powdered_obsidian"),
-		STURDY_SHEET = taggedIngredient("sturdy_sheet", commonItemTag("obsidian_plates"), PLATES.tag),
+		STURDY_SHEET = taggedIngredient("sturdy_sheet", commonItemTag("plates/obsidian"), PLATES.tag),
 		PROPELLER = ingredient("propeller"), WHISK = ingredient("whisk"), BRASS_HAND = ingredient("brass_hand"),
 		CRAFTER_SLOT_COVER = ingredient("crafter_slot_cover"), ELECTRON_TUBE = ingredient("electron_tube"),
 		TRANSMITTER = ingredient("transmitter"), PULP = ingredient("pulp");
@@ -195,12 +196,13 @@ public class AllItems {
 		taggedIngredient("raw_zinc", commonItemTag("raw_materials/zinc"), commonItemTag("raw_materials"));
 
 	public static final ItemEntry<Item> ANDESITE_ALLOY = taggedIngredient("andesite_alloy", CREATE_INGOTS.tag),
-		ZINC_INGOT = taggedIngredient("zinc_ingot", commonItemTag("zinc_ingots"), CREATE_INGOTS.tag),
-		BRASS_INGOT = taggedIngredient("brass_ingot", commonItemTag("brass_ingots"), CREATE_INGOTS.tag);
+		ZINC_INGOT = taggedIngredient("zinc_ingot", commonItemTag("ingots/zinc"), CREATE_INGOTS.tag),
+		BRASS_INGOT = taggedIngredient("brass_ingot", commonItemTag("ingots/brass"), CREATE_INGOTS.tag);
 
 	public static final ItemEntry<ChromaticCompoundItem> CHROMATIC_COMPOUND =
 		REGISTRATE.item("chromatic_compound", ChromaticCompoundItem::new)
-			.properties(p -> p.rarity(Rarity.UNCOMMON))
+			.properties(p -> p.rarity(Rarity.UNCOMMON)
+				.stacksTo(16))
 			.model(AssetLookup.existingItemModel())
 			.color(() -> ChromaticCompoundColor::new)
 			.register();
@@ -215,22 +217,22 @@ public class AllItems {
 			.register();
 
 	public static final ItemEntry<Item>
-		COPPER_NUGGET = taggedIngredient("copper_nugget", commonItemTag("copper_nuggets"), net.neoforged.neoforge.common.Tags.Items.NUGGETS),
-		ZINC_NUGGET = taggedIngredient("zinc_nugget", commonItemTag("zinc_nuggets"), net.neoforged.neoforge.common.Tags.Items.NUGGETS),
-		BRASS_NUGGET = taggedIngredient("brass_nugget", commonItemTag("brass_nuggets"), net.neoforged.neoforge.common.Tags.Items.NUGGETS);
+		COPPER_NUGGET = taggedIngredient("copper_nugget", commonItemTag("nuggets/copper"), ConventionalItemTags.NUGGETS),
+		ZINC_NUGGET = taggedIngredient("zinc_nugget", commonItemTag("nuggets/zinc"), ConventionalItemTags.NUGGETS),
+		BRASS_NUGGET = taggedIngredient("brass_nugget", commonItemTag("nuggets/brass"), ConventionalItemTags.NUGGETS);
 
 	public static final ItemEntry<ExperienceNuggetItem> EXP_NUGGET =
 		REGISTRATE.item("experience_nugget", ExperienceNuggetItem::new)
-			.tag(Tags.Items.NUGGETS)
+			.tag(ConventionalItemTags.NUGGETS)
 			.properties(p -> p.rarity(Rarity.UNCOMMON))
 			.lang("Nugget of Experience")
 			.register();
 
 	public static final ItemEntry<Item>
-		COPPER_SHEET = taggedIngredient("copper_sheet", commonItemTag("copper_plates"), PLATES.tag),
-		BRASS_SHEET = taggedIngredient("brass_sheet", commonItemTag("brass_plates"), PLATES.tag),
-		IRON_SHEET = taggedIngredient("iron_sheet", commonItemTag("iron_plates"), PLATES.tag),
-		GOLDEN_SHEET = taggedIngredient("golden_sheet", commonItemTag("gold_plates"), PLATES.tag, ItemTags.PIGLIN_LOVED),
+		COPPER_SHEET = taggedIngredient("copper_sheet", commonItemTag("plates/copper"), PLATES.tag),
+		BRASS_SHEET = taggedIngredient("brass_sheet", commonItemTag("plates/brass"), PLATES.tag),
+		IRON_SHEET = taggedIngredient("iron_sheet", commonItemTag("plates/iron"), PLATES.tag),
+		GOLDEN_SHEET = taggedIngredient("golden_sheet", commonItemTag("plates/gold"), PLATES.tag, ItemTags.PIGLIN_LOVED),
 
 	CRUSHED_IRON = taggedIngredient("crushed_raw_iron", CRUSHED_RAW_MATERIALS.tag),
 		CRUSHED_GOLD = taggedIngredient("crushed_raw_gold", CRUSHED_RAW_MATERIALS.tag, ItemTags.PIGLIN_LOVED),
@@ -262,12 +264,7 @@ public class AllItems {
 
 	public static final ItemEntry<GogglesItem> GOGGLES = REGISTRATE.item("goggles", GogglesItem::new)
 		.properties(p -> p.stacksTo(1))
-		.properties(p -> {
-			if (p instanceof FabricItemSettings fp) {
-				fp.equipmentSlot(GogglesItem::getEquipmentSlot);
-			}
-			return p;
-		})
+		.properties(p -> ((FabricItem.Settings) p).equipmentSlot((entity, stack) -> GogglesItem.getEquipmentSlot(stack)))
 		.onRegister(CreateRegistrate.itemModel(() -> GogglesModel::new))
 		.lang("Engineer's Goggles")
 		.register();
@@ -366,7 +363,8 @@ public class AllItems {
 			.onRegister(i -> FuelRegistry.INSTANCE.add(i, 1000))
 			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.cardboard_armor"))
 			.model(TrimmableArmorModelGenerator::generate)
-			.onRegister(item -> HelmetOverlay.REGISTRY.register(item, new CardboardArmorStealthOverlay()))
+				.onRegister(item -> CatnipServices.PLATFORM.executeOnClientOnly(
+					() -> () -> HelmetOverlay.REGISTRY.register(item, new CardboardArmorStealthOverlay())))
 			.register(),
 
 		CARDBOARD_CHESTPLATE =
@@ -439,7 +437,7 @@ public class AllItems {
 			.properties(p -> p.durability(100))
 			.transform(CreateRegistrate.customRenderedItem(() -> PotatoCannonItemRenderer::new))
 			.model(AssetLookup.itemModelWithPartials())
-			.tag(net.neoforged.neoforge.common.Tags.Items.ENCHANTABLES)
+			.tag(ConventionalItemTags.ENCHANTABLES)
 			.register();
 
 	public static final ItemEntry<ExtendoGripItem> EXTENDO_GRIP = REGISTRATE.item("extendo_grip", ExtendoGripItem::new)
@@ -547,7 +545,7 @@ public class AllItems {
 		String metalName = metal.getName();
 		return REGISTRATE
 			.item("crushed_raw_" + metalName,
-				props -> new TagDependentIngredientItem(props, AllTags.commonItemTag(metalName + "_ores")))
+				props -> new TagDependentIngredientItem(props, AllTags.commonItemTag("ores/" + metalName)))
 			.tag(CRUSHED_RAW_MATERIALS.tag)
 			.register();
 	}

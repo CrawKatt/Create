@@ -37,49 +37,51 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+import net.minecraft.network.RegistryFriendlyByteBuf;
+
 public class AllMenuTypes {
 
 	public static final MenuEntry<SchematicTableMenu> SCHEMATIC_TABLE =
-		register("schematic_table", SchematicTableMenu::new, () -> SchematicTableScreen::new);
+		register("schematic_table", (type, id, inv, buf) -> new SchematicTableMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> SchematicTableScreen::new);
 
 	public static final MenuEntry<SchematicannonMenu> SCHEMATICANNON =
-		register("schematicannon", SchematicannonMenu::new, () -> SchematicannonScreen::new);
+		register("schematicannon", (type, id, inv, buf) -> new SchematicannonMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> SchematicannonScreen::new);
 
 	public static final MenuEntry<FilterMenu> FILTER =
-		register("filter", FilterMenu::new, () -> FilterScreen::new);
+		register("filter", (type, id, inv, buf) -> new FilterMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> FilterScreen::new);
 
 	public static final MenuEntry<AttributeFilterMenu> ATTRIBUTE_FILTER =
-		register("attribute_filter", AttributeFilterMenu::new, () -> AttributeFilterScreen::new);
+		register("attribute_filter", (type, id, inv, buf) -> new AttributeFilterMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> AttributeFilterScreen::new);
 
 	public static final MenuEntry<PackageFilterMenu> PACKAGE_FILTER =
-		register("package_filter", PackageFilterMenu::new, () -> PackageFilterScreen::new);
+		register("package_filter", (type, id, inv, buf) -> new PackageFilterMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> PackageFilterScreen::new);
 
 	public static final MenuEntry<BlueprintMenu> CRAFTING_BLUEPRINT =
-		register("crafting_blueprint", BlueprintMenu::new, () -> BlueprintScreen::new);
+		register("crafting_blueprint", (type, id, inv, buf) -> new BlueprintMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> BlueprintScreen::new);
 
 	public static final MenuEntry<LinkedControllerMenu> LINKED_CONTROLLER =
-		register("linked_controller", LinkedControllerMenu::new, () -> LinkedControllerScreen::new);
+		register("linked_controller", (type, id, inv, buf) -> new LinkedControllerMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> LinkedControllerScreen::new);
 
 	public static final MenuEntry<ToolboxMenu> TOOLBOX =
-		register("toolbox", ToolboxMenu::new, () -> ToolboxScreen::new);
+		register("toolbox", (type, id, inv, buf) -> new ToolboxMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> ToolboxScreen::new);
 
 	public static final MenuEntry<ScheduleMenu> SCHEDULE =
-		register("schedule", ScheduleMenu::new, () -> ScheduleScreen::new);
+		register("schedule", (type, id, inv, buf) -> new ScheduleMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> ScheduleScreen::new);
 
 	public static final MenuEntry<StockKeeperCategoryMenu> STOCK_KEEPER_CATEGORY =
-		register("stock_keeper_category", StockKeeperCategoryMenu::new, () -> StockKeeperCategoryScreen::new);
+		register("stock_keeper_category", (type, id, inv, buf) -> new StockKeeperCategoryMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> StockKeeperCategoryScreen::new);
 
 	public static final MenuEntry<StockKeeperRequestMenu> STOCK_KEEPER_REQUEST =
-		register("stock_keeper_request", StockKeeperRequestMenu::new, () -> StockKeeperRequestScreen::new);
+		register("stock_keeper_request", (type, id, inv, buf) -> new StockKeeperRequestMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> StockKeeperRequestScreen::new);
 
 	public static final MenuEntry<PackagePortMenu> PACKAGE_PORT =
-		register("package_port", PackagePortMenu::new, () -> PackagePortScreen::new);
+		register("package_port", (type, id, inv, buf) -> new PackagePortMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> PackagePortScreen::new);
 
 	public static final MenuEntry<RedstoneRequesterMenu> REDSTONE_REQUESTER =
-		register("redstone_requester", RedstoneRequesterMenu::new, () -> RedstoneRequesterScreen::new);
+		register("redstone_requester", (type, id, inv, buf) -> new RedstoneRequesterMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> RedstoneRequesterScreen::new);
 
 	public static final MenuEntry<FactoryPanelSetItemMenu> FACTORY_PANEL_SET_ITEM =
-		register("factory_panel_set_item", FactoryPanelSetItemMenu::new, () -> FactoryPanelSetItemScreen::new);
+		register("factory_panel_set_item", (type, id, inv, buf) -> new FactoryPanelSetItemMenu(type, id, inv, (RegistryFriendlyByteBuf) buf), () -> FactoryPanelSetItemScreen::new);
 
 	private static <C extends AbstractContainerMenu, S extends Screen & MenuAccess<C>> MenuEntry<C> register(
 			String name, MenuBuilder.ForgeMenuFactory<C> factory, NonNullSupplier<ScreenFactory<C, S>> screenFactory) {

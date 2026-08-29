@@ -2,13 +2,11 @@ package com.simibubi.create;
 
 import java.util.function.Supplier;
 
-import com.simibubi.create.content.equipment.bell.SoulBaseParticle;
-import com.simibubi.create.content.equipment.bell.SoulParticle;
+import com.simibubi.create.content.equipment.bell.BasicParticleData;
 import com.simibubi.create.content.fluids.particle.FluidParticleData;
 import com.simibubi.create.content.kinetics.base.RotationIndicatorParticleData;
 import com.simibubi.create.content.kinetics.fan.AirFlowParticleData;
 import com.simibubi.create.content.kinetics.steamEngine.SteamJetParticleData;
-import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
 import com.simibubi.create.content.trains.CubeParticleData;
 import com.simibubi.create.foundation.particle.AirParticleData;
 import com.simibubi.create.foundation.particle.ICustomParticleData;
@@ -23,7 +21,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
 
 public enum AllParticleTypes {
 	ROTATION_INDICATOR(RotationIndicatorParticleData::new),
@@ -34,11 +32,11 @@ public enum AllParticleTypes {
 	FLUID_PARTICLE(FluidParticleData::new),
 	BASIN_FLUID(FluidParticleData::new),
 	FLUID_DRIP(FluidParticleData::new),
-	WIFI(WiFiParticle.Data::new),
-	SOUL(SoulParticle.Data::new),
-	SOUL_BASE(SoulBaseParticle.Data::new),
-	SOUL_PERIMETER(SoulParticle.PerimeterData::new),
-	SOUL_EXPANDING_PERIMETER(SoulParticle.ExpandingPerimeterData::new);
+	WIFI(BasicParticleData.WiFiData::new),
+	SOUL(BasicParticleData.SoulData::new),
+	SOUL_BASE(BasicParticleData.SoulBaseData::new),
+	SOUL_PERIMETER(BasicParticleData.SoulPerimeterData::new),
+	SOUL_EXPANDING_PERIMETER(BasicParticleData.SoulExpandingPerimeterData::new);
 
 	private final ParticleEntry<?> entry;
 
@@ -67,7 +65,7 @@ public enum AllParticleTypes {
 	}
 
 	private static class ParticleEntry<D extends ParticleOptions> {
-		private static final LazyRegistrar<ParticleType<?>> REGISTER = LazyRegistrar.create(BuiltInRegistries.PARTICLE_TYPE, Create.ID);
+		private static final DeferredRegister<ParticleType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, Create.ID);
 
 		private final String name;
 		private final Supplier<? extends ICustomParticleData<D>> typeFactory;

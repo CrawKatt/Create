@@ -114,8 +114,7 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 
 	@Internal
 	public static void register() {
-		ShapedRecipeUtil.setCraftingSize(9, 9);
-		// fabric: just load the class
+		// porting lib removes crafting size limits itself
 	}
 
 	@Override

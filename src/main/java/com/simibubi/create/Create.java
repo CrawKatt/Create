@@ -4,15 +4,6 @@ import java.util.Random;
 
 import com.simibubi.create.content.logistics.packagePort.AllPackagePortTargetTypes;
 
-import com.simibubi.create.content.logistics.packager.AllUnpackingHandlers;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-
-import net.neoforged.neoforge.common.NeoForgeMod;
-
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -43,12 +34,12 @@ import com.simibubi.create.content.trains.track.AllPortalTracks;
 import com.simibubi.create.foundation.CreateNBTProcessors;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.AllTriggers;
+import com.simibubi.create.foundation.data.CreateDatamapProvider;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.events.CommonEvents;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
-import com.simibubi.create.foundation.recipe.AllIngredients;
 import com.simibubi.create.foundation.ponder.FabricStructureProcessing;
 import com.simibubi.create.foundation.recipe.AllIngredients;
 import com.simibubi.create.impl.registry.CreateRegistriesImpl;
@@ -58,7 +49,6 @@ import com.simibubi.create.infrastructure.worldgen.AllBiomeModifiers;
 import com.simibubi.create.infrastructure.worldgen.AllFeatures;
 import com.simibubi.create.infrastructure.worldgen.AllPlacementModifiers;
 
-import io.github.tropheusj.milk.Milk;
 import net.createmod.catnip.lang.FontHelper;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.resources.ResourceKey;
@@ -66,11 +56,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -119,7 +104,7 @@ public class Create implements ModInitializer {
 		AllSoundEvents.prepare();
 		AllTags.init();
 		AllCreativeModeTabs.register();
-		AllArmorMaterials.register(modEventBus);
+		AllArmorMaterials.register();
 		AllDisplaySources.register();
 		AllDisplayTargets.register();
 		AllBlocks.register();
@@ -140,16 +125,13 @@ public class Create implements ModInitializer {
 		AllPackets.register();
 		AllFeatures.register();
 		AllPlacementModifiers.register();
-		AllIngredients.register(modEventBus);
-		AllAttachmentTypes.register(modEventBus);
-		AllDataComponents.register(modEventBus);
-		AllMapDecorationTypes.register(modEventBus);
+		AllDataComponents.register();
+		AllMapDecorationTypes.register();
 		AllMountedStorageTypes.register();
 
 		AllConfigs.register();
 
-		// TODO - Make these use Registry.register and move them into the RegisterEvent
-		AllPackagePortTargetTypes.register(modEventBus);
+		AllPackagePortTargetTypes.register();
 
 		AllSchematicStateFilters.registerDefaults();
 
@@ -160,8 +142,7 @@ public class Create implements ModInitializer {
 
 		ComputerCraftProxy.register();
 
-		Milk.enableMilkFluid();
-		CopperRegistries.inject();
+		CreateDatamapProvider.registerInteractions();
 
 		Create.init();
 		Create.onRegister();
@@ -174,7 +155,6 @@ public class Create implements ModInitializer {
 		// fabric exclusive
 		AllIngredients.register();
 		CommonEvents.register();
-		AllPackets.getChannel().initServerListener();
 		FabricStructureProcessing.init();
 		AllBiomeModifiers.bootstrap(); // moved out of datagen
 		CreateRegistriesImpl.registerDatapackRegistries();
@@ -185,22 +165,19 @@ public class Create implements ModInitializer {
 		AllFluids.registerFluidInteractions();
 		CreateNBTProcessors.register();
 
-//		event.enqueueWork(() -> {
-			// TODO: custom registration should all happen in one place
-			// Most registration happens in the constructor.
-			// These registrations use Create's registered objects directly so they must run after registration has finished.
-			BoilerHeaters.registerDefaults();
-			AllPortalTracks.registerDefaults();
-			AllBlockSpoutingBehaviours.registerDefaults();
-			AllMovementBehaviours.registerDefaults();
-			AllInteractionBehaviours.registerDefaults();
-			AllContraptionMovementSettings.registerDefaults();
-			AllOpenPipeEffectHandlers.registerDefaults();
-			AllMountedDispenseItemBehaviors.registerDefaults();
-			AllUnpackingHandlers.registerDefaults();
-			AllFluids.registerFluidInteractions();
-			// --
-//		});
+		// TODO: custom registration should all happen in one place
+		// Most registration happens in the constructor.
+		// These registrations use Create's registered objects directly so they must run after registration has finished.
+		BoilerHeaters.registerDefaults();
+		AllPortalTracks.registerDefaults();
+		AllBlockSpoutingBehaviours.registerDefaults();
+		AllMovementBehaviours.registerDefaults();
+		AllInteractionBehaviours.registerDefaults();
+		AllContraptionMovementSettings.registerDefaults();
+		AllOpenPipeEffectHandlers.registerDefaults();
+		AllMountedDispenseItemBehaviors.registerDefaults();
+		AllUnpackingHandlers.registerDefaults();
+		// --
 	}
 
 	public static void onRegister() {
@@ -212,10 +189,8 @@ public class Create implements ModInitializer {
 		AllPotatoProjectileEntityHitActions.init();
 		AllPotatoProjectileBlockHitActions.init();
 
-		if (event.getRegistry() == BuiltInRegistries.TRIGGER_TYPES) {
-			AllAdvancements.register();
-			AllTriggers.register();
-		}
+		AllAdvancements.register();
+		AllTriggers.register();
 	}
 
 	public static LangBuilder lang() {

@@ -21,18 +21,20 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+
 public class AllBlockSpoutingBehaviours {
 
 	static void registerDefaults() {
 		Predicate<Fluid> isWater = fluid -> fluid.isSame(Fluids.WATER);
-		BlockSpoutingBehaviour toMud = StateChangingBehavior.setTo(250, isWater, Blocks.MUD);
+		BlockSpoutingBehaviour toMud = StateChangingBehavior.setTo(FluidConstants.BUCKET / 4, isWater, Blocks.MUD);
 
 		for (Block dirt : List.of(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT)) {
 			BlockSpoutingBehaviour.BY_BLOCK.register(dirt, toMud);
 		}
 
-		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.FARMLAND, StateChangingBehavior.incrementingState(100, isWater, FarmBlock.MOISTURE));
-		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.WATER_CAULDRON, StateChangingBehavior.incrementingState(250, isWater, LayeredCauldronBlock.LEVEL));
+		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.FARMLAND, StateChangingBehavior.incrementingState(FluidConstants.BUCKET / 10, isWater, FarmBlock.MOISTURE));
+		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.WATER_CAULDRON, StateChangingBehavior.incrementingState(FluidConstants.BUCKET / 4, isWater, LayeredCauldronBlock.LEVEL));
 		BlockSpoutingBehaviour.BY_BLOCK.register(Blocks.CAULDRON, CauldronSpoutingBehavior.INSTANCE);
 
 		if (Mods.BOTANIA.isLoaded()) {
