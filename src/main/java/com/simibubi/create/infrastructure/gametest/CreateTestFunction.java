@@ -15,6 +15,8 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import io.github.fabricators_of_create.porting_lib.extensions.extensions.BlockEntityExtensions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestGenerator;
@@ -118,7 +120,7 @@ public class CreateTestFunction {
 			helper.andThen(gameTestHelper -> {
 				// give structure block test info
 				StructureBlockEntity be = gameTestHelper.getBlockEntity(BlockPos.ZERO);
-				be.getCustomData().putString("CreateTestFunction", fullName);
+				((BlockEntityExtensions) be).getPersistentData().putString("CreateTestFunction", fullName);
 			}).accept(CreateGameTestHelper.of(consumer));
 		};
 	}

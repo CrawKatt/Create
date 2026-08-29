@@ -349,9 +349,10 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 */
 	public long getTotalItems(BlockPos pos) {
 		Storage<ItemVariant> storage = itemStorageAt(pos);
-		try (Transaction t = Transaction.openOuter()) {
-			return TransferUtil.extractAllAsStacks(storage).stream().mapToLong(ItemStack::getCount).sum();
-		}
+		long total = 0;
+		for (StorageView<ItemVariant> view : storage.nonEmptyViews())
+			total += view.getAmount();
+		return total;
 	}
 
 	/**
@@ -427,7 +428,7 @@ public class CreateGameTestHelper extends GameTestHelper {
 	 */
 	public void assertContainerContains(BlockPos pos, ItemStack item) {
 		Storage<ItemVariant> storage = itemStorageAt(pos);
-		ItemStack extracted = ItemHelper.extract(storage, stack -> ItemHandlerHelper.canItemStacksStack(stack, item), item.getCount(), true);
+		ItemStack extracted = ItemHelper.extract(storage, stack -> ItemStack.isSameItem(stack, item), item.getCount(), true);
 		if (extracted.isEmpty())
 			fail("item not present: " + item);
 	}

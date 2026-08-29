@@ -38,7 +38,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.ScreenAccessor;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.TitleScreenAccessor;
 
 public class CreateMainMenuScreen extends AbstractSimiScreen {
 
@@ -77,10 +76,13 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	public CreateMainMenuScreen(Screen parent) {
 		this.parent = parent;
 		returnOnClose = true;
+		fromTitleOrMods = (parent instanceof TitleScreen) || Mods.MODMENU.runIfInstalled(() ->
+				() -> parent instanceof ModsScreen).orElse(Boolean.FALSE);
 		if (parent instanceof TitleScreen)
 			vanillaPanorama = Screen.PANORAMA;
 		else
-			vanillaPanorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
+			vanillaPanorama = new PanoramaRenderer(
+				new CubeMap(ResourceLocation.withDefaultNamespace("textures/gui/title/background/panorama")));
 	}
 
 	@Override

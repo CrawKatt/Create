@@ -9,10 +9,10 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.simibubi.create.AllAttachmentTypes;
 import com.simibubi.create.content.contraptions.minecart.CouplingHandler;
 import com.simibubi.create.content.contraptions.minecart.capability.CapabilityMinecartController;
 import com.simibubi.create.content.contraptions.minecart.capability.MinecartController;
+import com.simibubi.create.foundation.utility.fabric.AbstractMinecartExtensions;
 
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.commands.CommandSourceStack;
@@ -111,10 +111,10 @@ public class CouplingCommand {
 							if (!(cart2 instanceof AbstractMinecart))
 								throw ONLY_MINECARTS_ALLOWED.create();
 
-							MinecartController cart1Controller = ((AbstractMinecart) cart1).create$getController();
+							MinecartController cart1Capability = ((AbstractMinecartExtensions) cart1).create$getController();
 
-							int cart1Couplings = (cart1Controller.isConnectedToCoupling() ? 1 : 0)
-								+ (cart1Controller.isLeadingCoupling() ? 1 : 0);
+							int cart1Couplings = (cart1Capability.isConnectedToCoupling() ? 1 : 0)
+								+ (cart1Capability.isLeadingCoupling() ? 1 : 0);
 							if (cart1Couplings == 0) {
 								ctx.getSource()
 									.sendSuccess(() -> {
@@ -155,7 +155,7 @@ public class CouplingCommand {
 						if (!(cart instanceof AbstractMinecart))
 							throw ONLY_MINECARTS_ALLOWED.create();
 
-						MinecartController controller = ((AbstractMinecart) cart).create$getController();
+						MinecartController capability = ((AbstractMinecartExtensions) cart).create$getController();
 
 						int couplings =
 							(capability.isConnectedToCoupling() ? 1 : 0) + (capability.isLeadingCoupling() ? 1 : 0);

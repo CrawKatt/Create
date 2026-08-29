@@ -2,7 +2,7 @@ package com.simibubi.create.infrastructure.ponder.scenes.highLogistics;
 
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
-import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
+import com.simibubi.create.content.equipment.bell.BasicParticleData.WiFiData;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
 import net.createmod.ponder.api.element.ElementLink;
@@ -57,7 +57,7 @@ public class PonderHilo {
 		scene.addInstruction(s -> {
 			Vec3 vec3 = Vec3.atCenterOf(pos);
 			s.getWorld()
-				.addParticle(new WiFiParticle.Data(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
+					.addParticle(new WiFiData(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
 		});
 	}
 
@@ -65,7 +65,7 @@ public class PonderHilo {
 		scene.addInstruction(s -> {
 			Vec3 vec3 = Vec3.atCenterOf(pos);
 			s.getWorld()
-				.addParticle(new WiFiParticle.Data(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
+					.addParticle(new WiFiData(), vec3.x, vec3.y, vec3.z, 1, 1, 1);
 		});
 	}
 

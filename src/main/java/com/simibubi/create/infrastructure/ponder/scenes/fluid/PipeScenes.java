@@ -17,7 +17,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
-import io.github.tropheusj.milk.Milk;
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.element.ElementLink;
@@ -501,7 +500,7 @@ public class PipeScenes {
 		scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
 			Storage<FluidVariant> ifh = be.getFluidStorage(null);
 			if (ifh != null)
-				TransferUtil.insert(ifh, new FluidStack(Milk.STILL_MILK, FluidConstants.BUCKET));
+				TransferUtil.insert(ifh, new FluidStack(FluidVariant.of(AllFluids.MILK.getSource()), FluidConstants.BUCKET));
 		});
 
 		scene.world().setBlock(util.grid().at(3, 1, 3), AllBlocks.FLUID_PIPE.get()
