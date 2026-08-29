@@ -335,26 +335,6 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		return level.potionBrewing();
 	}
 
-	@Override
-	public void setDayTimeFraction(float v) {
-		level.setDayTimeFraction(v);
-	}
-
-	@Override
-	public void setDayTimePerTick(float v) {
-		level.setDayTimePerTick(v);
-	}
-
-	@Override
-	public float getDayTimeFraction() {
-		return level.getDayTimeFraction();
-	}
-
-	@Override
-	public float getDayTimePerTick() {
-		return level.getDayTimePerTick();
-	}
-
 	// ADDITIONAL OVERRRIDES
 
 	@Override
@@ -366,10 +346,7 @@ public class VirtualRenderWorld extends Level implements VisualizationLevel {
 		return true;
 	}
 
-	@Override
-	public boolean isAreaLoaded(BlockPos center, int range) {
-		return true;
-	}
+
 
 	// UNIMPORTANT IMPLEMENTATIONS
 

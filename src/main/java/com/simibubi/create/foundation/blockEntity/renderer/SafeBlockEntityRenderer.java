@@ -6,8 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.CachedRenderBBBlockEntity;
 import com.simibubi.create.foundation.mixin.accessor.LevelRendererAccessor;
 
-import com.simibubi.create.foundation.mixin.accessor.LevelRendererAccessor;
-
 import net.createmod.ponder.api.level.PonderLevel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -57,11 +55,10 @@ public abstract class SafeBlockEntityRenderer<T extends BlockEntity> implements 
 		return !frustum.isVisible(itemBB);
 	}
 
-	@Override
 	public @NotNull AABB getRenderBoundingBox(@NotNull T blockEntity) {
 		if (blockEntity instanceof CachedRenderBBBlockEntity cbe)
 			return cbe.getRenderBoundingBox();
 
-		return BlockEntityRenderer.super.getRenderBoundingBox(blockEntity);
+		return AABB.unitCubeFromLowerCorner(blockEntity.getBlockPos().getCenter());
 	}
 }

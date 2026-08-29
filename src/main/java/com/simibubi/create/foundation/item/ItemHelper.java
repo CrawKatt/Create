@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.foundation.mixin.accessor.ItemStackHandlerAccessor;
+
 
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
@@ -124,7 +124,7 @@ public class ItemHelper {
 				}
 				totalSlots++;
 				if (!view.isResourceBlank()) {
-					f += (float) view.getAmount() / (float) Math.min(slotLimit, view.getResource().getItem().getMaxStackSize());
+					f += (float) view.getAmount() / (float) Math.min(slotLimit, view.getResource().getItem().getDefaultMaxStackSize());
 					++i;
 				}
 			}
@@ -210,7 +210,7 @@ public class ItemHelper {
 			try (Transaction t = Transaction.openOuter()) {
 				for (StorageView<ItemVariant> view : inv.nonEmptyViews()) {
 					ItemVariant contained = view.getResource();
-					int maxStackSize = contained.getItem().getMaxStackSize();
+					int maxStackSize = contained.getItem().getDefaultMaxStackSize();
 					// amount stored, amount needed, or max size, whichever is lowest.
 					int amountToExtractFromThisSlot = Math.min(truncateLong(view.getAmount()), Math.min(amount - extracted, maxStackSize));
 					if (!test.test(contained.toStack(amountToExtractFromThisSlot)))
@@ -252,14 +252,11 @@ public class ItemHelper {
 					// let's try a different target
 					if (otherTargets != null) {
 						t.abort();
-						try (Transaction nested = Transaction.openOuter()) {
-							for (ItemVariant target : otherTargets) {
-								// try again, but now only match the existing matches we've found
-								ItemStack successfulExtraction = extract(inv, target::matches, mode, amount, simulate);
-								if (!successfulExtraction.isEmpty()) {
-									if (!simulate) nested.commit();
-									return successfulExtraction;
-								}
+						for (ItemVariant target : otherTargets) {
+							// try again, but now only match the existing matches we've found
+							ItemStack successfulExtraction = extract(inv, target::matches, mode, amount, simulate);
+							if (!successfulExtraction.isEmpty()) {
+								return successfulExtraction;
 							}
 						}
 					}
@@ -343,7 +340,7 @@ public class ItemHelper {
 	}
 
 	public static ItemContainerContents containerContentsFromHandler(ItemStackHandler handler) {
-		return ItemContainerContents.fromItems(((ItemStackHandlerAccessor) handler).create$getStacks());
+		return ItemContainerContents.fromItems(handler.getStacks());
 	}
 
 	public static ItemStack limitCountToMaxStackSize(ItemStack stack, boolean simulate) {

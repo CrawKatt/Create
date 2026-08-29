@@ -6,7 +6,8 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.fabricmc.api.EnvType;
-import net.neoforged.fml.loading.FMLLoader;
+
+import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
 
 @ApiStatus.Internal
 @Deprecated(forRemoval = true, since = "1.21")
@@ -17,14 +18,7 @@ public class DistExecutor {
 	 */
 	@ApiStatus.Internal
 	@Deprecated(forRemoval = true, since = "1.21")
-	public static <T> T unsafeCallWhenOn(Dist dist, Supplier<Callable<T>> toRun) {
-		if (FMLLoader.getDist() == dist) {
-			try {
-				return toRun.get().call();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return null;
+	public static <T> T unsafeCallWhenOn(EnvType dist, Supplier<Callable<T>> toRun) {
+		return EnvExecutor.callWhenOn(dist, toRun);
 	}
 }

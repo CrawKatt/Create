@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.simibubi.create.foundation.utility.fabric.ListeningStorageView;
 import com.simibubi.create.infrastructure.fabric.ProcessingIterator;
 import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 
@@ -66,24 +67,10 @@ public class VersionedInventoryWrapper implements Storage<ItemVariant> {
 		return inventory.insert(resource, maxAmount, transaction);
 	}
 
-	@SuppressWarnings("removal")
-	@Override
-	public long simulateInsert(ItemVariant resource, long maxAmount, @Nullable TransactionContext transaction) {
-		this.listen(transaction);
-		return inventory.simulateInsert(resource, maxAmount, transaction);
-	}
-
 	@Override
 	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		this.listen(transaction);
 		return inventory.extract(resource, maxAmount, transaction);
-	}
-
-	@SuppressWarnings("removal")
-	@Override
-	public long simulateExtract(ItemVariant resource, long maxAmount, @Nullable TransactionContext transaction) {
-		this.listen(transaction);
-		return inventory.simulateExtract(resource, maxAmount, transaction);
 	}
 
 	@Override
@@ -100,12 +87,5 @@ public class VersionedInventoryWrapper implements Storage<ItemVariant> {
 	@Override
 	public Iterable<StorageView<ItemVariant>> nonEmptyViews() {
 		return this::nonEmptyIterator;
-	}
-
-	@SuppressWarnings("removal")
-	@Override
-	@Nullable
-	public StorageView<ItemVariant> exactView(ItemVariant resource) {
-		return new ListeningStorageView<>(Storage.super.exactView(resource), this::incrementVersion);
 	}
 }

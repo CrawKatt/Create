@@ -1,25 +1,24 @@
 package com.simibubi.create.foundation.blockEntity;
 
-import org.jetbrains.annotations.ApiStatus;
+
+import com.simibubi.create.infrastructure.fabric.transfer.item.SlottedStackStorage;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeInput;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-public class LegacyRecipeWrapper implements Container, RecipeInput {
+public class LegacyRecipeWrapper implements Container {
 
-	protected final IItemHandlerModifiable inv;
+	protected final SlottedStackStorage inv;
 
-	public LegacyRecipeWrapper(IItemHandlerModifiable inv)
+	public LegacyRecipeWrapper(SlottedStackStorage inv)
 	{
 		this.inv = inv;
 	}
 
-	@Override
-	@ApiStatus.NonExtendable
-	@ApiStatus.Internal
+	/**
+	 * Returns the size of this inventory.
+	 */
 	public int size() {
 		return getContainerSize();
 	}
@@ -30,7 +29,7 @@ public class LegacyRecipeWrapper implements Container, RecipeInput {
 	@Override
 	public int getContainerSize()
 	{
-		return inv.getSlots();
+		return inv.getSlotCount();
 	}
 
 	/**
@@ -76,7 +75,7 @@ public class LegacyRecipeWrapper implements Container, RecipeInput {
 	@Override
 	public boolean isEmpty()
 	{
-		for(int i = 0; i < inv.getSlots(); i++)
+		for(int i = 0; i < inv.getSlotCount(); i++)
 		{
 			if(!inv.getStackInSlot(i).isEmpty()) return false;
 		}
@@ -92,7 +91,7 @@ public class LegacyRecipeWrapper implements Container, RecipeInput {
 	@Override
 	public void clearContent()
 	{
-		for(int i = 0; i < inv.getSlots(); i++)
+		for(int i = 0; i < inv.getSlotCount(); i++)
 		{
 			inv.setStackInSlot(i, ItemStack.EMPTY);
 		}

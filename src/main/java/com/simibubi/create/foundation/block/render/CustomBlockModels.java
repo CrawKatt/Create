@@ -12,6 +12,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public class CustomBlockModels {
 
@@ -38,8 +39,9 @@ public class CustomBlockModels {
 	private void loadEntries() {
 		finalModelFuncs.clear();
 		modelFuncs.asMap().forEach((location, funcList) -> {
-			Block block = BuiltInRegistries.BLOCK.get(location);
-			if (block == Blocks.AIR) {
+			Block block = BuiltInRegistries.BLOCK.getOptional(location)
+				.orElse(null);
+			if (block == null || block == Blocks.AIR) {
 				return;
 			}
 

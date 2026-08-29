@@ -5,6 +5,8 @@ import net.createmod.catnip.net.base.ClientboundPacketPayload;
 import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
+import net.minecraft.server.MinecraftServer;
+
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.animation.LerpedFloat.Chaser;
 import io.netty.buffer.ByteBuf;

@@ -7,7 +7,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllParticleTypes;
 
-import net.minecraft.client.particle.ParticleEngine.SpriteParticleRegistration;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -59,7 +58,7 @@ public class AirParticleData implements ParticleOptions, ICustomParticleDataWith
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public SpriteParticleRegistration<AirParticleData> getMetaFactory() {
+	public MetaFactory<AirParticleData> getMetaFactory() {
 		return AirParticle.Factory::new;
 	}
 
