@@ -26,6 +26,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
 
+import net.minecraft.world.level.pathfinder.PathType;
+
 import io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock;
 import io.github.fabricators_of_create.porting_lib.block.CustomRunningEffectsBlock;
 
@@ -36,7 +38,7 @@ public class FakeTrackBlock extends Block implements EntityBlock, ProperWaterlog
 			.noCollission()
 			.noOcclusion());
 		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
-		LandPathNodeTypesRegistry.register(this, BlockPathTypes.DAMAGE_OTHER, null);
+		LandPathNodeTypesRegistry.register(this, PathType.DAMAGE_OTHER, null);
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.schedule.destination.DestinationInstruction;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
+import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 import com.simibubi.create.foundation.recipe.ItemCopyingRecipe.SupportsItemCopying;
 import com.simibubi.create.foundation.utility.CreateLang;
 
@@ -44,7 +45,6 @@ import net.minecraft.world.level.Level;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.util.NetworkHooks;
 
 public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopying {
 
@@ -65,9 +65,9 @@ public class ScheduleItem extends Item implements MenuProvider, SupportsItemCopy
 
 		if (!player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
 			if (!world.isClientSide && player instanceof ServerPlayer)
-				player.openMenu(this, buf -> {
+				player.openMenu(WrappedExtendedMenuProvider.of(this, buf -> {
 					ItemStack.STREAM_CODEC.encode(buf, heldItem);
-				});
+				}));
 			return InteractionResultHolder.success(heldItem);
 		}
 		return InteractionResultHolder.pass(heldItem);

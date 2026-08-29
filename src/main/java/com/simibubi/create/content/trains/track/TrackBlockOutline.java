@@ -19,6 +19,7 @@ import net.createmod.catnip.math.VecHelper;
 import net.createmod.catnip.data.WorldAttached;
 import net.createmod.catnip.math.AngleHelper;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -164,7 +165,7 @@ public class TrackBlockOutline {
 		ms.popPose();
 	}
 
-	public static boolean drawCustomBlockSelection(LevelRenderer context, Camera info, HitResult hitResult, float partialTicks, PoseStack ms, MultiBufferSource buffers) {
+	public static boolean drawCustomBlockSelection(LevelRenderer context, Camera info, HitResult hitResult, DeltaTracker deltaTracker, PoseStack ms, MultiBufferSource buffers) {
 		if (!(hitResult instanceof BlockHitResult))
 			return false;
 		Minecraft mc = Minecraft.getInstance();

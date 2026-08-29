@@ -1,11 +1,11 @@
 package com.simibubi.create.content.trains.track;
 
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.fabricmc.fabric.api.recipe.v1.ingredient.DefaultCustomIngredients;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 import org.jetbrains.annotations.Nullable;
@@ -24,10 +24,10 @@ public class TrackMaterialFactory {
 	private String langName;
 	private NonNullSupplier<NonNullSupplier<? extends TrackBlock>> trackBlock;
 	private Ingredient sleeperIngredient = Ingredient.EMPTY;
-	private Ingredient railsIngredient = Ingredient.fromValues(Stream.of(
-			new Ingredient.TagValue(ConventionalItemTags.IRON_NUGGETS),
-			new Ingredient.TagValue(AllTags.commonItemTag("nuggets/zinc"))
-	));
+	private Ingredient railsIngredient = DefaultCustomIngredients.any(
+			Ingredient.of(ConventionalItemTags.IRON_NUGGETS),
+			Ingredient.of(AllTags.commonItemTag("nuggets/zinc"))
+	);
 	private ResourceLocation particle;
 	private TrackMaterial.TrackType trackType = TrackMaterial.TrackType.STANDARD;
 

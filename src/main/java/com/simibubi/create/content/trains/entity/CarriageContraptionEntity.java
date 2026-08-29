@@ -48,6 +48,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -149,19 +150,19 @@ public class CarriageContraptionEntity extends OrientedContraptionEntity {
 	}
 
 	public void sendCarriageDataUpdate() {
-		AllPackets.getChannel().sendToClientsTracking(new CarriageDataUpdatePacket(this), this);
+		CatnipServices.NETWORK.sendToClientsTrackingEntity(this, new CarriageDataUpdatePacket(this));
 	}
 
 	// fabric: initial carriageData sync since that's not handled by tracked data anymore
 
 	@Override
-	public void writeSpawnData(FriendlyByteBuf buffer) {
+	public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
 		super.writeSpawnData(buffer);
 		carriageData.write(buffer);
 	}
 
 	@Override
-	public void readSpawnData(FriendlyByteBuf additionalData) {
+	public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
 		super.readSpawnData(additionalData);
 		carriageData.read(additionalData);
 	}
