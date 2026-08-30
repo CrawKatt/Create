@@ -53,6 +53,7 @@ public class CreateDatagen implements DataGeneratorEntrypoint {
 
 		pack.addProvider(AllSoundEvents::provider);
 		pack.addProvider(GeneratedEntriesProvider::new);
+		pack.addProvider(PotatoProjectileTypeProvider::new);
 		pack.addProvider(CreateRecipeSerializerTagsProvider::new);
 		pack.addProvider(CreateContraptionTypeTagsProvider::new);
 		pack.addProvider(CreateMountedItemStorageTypeTagsProvider::new);
