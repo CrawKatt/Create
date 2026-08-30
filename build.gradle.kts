@@ -7,8 +7,8 @@ val loaderVersion = "0.16.10"
 val fapiVersion = "0.116.1+1.21.1"
 
 // in-house dependencies
-val flywheelVersion = "1.0.1-11"
-val ponderVersion = "1.0.69"
+val flywheelVersion = "1.0.6-44"
+val ponderVersion = "1.0.82"
 val registrateVersion = "1.3.77-MC1.21.1"
 // last 3.x version that still publishes all modules this project uses
 // (accessors, lazy_registration, extensions and asm were removed in later betas)
@@ -132,13 +132,12 @@ dependencies {
     api(include("com.google.code.findbugs:jsr305:$jsr305Version")!!)
 
     if (ponder.exists()) {
-        implementation("net.createmod.ponder:Ponder-Fabric-$minecraftVersion:$ponderVersion") { isTransitive = false }
-		implementation("net.createmod.ponder:Ponder-Common-$minecraftVersion:$ponderVersion")
+        implementation("net.createmod.ponder:ponder-fabric:$ponderVersion+mc$minecraftVersion") { isTransitive = false }
+		implementation("net.createmod.ponder:ponder-common:$ponderVersion+mc$minecraftVersion")
     } else {
-        modRuntimeOnly(include("net.createmod.ponder:Ponder-Fabric-$minecraftVersion:$ponderVersion")!!)
-        modCompileOnly("net.createmod.ponder:Ponder-Fabric-$minecraftVersion:$ponderVersion") {
-            exclude(group = "io.github.fabricators_of_create.Porting-Lib")
-        }
+        modRuntimeOnly("net.createmod.ponder:ponder-fabric:$ponderVersion+mc$minecraftVersion") { isTransitive = false }
+        include("net.createmod.ponder:ponder-fabric:$ponderVersion+mc$minecraftVersion")
+        modCompileOnly("net.createmod.ponder:ponder-fabric:$ponderVersion+mc$minecraftVersion") { isTransitive = false }
     }
 
     // compat
