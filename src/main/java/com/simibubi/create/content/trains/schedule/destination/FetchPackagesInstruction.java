@@ -98,7 +98,7 @@ public class FetchPackagesInstruction extends TextScheduleInstruction {
 
 	@Override
 	public boolean supportsConditions() {
-		return false;
+		return true;
 	}
 
 	@Override
