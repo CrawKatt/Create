@@ -265,6 +265,7 @@ import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.MetalBarsGen;
 import com.simibubi.create.foundation.data.ModelGen;
 import com.simibubi.create.foundation.data.SharedProperties;
+import com.simibubi.create.foundation.mixin.accessor.BlockBehaviourPropertiesAccessor;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.UncontainableBlockItem;
 import com.simibubi.create.foundation.utility.DyeHelper;
@@ -1122,6 +1123,10 @@ public class AllBlocks {
 	public static final BlockEntry<PistonExtensionPoleBlock> PISTON_EXTENSION_POLE =
 		REGISTRATE.block("piston_extension_pole", PistonExtensionPoleBlock::new)
 			.initialProperties(() -> Blocks.PISTON_HEAD)
+			.properties(p -> {
+				((BlockBehaviourPropertiesAccessor) p).create$setDrops(null);
+				return p;
+			})
 			.properties(p -> p.sound(SoundType.SCAFFOLDING)
 				.mapColor(MapColor.DIRT)
 				.forceSolidOn())
@@ -1134,6 +1139,10 @@ public class AllBlocks {
 	public static final BlockEntry<MechanicalPistonHeadBlock> MECHANICAL_PISTON_HEAD =
 		REGISTRATE.block("mechanical_piston_head", MechanicalPistonHeadBlock::new)
 			.initialProperties(() -> Blocks.PISTON_HEAD)
+			.properties(p -> {
+				((BlockBehaviourPropertiesAccessor) p).create$setDrops(null);
+				return p;
+			})
 			.properties(p -> p.mapColor(MapColor.DIRT))
 			.properties(p -> p.pushReaction(PushReaction.NORMAL)) // fabric: inherits BLOCK from piston head, handled by a method override on forge
 			.transform(axeOrPickaxe())

@@ -1,20 +1,19 @@
 package com.simibubi.create.foundation.mixin;
 
-import java.util.Map;
+import java.util.Iterator;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import com.simibubi.create.Create;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.world.level.block.Block;
 
-// registrate's per-entry loot callbacks can be skipped for some blocks, leaving holes that
-// would crash datagen validation; emit an empty table instead so generation completes
+// Minecraft 1.21 validates every registered block, while Registrate's provider only owns
+// the tables collected from its entry callbacks. Limit that provider to the tables it owns.
 @Mixin(BlockLootSubProvider.class)
 public abstract class BlockLootSubProviderMixin {
 
@@ -22,15 +21,14 @@ public abstract class BlockLootSubProviderMixin {
 		method = "generate(Ljava/util/function/BiConsumer;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;"
+			target = "Lnet/minecraft/core/DefaultedRegistry;iterator()Ljava/util/Iterator;"
 		)
 	)
-	private Object create$gracefulMissingLoot(Map<ResourceKey<LootTable>, LootTable.Builder> map, Object key) {
-		Object builder = map.remove(key);
-		if (builder == null) {
-			Create.LOGGER.warn("Missing loot table for {}, generating an empty one", key);
-			return LootTable.lootTable();
-		}
-		return builder;
+	private Iterator<Block> create$iterateRegistrateBlocks(DefaultedRegistry<Block> registry) {
+		if ((Object) this instanceof RegistrateBlockLootTables tables)
+			return registry.stream()
+				.filter(block -> tables.map.containsKey(block.getLootTable()))
+				.iterator();
+		return registry.iterator();
 	}
 }
