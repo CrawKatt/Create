@@ -388,6 +388,8 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		FactoryPanelBlockEntity panelBE = panelBE();
 		if (targetedBy.isEmpty() && !panelBE.restocker)
 			return;
+		if (panelBE.restocker)
+			restockerPromises.tick();
 		if (satisfied || promisedSatisfied || waitingForNetwork || redstonePowered)
 			return;
 		if (timer > 0) {
