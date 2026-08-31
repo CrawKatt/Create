@@ -14,7 +14,7 @@ public class TurntableHandler {
 
 	public static void gameRenderFrame() {
 		Minecraft mc = Minecraft.getInstance();
-		BlockPos pos = mc.player.blockPosition();
+		BlockPos pos = mc.player.getOnPos();
 
 		if (mc.gameMode == null)
 			return;
