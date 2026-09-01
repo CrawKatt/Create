@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity.SelectionMode;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
@@ -17,6 +18,8 @@ import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayLayout;
 import com.simibubi.create.content.trains.display.FlapDisplaySection;
+import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -27,6 +30,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.EnchantedBookItem;
@@ -359,6 +363,32 @@ public class TestItems {
 					helper.fail("Text mismatch: wanted [" + name + "], got: " + text);
 			}
 		});
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void toolboxInventoryRoundTrip(CreateGameTestHelper helper) {
+		ToolboxInventory inventory = new ToolboxInventory(null);
+		for (int slot = 0; slot < 3; slot++)
+			inventory.setStackInSlot(slot, new ItemStack(Items.STONE, 64));
+
+		var ops = helper.getLevel().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+		var encoded = ToolboxInventory.CODEC.encodeStart(ops, inventory).getOrThrow();
+		ToolboxInventory decoded = ToolboxInventory.CODEC.parse(ops, encoded).getOrThrow();
+		int decodedCount = IntStream.range(0, decoded.getSlotCount())
+			.map(slot -> decoded.getStackInSlot(slot).getCount())
+			.sum();
+		helper.assertTrue(decodedCount == 192, "Toolbox round-trip kept " + decodedCount + " of 192 items");
+
+		decoded.setStackInSlot(ToolboxInventory.STACKS_PER_COMPARTMENT, new ItemStack(Items.GOLD_INGOT));
+		helper.assertTrue(decoded.getStackInSlot(ToolboxInventory.STACKS_PER_COMPARTMENT).is(Items.GOLD_INGOT),
+			"Decoded toolbox filters are not mutable");
+
+		for (int slot = 0; slot < ToolboxInventory.STACKS_PER_COMPARTMENT; slot++)
+			decoded.setStackInSlot(slot, new ItemStack(Items.IRON_INGOT, 64));
+		ItemHelper.copyContents(new ItemStackHandler(decoded.getSlotCount()), decoded);
+		for (int slot = 0; slot < decoded.getSlotCount(); slot++)
+			helper.assertTrue(decoded.getStackInSlot(slot).isEmpty(), "Copy left stale contents in slot " + slot);
+		helper.succeed();
 	}
 
 	@GameTest(template = "threshold_switch")
