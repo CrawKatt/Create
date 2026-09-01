@@ -18,6 +18,7 @@ import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayLayout;
 import com.simibubi.create.content.trains.display.FlapDisplaySection;
+import com.simibubi.create.content.trains.station.GlobalStation.GlobalPackagePort;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
@@ -363,6 +364,30 @@ public class TestItems {
 					helper.fail("Text mismatch: wanted [" + name + "], got: " + text);
 			}
 		});
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void postboxOfflineBufferRoundTrip(CreateGameTestHelper helper) {
+		GlobalPackagePort port = new GlobalPackagePort();
+		ItemStackHandler inventory = new ItemStackHandler(18) {
+			@Override
+			protected void onContentsChanged(int slot) {
+				port.saveOfflineBuffer(this);
+			}
+		};
+
+		port.offlineBuffer.setStackInSlot(0, new ItemStack(Items.DIAMOND));
+		port.offlineBuffer.setStackInSlot(1, new ItemStack(Items.GOLD_INGOT));
+		port.primed = true;
+		port.restoreOfflineBuffer(inventory);
+		helper.assertTrue(inventory.getStackInSlot(0).is(Items.DIAMOND), "First buffered package was not restored");
+		helper.assertTrue(inventory.getStackInSlot(1).is(Items.GOLD_INGOT), "Later buffered package was overwritten");
+		helper.assertTrue(!port.primed, "Restored postbox buffer remained primed");
+
+		inventory.setStackInSlot(2, new ItemStack(Items.IRON_INGOT));
+		helper.assertTrue(port.offlineBuffer.getStackInSlot(2).is(Items.IRON_INGOT),
+			"Postbox change did not update its offline buffer");
+		helper.succeed();
 	}
 
 	@GameTest(template = "threshold_switch")
