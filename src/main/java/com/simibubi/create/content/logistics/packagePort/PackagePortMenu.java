@@ -47,19 +47,28 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 
 	@Override
 	public ItemStack quickMoveStack(Player player, int index) {
-		Slot clickedSlot = getSlot(index);
-		if (!clickedSlot.hasItem())
+		Slot slot = this.slots.get(index);
+		if (!slot.hasItem())
 			return ItemStack.EMPTY;
 
-		ItemStack stack = clickedSlot.getItem();
-		int size = contentHolder.inventory.getSlotCount();
-		boolean success = false;
-		if (index < size) {
-			success = !moveItemStackTo(stack, size, slots.size(), false);
-		} else
-			success = !moveItemStackTo(stack, 0, size, false);
+		ItemStack stack = slot.getItem().copy();
+		ItemStack moved = stack.copy();
 
-		return success ? ItemStack.EMPTY : stack;
+		int size = contentHolder.inventory.getSlotCount();
+		if (index < size) {
+			if (!this.moveItemStackTo(stack, size, this.slots.size(), true))
+				return ItemStack.EMPTY;
+		} else {
+			if (!this.moveItemStackTo(stack, 0, size, false))
+				return ItemStack.EMPTY;
+		}
+
+		if (stack.isEmpty())
+			slot.setByPlayer(ItemStack.EMPTY);
+		else
+			slot.setByPlayer(stack.copy());
+
+		return moved;
 	}
 
 	@Override
@@ -87,6 +96,80 @@ public class PackagePortMenu extends MenuBase<PackagePortBlockEntity> {
 		if (!playerIn.level().isClientSide)
 			BlockEntityBehaviour.get(contentHolder, AnimatedContainerBehaviour.TYPE)
 				.stopOpen(playerIn);
+	}
+
+	@Override
+	protected boolean moveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean reverseDirection) {
+		boolean success = false;
+		int i = startIndex;
+		if (reverseDirection)
+			i = endIndex - 1;
+
+		if (stack.isStackable()) {
+			while (!stack.isEmpty()) {
+				if (reverseDirection) {
+					if (i < startIndex)
+						break;
+				} else if (i >= endIndex)
+					break;
+
+				Slot slot = this.slots.get(i);
+				ItemStack stackInSlot = slot.getItem();
+				if (!stackInSlot.isEmpty() && ItemStack.isSameItemSameComponents(stack, stackInSlot)) {
+					int totalCount = stackInSlot.getCount() + stack.getCount();
+					int maxSize = Math.min(slot.getMaxStackSize(), stack.getMaxStackSize());
+					if (totalCount <= maxSize) {
+						stack.setCount(0);
+						slot.setByPlayer(stackInSlot.copyWithCount(totalCount));
+						success = true;
+					} else if (stackInSlot.getCount() < maxSize) {
+						stack.shrink(maxSize - stackInSlot.getCount());
+						slot.setByPlayer(stackInSlot.copyWithCount(maxSize));
+						success = true;
+					}
+				}
+
+				if (reverseDirection)
+					--i;
+				else
+					++i;
+			}
+		}
+
+		if (!stack.isEmpty()) {
+			if (reverseDirection)
+				i = endIndex - 1;
+			else
+				i = startIndex;
+
+			while (true) {
+				if (reverseDirection) {
+					if (i < startIndex)
+						break;
+				} else if (i >= endIndex)
+					break;
+
+				Slot slot = this.slots.get(i);
+				ItemStack stackInSlot = slot.getItem();
+				if (stackInSlot.isEmpty() && slot.mayPlace(stack)) {
+					if (stack.getCount() > slot.getMaxStackSize())
+						slot.setByPlayer(stack.split(slot.getMaxStackSize()));
+					else
+						slot.setByPlayer(stack.split(stack.getCount()));
+
+					slot.setChanged();
+					success = true;
+					break;
+				}
+
+				if (reverseDirection)
+					--i;
+				else
+					++i;
+			}
+		}
+
+		return success;
 	}
 
 }
