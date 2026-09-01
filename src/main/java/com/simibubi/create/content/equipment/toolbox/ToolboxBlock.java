@@ -19,7 +19,6 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -28,7 +27,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -82,7 +80,7 @@ public class ToolboxBlock extends HorizontalDirectionalBlock implements SimpleWa
 		if (stack == null)
 			return;
 		withBlockEntityDo(worldIn, pos, be -> {
-			be.readInventory(stack.getOrDefault(AllDataComponents.TOOLBOX_INVENTORY, ItemContainerContents.EMPTY));
+			be.readInventory(stack.get(AllDataComponents.TOOLBOX_INVENTORY));
 			if (stack.has(AllDataComponents.TOOLBOX_UUID))
 				be.setUniqueId(stack.get(AllDataComponents.TOOLBOX_UUID));
 			if (stack.has(DataComponents.CUSTOM_NAME))
@@ -105,6 +103,9 @@ public class ToolboxBlock extends HorizontalDirectionalBlock implements SimpleWa
 		withBlockEntityDo(world, pos, ToolboxBlockEntity::unequipTracked);
 		if (world instanceof ServerLevel) {
 			ItemStack cloneItemStack = getCloneItemStack(world, pos, state);
+			withBlockEntityDo(world, pos, i -> {
+				cloneItemStack.applyComponents(i.collectComponents());
+			});
 			world.destroyBlock(pos, false);
 			if (world.getBlockState(pos) != state)
 				player.getInventory().placeItemBackInInventory(cloneItemStack);
@@ -116,9 +117,8 @@ public class ToolboxBlock extends HorizontalDirectionalBlock implements SimpleWa
 		ItemStack item = new ItemStack(this);
 		Optional<ToolboxBlockEntity> blockEntityOptional = getBlockEntityOptional(level, pos);
 
-		NonNullList<ItemStack> stacks = blockEntityOptional.map(tb -> tb.inventory.getStacks())
-			.orElse(NonNullList.create());
-		item.set(AllDataComponents.TOOLBOX_INVENTORY, ItemContainerContents.fromItems(stacks));
+		blockEntityOptional.map(tb ->
+			item.set(AllDataComponents.TOOLBOX_INVENTORY, tb.inventory));
 
 		blockEntityOptional.map(ToolboxBlockEntity::getUniqueId)
 			.ifPresent(uid -> item.set(AllDataComponents.TOOLBOX_UUID, uid));
