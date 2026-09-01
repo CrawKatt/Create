@@ -11,6 +11,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
+import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
 import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity.SelectionMode;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
@@ -41,6 +42,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 
@@ -387,6 +389,32 @@ public class TestItems {
 		inventory.setStackInSlot(2, new ItemStack(Items.IRON_INGOT));
 		helper.assertTrue(port.offlineBuffer.getStackInSlot(2).is(Items.IRON_INGOT),
 			"Postbox change did not update its offline buffer");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void packagePortShiftClick(CreateGameTestHelper helper) {
+		BlockPos portPos = new BlockPos(1, 2, 1);
+		helper.setBlock(portPos, AllBlocks.PACKAGE_FROGPORT.get());
+		var port = helper.getBlockEntity(AllBlockEntityTypes.PACKAGE_FROGPORT.get(), portPos);
+		port.inventory.setStackInSlot(0, new ItemStack(Items.IRON_INGOT, 32));
+
+		int[] changes = {0};
+		port.inventory.whenContentsChanged(slot -> changes[0]++);
+		var player = helper.makeMockPlayer(GameType.CREATIVE);
+		player.getInventory().setItem(0, new ItemStack(Items.IRON_INGOT, 16));
+
+		PackagePortMenu menu = PackagePortMenu.create(1, player.getInventory(), port);
+		ItemStack moved = menu.quickMoveStack(player, 18);
+		menu.removed(player);
+
+		helper.assertTrue(moved.is(Items.IRON_INGOT) && moved.getCount() == 16,
+			"Shift-click did not report the moved stack");
+		helper.assertTrue(port.inventory.getStackInSlot(0).getCount() == 48,
+			"Shift-click did not merge into the package port");
+		helper.assertTrue(player.getInventory().getItem(0).isEmpty(),
+			"Shift-click left items in the player inventory");
+		helper.assertTrue(changes[0] > 0, "Shift-click bypassed package port inventory callbacks");
 		helper.succeed();
 	}
 
