@@ -17,7 +17,6 @@ import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.content.trains.graph.TrackNode;
 import com.simibubi.create.content.trains.signal.SingleBlockEntityEdgePoint;
 
-import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 import net.createmod.catnip.nbt.NBTHelper;
@@ -213,11 +212,15 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 					if (PackageItem.matchAddress(stack, port.address))
 						continue;
 
-					long inserted = TransferUtil.insert(carriageInventory, stack);
-					if (inserted == 0)
-						continue;
+					ItemVariant resource = ItemVariant.of(stack);
+					long amount = stack.getCount();
+					try (Transaction t = Transaction.openOuter()) {
+						if (carriageInventory.insert(resource, amount, t) != amount
+							|| postboxInventory.getSlot(slot).extract(resource, amount, t) != amount)
+							continue;
+						t.commit();
+					}
 
-					postboxInventory.setStackInSlot(slot, ItemStack.EMPTY);
 					Create.RAILWAYS.markTracksDirty();
 					if (box != null)
 						box.spawnParticles();
@@ -246,12 +249,15 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 							box = ppbe;
 						}
 
-						long inserted = postboxInventory.insert(resource, view.getAmount(), t);
-						if (inserted != 0)
-							continue;
+						long amount = view.getAmount();
+						try (Transaction nested = t.openNested()) {
+							if (postboxInventory.insert(resource, amount, nested) != amount
+								|| view.extract(resource, amount, nested) != amount)
+								continue;
+							nested.commit();
+						}
 
 						Create.RAILWAYS.markTracksDirty();
-						view.extract(resource, view.getAmount(), t);
 						if (box != null)
 							box.spawnParticles();
 
