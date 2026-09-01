@@ -11,13 +11,15 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.packagePort.postbox.PostboxBlockEntity;
 import com.simibubi.create.content.trains.entity.Carriage;
-import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.content.trains.graph.TrackNode;
 import com.simibubi.create.content.trains.signal.SingleBlockEntityEdgePoint;
 
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
+import com.simibubi.create.infrastructure.fabric.transfer.item.SlottedStackStorage;
+
+import io.github.fabricators_of_create.porting_lib.core.util.ServerLifecycleHooks;
 
 import net.createmod.catnip.nbt.NBTHelper;
 
@@ -34,7 +36,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -172,22 +174,39 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 		public String address = "";
 		public ItemStackHandler offlineBuffer = new ItemStackHandler(18);
 		public boolean primed = false;
+		private boolean restoring = false;
+
+		public void restoreOfflineBuffer(SlottedStackStorage inventory) {
+			if (!primed)
+				return;
+
+			restoring = true;
+			for (int slot = 0; slot < offlineBuffer.getSlotCount(); slot++)
+				inventory.setStackInSlot(slot, offlineBuffer.getStackInSlot(slot));
+			restoring = false;
+			primed = false;
+		}
+
+		public void saveOfflineBuffer(SlottedStackStorage inventory) {
+			if (restoring)
+				return;
+
+			for (int slot = 0; slot < inventory.getSlotCount(); slot++)
+				offlineBuffer.setStackInSlot(slot, inventory.getStackInSlot(slot));
+
+			Create.RAILWAYS.markTracksDirty();
+		}
 	}
 
 	public void runMailTransfer() {
 		Train train = getPresentTrain();
 		if (train == null || connectedPorts.isEmpty())
 			return;
-		Level level = null;
+
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		Level level = server.getLevel(getBlockEntityDimension());
 
 		for (Carriage carriage : train.carriages) {
-			if (level == null) {
-				CarriageContraptionEntity entity = carriage.anyAvailableEntity();
-				if (entity != null && entity.level() instanceof ServerLevel sl)
-					level = sl.getServer()
-						.getLevel(getBlockEntityDimension());
-			}
-
 			Storage<ItemVariant> carriageInventory = carriage.storage.getAllItems();
 			if (carriageInventory == null)
 				continue;
@@ -221,9 +240,11 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 						t.commit();
 					}
 
-					Create.RAILWAYS.markTracksDirty();
-					if (box != null)
+					if (box == null)
+						port.primed = true;
+					else
 						box.spawnParticles();
+					Create.RAILWAYS.markTracksDirty();
 				}
 			}
 
@@ -257,9 +278,11 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 							nested.commit();
 						}
 
-						Create.RAILWAYS.markTracksDirty();
-						if (box != null)
+						if (box == null)
+							port.primed = true;
+						else
 							box.spawnParticles();
+						Create.RAILWAYS.markTracksDirty();
 
 						break;
 					}
