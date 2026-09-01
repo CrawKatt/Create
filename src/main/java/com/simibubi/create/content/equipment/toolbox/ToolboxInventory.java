@@ -2,6 +2,7 @@ package com.simibubi.create.content.equipment.toolbox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -21,14 +22,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.ItemSlots;
 
+import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -39,12 +45,29 @@ import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 
 public class ToolboxInventory extends ItemStackHandler {
-	public static final Codec<ToolboxInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-		ItemSlots.maxSizeCodec(8).fieldOf("items").forGetter(ItemSlots::fromHandler),
-		ItemStack.CODEC.listOf().fieldOf("filters").forGetter(toolbox -> toolbox.filters)
-	).apply(instance, ToolboxInventory::deserialize));
-
 	public static final int STACKS_PER_COMPARTMENT = 4;
+
+	public static final Codec<ToolboxInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		ItemSlots.maxSizeCodec(8 * STACKS_PER_COMPARTMENT).fieldOf("items").forGetter(ItemSlots::fromHandler),
+		ItemStack.OPTIONAL_CODEC.listOf().fieldOf("filters").forGetter(toolbox -> toolbox.filters)
+	).apply(instance, ToolboxInventory::deserialize));
+	public static final StreamCodec<RegistryFriendlyByteBuf, ToolboxInventory> STREAM_CODEC = StreamCodec.composite(
+		ItemSlots.STREAM_CODEC, ItemSlots::fromHandler,
+		CatnipStreamCodecBuilders.list(ItemStack.OPTIONAL_STREAM_CODEC), toolbox -> toolbox.filters,
+		ToolboxInventory::deserialize
+	);
+
+	// TODO - Remove in 1.22
+	@Deprecated(forRemoval = true)
+	public static final Codec<ToolboxInventory> BACKWARDS_COMPAT_CODEC = Codec.withAlternative(
+		CODEC,
+		ItemContainerContents.CODEC.xmap(i -> {
+			ToolboxInventory inv = new ToolboxInventory(null);
+			ItemHelper.fillItemStackHandler(i, inv);
+			return inv;
+		}, ItemHelper::containerContentsFromHandler)
+	);
+
 	List<ItemStack> filters;
 	boolean settling;
 	private ToolboxBlockEntity blockEntity;
@@ -241,6 +264,24 @@ public class ToolboxInventory extends ItemStackHandler {
 		slots.forEach(inventory::setStackInSlot);
 		inventory.filters = new ArrayList<>(filters);
 		return inventory;
+	}
+
+	@Override
+	public final boolean equals(Object o) {
+		if (!(o instanceof ToolboxInventory that))
+			return false;
+
+		return settling == that.settling && limitedMode == that.limitedMode && filters.equals(that.filters)
+			&& Objects.equals(blockEntity, that.blockEntity);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = filters.hashCode();
+		result = 31 * result + Boolean.hashCode(settling);
+		result = 31 * result + Objects.hashCode(blockEntity);
+		result = 31 * result + Boolean.hashCode(limitedMode);
+		return result;
 	}
 
 }
