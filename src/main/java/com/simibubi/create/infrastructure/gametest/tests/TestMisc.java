@@ -3,7 +3,9 @@ package com.simibubi.create.infrastructure.gametest.tests;
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.FIFTEEN_SECONDS;
 
 import com.simibubi.create.AllBlockEntityTypes;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlockEntity;
 import com.simibubi.create.content.schematics.SchematicExport;
 import com.simibubi.create.content.schematics.SchematicItem;
@@ -14,6 +16,7 @@ import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -29,6 +32,26 @@ import net.minecraft.world.level.block.RedstoneLampBlock;
 
 @GameTestGroup(path = "misc")
 public class TestMisc {
+	@GameTest(template = "smart_observer_blocks")
+	public static void virtualNixieText(CreateGameTestHelper helper) {
+		var nixie = new NixieTubeBlockEntity(AllBlockEntityTypes.NIXIE_TUBE.get(), BlockPos.ZERO,
+			AllBlocks.ORANGE_NIXIE_TUBE.getDefaultState());
+		nixie.markVirtual();
+		CompoundTag tag = new CompoundTag();
+		tag.putInt("RedstoneStrength", 13);
+		nixie.loadWithComponents(tag, helper.getLevel().registryAccess());
+		helper.assertTrue(nixie.getDisplayedStrings().getFirst().equals("1")
+			&& nixie.getDisplayedStrings().getSecond().equals("3"), "Virtual nixie did not refresh its digits");
+
+		tag.putString("CustomText", "\"ABCD\"");
+		tag.putString("RawCustomText", "\"ABCD\"");
+		tag.putInt("CustomTextIndex", 1);
+		nixie.loadWithComponents(tag, helper.getLevel().registryAccess());
+		helper.assertTrue(nixie.getDisplayedStrings().getFirst().equals("C")
+			&& nixie.getDisplayedStrings().getSecond().equals("D"), "Virtual nixie kept stale text");
+		helper.succeed();
+	}
+
 	@GameTest(template = "schematicannon", timeoutTicks = FIFTEEN_SECONDS)
 	public static void schematicannon(CreateGameTestHelper helper) {
 		// load the structure
