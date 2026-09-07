@@ -1,5 +1,8 @@
 package com.simibubi.create.content.kinetics.belt.transport;
 
+import com.simibubi.create.infrastructure.fabric.item.ItemUtils;
+
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -18,7 +21,7 @@ public class ItemHandlerBeltSegment implements SingleSlotStorage<ItemVariant> {
 	@Override
 	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		if (this.beltInventory.canInsertAt(offset)) {
-			int toInsert = Math.min((int) maxAmount, resource.getItem().getDefaultMaxStackSize());
+			int toInsert = (int) Math.min(maxAmount, ItemUtils.getMaxStackSize(resource));
 			TransportedItemStack newStack = new TransportedItemStack(resource.toStack(toInsert));
 			newStack.insertedAt = offset;
 			newStack.beltPosition = offset + .5f + (beltInventory.beltMovementPositive ? -1 : 1) / 16f;
@@ -61,7 +64,7 @@ public class ItemHandlerBeltSegment implements SingleSlotStorage<ItemVariant> {
 
 	@Override
 	public long getCapacity() {
-		return getStack().getMaxStackSize();
+		return getStack().getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
 	}
 
 	public ItemStack getStack() {

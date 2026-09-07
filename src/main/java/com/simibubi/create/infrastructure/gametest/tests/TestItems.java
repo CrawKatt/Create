@@ -10,6 +10,11 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
+import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
+import com.simibubi.create.content.kinetics.belt.transport.BeltInventory;
+import com.simibubi.create.content.kinetics.belt.transport.ItemHandlerBeltSegment;
+import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
+import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.filter.FilterMenu;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
@@ -30,6 +35,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
@@ -50,6 +56,7 @@ import net.minecraft.world.level.block.RedstoneLampBlock;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
@@ -446,6 +453,43 @@ public class TestItems {
 		helper.assertTrue(menu.stillValid(player), "Held filter menu is not valid");
 		inventory.setItem(3, ItemStack.EMPTY);
 		helper.assertTrue(!menu.stillValid(player), "Menu stayed valid after removing its owner");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void transferStackComponents(CreateGameTestHelper helper) {
+		for (int limit : new int[] { 8, 99 }) {
+			ItemStack stack = new ItemStack(Items.DIAMOND);
+			stack.set(DataComponents.MAX_STACK_SIZE, limit);
+			ItemVariant variant = ItemVariant.of(stack);
+			BlockPos pos = helper.absolutePos(BlockPos.ZERO);
+			var belt = new BeltBlockEntity(AllBlockEntityTypes.BELT.get(), pos, AllBlocks.BELT.getDefaultState());
+			belt.setLevel(helper.getLevel());
+			belt.setController(pos);
+			belt.beltLength = 1;
+			var inventory = new BeltInventory(belt);
+			var segment = new ItemHandlerBeltSegment(inventory, 0);
+			var deployer = new DeployerBlockEntity(AllBlockEntityTypes.DEPLOYER.get(), pos, AllBlocks.DEPLOYER.getDefaultState());
+			deployer.setLevel(helper.getLevel());
+			var chute = new ChuteBlockEntity(AllBlockEntityTypes.CHUTE.get(), pos, AllBlocks.CHUTE.getDefaultState());
+			chute.setLevel(helper.getLevel());
+			for (Storage<ItemVariant> storage : List.of(segment, deployer.getItemStorage(null), chute.getItemStorage(null))) {
+				try (Transaction transaction = Transaction.openOuter()) {
+					helper.assertTrue(storage.insert(variant, Long.MAX_VALUE, transaction) == limit,
+						"Transfer ignored custom stack limit " + limit + " in " + storage.getClass().getSimpleName());
+				}
+				inventory.tick();
+				helper.assertTrue(storage.iterator().next().getAmount() == 0, "Aborted insertion left items behind");
+				try (Transaction transaction = Transaction.openOuter()) {
+					helper.assertTrue(storage.insert(variant, Long.MAX_VALUE, transaction) == limit, "Insertion failed after rollback");
+					transaction.commit();
+				}
+				inventory.tick();
+				var view = storage.iterator().next();
+				helper.assertTrue(view.getAmount() == limit && view.getCapacity() == limit,
+					"Committed amount or capacity differs from component limit");
+			}
+		}
 		helper.succeed();
 	}
 

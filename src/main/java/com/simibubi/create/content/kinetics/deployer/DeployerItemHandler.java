@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
+import com.simibubi.create.infrastructure.fabric.item.ItemUtils;
 
 import net.minecraft.core.component.DataComponents;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -52,7 +53,7 @@ public class DeployerItemHandler extends SnapshotParticipant<Unit> implements St
 
 	@Override
 	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		int maxInsert = Math.min((int) maxAmount, resource.getItem().getDefaultMaxStackSize());
+		int maxInsert = (int) Math.min(maxAmount, ItemUtils.getMaxStackSize(resource));
 		ItemStack stack = resource.toStack(maxInsert);
 		if (!isItemValid(stack))
 			return 0;
@@ -226,7 +227,7 @@ public class DeployerItemHandler extends SnapshotParticipant<Unit> implements St
 
 		@Override
 		public long getCapacity() {
-			return getStack().getMaxStackSize();
+			return getStack().getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
 		}
 
 		public ItemStack getStack() {
