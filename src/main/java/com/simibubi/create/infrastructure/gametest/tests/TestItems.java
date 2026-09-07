@@ -10,6 +10,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
+import com.simibubi.create.content.equipment.toolbox.ToolboxMenu;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.transport.BeltInventory;
 import com.simibubi.create.content.kinetics.belt.transport.ItemHandlerBeltSegment;
@@ -43,6 +44,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -490,6 +492,26 @@ public class TestItems {
 					"Committed amount or capacity differs from component limit");
 			}
 		}
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void toolboxLastSlotShiftClick(CreateGameTestHelper helper) {
+		BlockPos pos = new BlockPos(1, 1, 1);
+		helper.setBlock(pos, AllBlocks.TOOLBOXES.get(DyeColor.BROWN).getDefaultState());
+		var toolbox = helper.getBlockEntity(AllBlockEntityTypes.TOOLBOX.get(), pos);
+		var inventory = (ToolboxInventory) toolbox.getItemStorage(null);
+		int lastSlot = inventory.getSlotCount() - 1;
+		for (int slot = 0; slot < lastSlot; slot++)
+			inventory.setStackInSlot(slot, new ItemStack(Items.STONE, 64));
+		var player = helper.makeMockPlayer(GameType.CREATIVE);
+		player.getInventory().setItem(0, new ItemStack(Items.STONE, 64));
+		ToolboxMenu menu = ToolboxMenu.create(1, player.getInventory(), toolbox);
+		menu.quickMoveStack(player, inventory.getSlotCount() + 27);
+		menu.removed(player);
+		helper.assertTrue(inventory.getStackInSlot(lastSlot).getCount() == 64,
+			"Shift-click excluded the last toolbox slot");
+		helper.assertTrue(player.getInventory().getItem(0).isEmpty(), "Shift-click left items in the player inventory");
 		helper.succeed();
 	}
 

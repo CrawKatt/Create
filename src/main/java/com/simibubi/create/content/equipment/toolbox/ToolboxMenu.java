@@ -66,7 +66,7 @@ public class ToolboxMenu extends MenuBase<ToolboxBlockEntity> {
 			success = !moveItemStackTo(stack, size, slots.size(), true);
 			contentHolder.inventory.onContentsChanged(index);
 		} else {
-			success = !moveItemStackTo(stack, 0, size - 1, false);
+			success = !moveItemStackTo(stack, 0, size, false);
 		}
 
 		return success ? ItemStack.EMPTY : stack;
