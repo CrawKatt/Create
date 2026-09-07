@@ -11,6 +11,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
+import com.simibubi.create.content.logistics.filter.FilterMenu;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
 import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity.SelectionMode;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
@@ -36,6 +37,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -405,7 +407,7 @@ public class TestItems {
 		player.getInventory().setItem(0, new ItemStack(Items.IRON_INGOT, 16));
 
 		PackagePortMenu menu = PackagePortMenu.create(1, player.getInventory(), port);
-		ItemStack moved = menu.quickMoveStack(player, 18);
+		ItemStack moved = menu.quickMoveStack(player, port.inventory.getSlotCount() + 27);
 		menu.removed(player);
 
 		helper.assertTrue(moved.is(Items.IRON_INGOT) && moved.getCount() == 16,
@@ -415,6 +417,35 @@ public class TestItems {
 		helper.assertTrue(player.getInventory().getItem(0).isEmpty(),
 			"Shift-click left items in the player inventory");
 		helper.assertTrue(changes[0] > 0, "Shift-click bypassed package port inventory callbacks");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void heldFilterMenuSlots(CreateGameTestHelper helper) {
+		var player = helper.makeMockPlayer(GameType.CREATIVE);
+		var inventory = player.getInventory();
+		inventory.selected = 3;
+		ItemStack filter = AllItems.FILTER.asStack();
+		inventory.setItem(3, filter);
+		inventory.setItem(9, new ItemStack(Items.DIAMOND, 12));
+		inventory.setItem(0, new ItemStack(Items.GOLD_INGOT, 7));
+		FilterMenu menu = FilterMenu.create(1, inventory, filter);
+		helper.assertTrue(menu.getSlot(0).getItem() == inventory.getItem(9)
+			&& menu.getSlot(27).getItem() == inventory.getItem(0), "Player slots are not in vanilla order");
+		menu.quickMoveStack(player, 0);
+		menu.quickMoveStack(player, 27);
+		helper.assertTrue(menu.ghostInventory.getStackInSlot(0).is(Items.DIAMOND)
+			&& menu.ghostInventory.getStackInSlot(1).is(Items.GOLD_INGOT), "Shift-click copied the wrong player slots");
+		helper.assertTrue(inventory.getItem(9).getCount() == 12 && inventory.getItem(0).getCount() == 7,
+			"Ghost insertion consumed real items");
+		menu.clicked(30, 0, ClickType.PICKUP, player);
+		helper.assertTrue(menu.getCarried().isEmpty() && inventory.getSelected() == filter,
+			"Menu allowed picking up its owner item");
+		helper.assertTrue(!menu.canTakeItemForPickAll(filter, menu.getSlot(30))
+			&& menu.canTakeItemForPickAll(filter, menu.getSlot(0)), "Pick-all owner protection targets the wrong slot");
+		helper.assertTrue(menu.stillValid(player), "Held filter menu is not valid");
+		inventory.setItem(3, ItemStack.EMPTY);
+		helper.assertTrue(!menu.stillValid(player), "Menu stayed valid after removing its owner");
 		helper.succeed();
 	}
 

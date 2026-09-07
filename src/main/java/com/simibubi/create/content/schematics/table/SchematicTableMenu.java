@@ -46,7 +46,7 @@ public class SchematicTableMenu extends MenuBase<SchematicTableBlockEntity> {
 
 		ItemStack stack = clickedSlot.getItem();
 		if (index < 2)
-			moveItemStackTo(stack, 2, slots.size(), false);
+			moveItemStackTo(stack, 2, slots.size(), true);
 		else
 			moveItemStackTo(stack, 0, 1, false);
 
