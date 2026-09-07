@@ -2,6 +2,8 @@ package com.simibubi.create.infrastructure.gametest.tests;
 
 import java.util.List;
 
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
@@ -12,8 +14,12 @@ import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,8 +29,55 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 
+import io.netty.buffer.Unpooled;
+
 @GameTestGroup(path = "processing")
 public class TestProcessing {
+	@GameTest(template = "water_filling_bottle")
+	public static void processingOutputCodecs(CreateGameTestHelper helper) {
+		ItemStack expected = new ItemStack(Items.DIAMOND, 7);
+		expected.set(DataComponents.CUSTOM_NAME, Component.literal("Recipe output"));
+		ProcessingOutput output = new ProcessingOutput(expected, .5f);
+		output.getStack().shrink(6);
+		helper.assertTrue(ItemStack.matches(output.getStack(), expected), "Output stack mutation changed the recipe");
+		var ops = helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE);
+		var encoded = ProcessingOutput.CODEC.encodeStart(ops, output).getOrThrow();
+		helper.assertTrue(encoded.getAsJsonObject().has("id") && encoded.getAsJsonObject().has("components"),
+			"Output encoder did not use the new component format");
+		var decoded = ProcessingOutput.CODEC.parse(ops, encoded).getOrThrow();
+		helper.assertTrue(ItemStack.matches(decoded.getStack(), expected) && decoded.getChance() == .5f,
+			"JSON round-trip lost output data");
+		var legacy = ProcessingOutput.CODEC.parse(ops,
+			JsonParser.parseString("{\"item\":{\"id\":\"minecraft:diamond\"},\"count\":7,\"chance\":0.5}")).getOrThrow();
+		helper.assertTrue(legacy.getStack().is(Items.DIAMOND) && legacy.getStack().getCount() == 7
+			&& legacy.getChance() == .5f, "Legacy output JSON is no longer readable");
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			ProcessingOutput.STREAM_CODEC.encode(buffer, output);
+			ProcessingOutput.STREAM_CODEC.encode(buffer, ProcessingOutput.EMPTY);
+			var network = ProcessingOutput.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(ItemStack.matches(network.getStack(), expected) && network.getChance() == .5f,
+				"Network round-trip lost output data");
+			helper.assertTrue(ProcessingOutput.STREAM_CODEC.decode(buffer).getStack().isEmpty() && !buffer.isReadable(),
+				"Empty output codec did not consume exactly its payload");
+		} finally {
+			buffer.release();
+		}
+		RandomSource expectedRandom = RandomSource.create(42);
+		int count = 7;
+		for (int roll = 0; roll < 7; roll++)
+			if (expectedRandom.nextFloat() > .5f)
+				count--;
+		ItemStack rolled = output.rollOutput(RandomSource.create(42));
+		helper.assertTrue(rolled.getCount() == count && ItemStack.isSameItemSameComponents(rolled, expected),
+			"Output did not use the supplied random source or preserve components");
+		RandomSource guaranteedRandom = RandomSource.create(42);
+		new ProcessingOutput(expected, 1).rollOutput(guaranteedRandom);
+		helper.assertTrue(guaranteedRandom.nextFloat() == RandomSource.create(42).nextFloat(),
+			"Guaranteed output consumed random values");
+		helper.succeed();
+	}
+
 	@GameTest(template = "brass_mixing", timeoutTicks = CreateGameTestHelper.TEN_SECONDS)
 	public static void brassMixing(CreateGameTestHelper helper) {
 		BlockPos lever = new BlockPos(2, 3, 2);

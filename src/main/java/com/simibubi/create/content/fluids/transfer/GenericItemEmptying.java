@@ -48,7 +48,7 @@ public class GenericItemEmptying {
 		Optional<RecipeHolder<Recipe<SingleRecipeInput>>> recipe = AllRecipeTypes.EMPTYING.find(new SingleRecipeInput(stack), world);
 		if (recipe.isPresent()) {
 			EmptyingRecipe emptyingRecipe = (EmptyingRecipe) recipe.get().value();
-			List<ItemStack> results = emptyingRecipe.rollResults();
+			List<ItemStack> results = emptyingRecipe.rollResults(world.random);
 			if (!simulate)
 				stack.shrink(1);
 			resultingItem = results.isEmpty() ? ItemStack.EMPTY : results.get(0);

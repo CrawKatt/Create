@@ -46,7 +46,7 @@ public class RecipeApplier {
 			for (int i = 0; i < stackIn.getCount(); i++) {
 				List<ProcessingOutput> outputs =
 					pr instanceof ManualApplicationRecipe mar ? mar.getRollableResults() : pr.getRollableResults();
-				for (ItemStack stack : pr.rollResults(outputs)) {
+				for (ItemStack stack : pr.rollResults(outputs, level.random)) {
 					for (ItemStack previouslyRolled : stacks) {
 						if (stack.isEmpty())
 							continue;

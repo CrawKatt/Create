@@ -142,7 +142,7 @@ public class BasinRecipe extends ProcessingRecipe<RecipeInput> {
 			CraftingInput remainderInput = CraftingInput.of(consumedItems.size(), 1, consumedItems);
 
 			if (recipe instanceof BasinRecipe basinRecipe) {
-				recipeOutputItems.addAll(basinRecipe.rollResults());
+				recipeOutputItems.addAll(basinRecipe.rollResults(basin.getLevel().random));
 
 					for (FluidStack fluidStack : basinRecipe.getFluidResults())
 						if (!fluidStack.isEmpty())

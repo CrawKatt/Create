@@ -18,6 +18,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -74,9 +75,9 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 		ManualApplicationRecipe recipe = (ManualApplicationRecipe) foundRecipe.get().value();
 		level.destroyBlock(pos, false);
 
-		BlockState transformedBlock = recipe.transformBlock(blockState);
+		BlockState transformedBlock = recipe.transformBlock(blockState, level.random);
 		level.setBlock(pos, transformedBlock, 3);
-		recipe.rollResults()
+		recipe.rollResults(level.random)
 			.forEach(stack -> Block.popResource(level, pos, stack));
 
 		boolean creative = player != null && player
@@ -136,9 +137,9 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 				.asItem()));
 	}
 
-	public BlockState transformBlock(BlockState in) {
+	public BlockState transformBlock(BlockState in, RandomSource randomSource) {
 		ProcessingOutput mainOutput = results.get(0);
-		ItemStack output = mainOutput.rollOutput();
+		ItemStack output = mainOutput.rollOutput(randomSource);
 		if (output.getItem() instanceof BlockItem bi)
 			return BlockHelper.copyProperties(in, bi.getBlock()
 				.defaultBlockState());
@@ -146,8 +147,8 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 	}
 
 	@Override
-	public List<ItemStack> rollResults() {
-		return rollResults(getRollableResultsExceptBlock());
+	public List<ItemStack> rollResults(RandomSource randomSource) {
+		return rollResults(getRollableResultsExceptBlock(), randomSource);
 	}
 
 	public List<ProcessingOutput> getRollableResultsExceptBlock() {

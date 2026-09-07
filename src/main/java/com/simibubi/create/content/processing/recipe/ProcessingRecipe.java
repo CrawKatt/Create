@@ -24,6 +24,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -150,15 +151,15 @@ public abstract class ProcessingRecipe<T extends RecipeInput> implements Recipe<
 		forcedResult = stack;
 	}
 
-	public List<ItemStack> rollResults() {
-		return rollResults(this.getRollableResults());
+	public List<ItemStack> rollResults(RandomSource randomSource) {
+		return rollResults(this.getRollableResults(), randomSource);
 	}
 
-	public List<ItemStack> rollResults(List<ProcessingOutput> rollableResults) {
+	public List<ItemStack> rollResults(List<ProcessingOutput> rollableResults, RandomSource randomSource) {
 		List<ItemStack> results = new ArrayList<>();
 		for (int i = 0; i < rollableResults.size(); i++) {
 			ProcessingOutput output = rollableResults.get(i);
-			ItemStack stack = i == 0 && forcedResult != null ? forcedResult.get() : output.rollOutput();
+			ItemStack stack = i == 0 && forcedResult != null ? forcedResult.get() : output.rollOutput(randomSource);
 			if (!stack.isEmpty())
 				results.add(stack);
 		}
