@@ -1,5 +1,7 @@
 package com.simibubi.create.foundation.events;
 
+import com.simibubi.create.AllBlocks;
+import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.contraptions.elevator.ElevatorControlsHandler;
 import com.simibubi.create.content.contraptions.wrench.RadialWrenchHandler;
@@ -19,6 +21,8 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.HitResult;
 
 import net.fabricmc.api.EnvType;
@@ -87,6 +91,14 @@ public class InputEvents {
 
 		if (ChainConveyorInteractionHandler.onUse() || PackagePortTargetSelectionHandler.onUse()) {
 			return InteractionResult.SUCCESS;
+		}
+
+		if (mc.player != null) {
+			ItemStack itemInHand = mc.player.getItemInHand(hand);
+			if (AllItemTags.WRENCH.matches(itemInHand))
+				return cancel ? InteractionResult.SUCCESS : InteractionResult.PASS;
+			if (itemInHand.is(Items.CHAIN) || AllBlocks.PACKAGE_FROGPORT.isIn(itemInHand))
+				return cancel ? InteractionResult.SUCCESS : InteractionResult.PASS;
 		}
 
 		if (ChainPackageInteractionHandler.onUse()) {
