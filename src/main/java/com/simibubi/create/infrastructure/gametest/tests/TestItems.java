@@ -10,6 +10,9 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
+import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
+import com.simibubi.create.content.equipment.clipboard.ClipboardOverrides.ClipboardType;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItemComponent;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.equipment.toolbox.ToolboxMenu;
@@ -43,6 +46,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -68,6 +72,42 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "depot_comparator_output")
+	public static void clipboardContentCodecs(CreateGameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+		ItemStack icon = AllItems.BRASS_INGOT.asStack();
+		icon.set(DataComponents.CUSTOM_NAME, Component.literal("Clipboard icon"));
+		CompoundTag copiedValues = new CompoundTag();
+		copiedValues.putInt("Value", 42);
+		ClipboardContent content = ClipboardContent.EMPTY.setType(ClipboardType.WRITTEN)
+			.setPages(List.of(List.of(new ClipboardEntry(true, Component.literal("First")).displayItem(icon, 99)),
+				List.of(new ClipboardEntry(false, Component.literal("Second")))))
+			.setReadOnly(true).setPreviouslyOpenedPage(1).setCopiedValues(copiedValues);
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+		try {
+			for (ClipboardContent value : List.of(content, ClipboardContent.EMPTY)) {
+				ItemStack clipboard = AllBlocks.CLIPBOARD.asStack();
+				clipboard.set(AllDataComponents.CLIPBOARD_CONTENT, value);
+				var encoded = ClipboardContent.CODEC.encodeStart(ops, value).getOrThrow();
+				ItemStack restored = ItemStack.parse(registries, clipboard.save(registries)).orElseThrow();
+				helper.assertTrue(encoded.equals(ClipboardContent.CODEC.encodeStart(ops,
+					restored.get(AllDataComponents.CLIPBOARD_CONTENT)).getOrThrow()),
+					"Clipboard persistence changed pages, item amounts, icons or settings");
+				ItemStack.STREAM_CODEC.encode(buffer, clipboard);
+				ClipboardContent network = ItemStack.STREAM_CODEC.decode(buffer).get(AllDataComponents.CLIPBOARD_CONTENT);
+				helper.assertTrue(encoded.equals(ClipboardContent.CODEC.encodeStart(ops, network).getOrThrow())
+					&& !buffer.isReadable(), "Clipboard network codec changed content or left unread bytes");
+			}
+		} finally {
+			buffer.release();
+		}
+		helper.assertTrue(ClipboardContent.EMPTY.type() == ClipboardType.EMPTY && ClipboardContent.EMPTY.pages().isEmpty()
+			&& !ClipboardContent.EMPTY.readOnly() && ClipboardContent.EMPTY.previouslyOpenedPage() == 0
+			&& ClipboardContent.EMPTY.copiedValues().isEmpty(), "Clipboard setters mutated the empty default");
+		helper.succeed();
+	}
+
 	@GameTest(template = "depot_comparator_output")
 	public static void sandpaperComponent(CreateGameTestHelper helper) {
 		var registries = helper.getLevel().registryAccess();
