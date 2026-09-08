@@ -1,14 +1,22 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
+import com.simibubi.create.content.kinetics.deployer.DeployerApplicationRecipe;
+import com.simibubi.create.content.kinetics.deployer.ManualApplicationRecipe;
+import com.simibubi.create.content.kinetics.mixer.MixingRecipe;
+import com.simibubi.create.content.kinetics.press.PressingRecipe;
+import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
+import com.simibubi.create.content.processing.sequenced.SequencedRecipe;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
@@ -25,6 +33,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -75,6 +85,104 @@ public class TestProcessing {
 		new ProcessingOutput(expected, 1).rollOutput(guaranteedRandom);
 		helper.assertTrue(guaranteedRandom.nextFloat() == RandomSource.create(42).nextFloat(),
 			"Guaranteed output consumed random values");
+		helper.succeed();
+	}
+
+	@GameTest(template = "water_filling_bottle")
+	public static void processingRecipeCodecs(CreateGameTestHelper helper) {
+		var ops = helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE);
+		RecipeSerializer<MixingRecipe> mixingSerializer = AllRecipeTypes.MIXING.getSerializer();
+		RecipeSerializer<PressingRecipe> pressingSerializer = AllRecipeTypes.PRESSING.getSerializer();
+		RecipeSerializer<ManualApplicationRecipe> applicationSerializer = AllRecipeTypes.ITEM_APPLICATION.getSerializer();
+		var standardJson = JsonParser.parseString("""
+			{"ingredients":[{"item":"minecraft:iron_ingot"},{"type":"fluid_stack","fluid":"minecraft:water","amount":2147483772}],
+			"results":[{"id":"minecraft:gold_ingot","count":2},{"id":"minecraft:water","amount":250}],
+			"processing_time":20,"heat_requirement":"heated"}
+			""");
+		MixingRecipe standard = mixingSerializer.codec().codec().parse(ops, standardJson).getOrThrow();
+		helper.assertTrue(standard.getIngredients().size() == 1 && standard.getFluidIngredients().size() == 1
+			&& standard.getRollableResults().getFirst().getStack().getCount() == 2
+			&& standard.getFluidResults().getFirst().getAmount() == 250,
+			"Mixed processing recipe JSON lost item/fluid parameters");
+		var encodedStandard = mixingSerializer.codec().codec().encodeStart(ops, standard).getOrThrow();
+		helper.assertTrue(!encodedStandard.getAsJsonObject().has("id"), "Recipe params unexpectedly encoded an id");
+		MixingRecipe standardJsonRoundTrip = mixingSerializer.codec().codec().parse(ops, encodedStandard).getOrThrow();
+		helper.assertTrue(standardJsonRoundTrip.getIngredients().size() == 1
+			&& standardJsonRoundTrip.getFluidIngredients().getFirst().getRequiredAmount() == 2_147_483_772L
+			&& standardJsonRoundTrip.getRollableResults().getFirst().getStack().getCount() == 2
+			&& standardJsonRoundTrip.getFluidResults().getFirst().getAmount() == 250
+			&& standardJsonRoundTrip.getProcessingDuration() == 20
+			&& standardJsonRoundTrip.getRequiredHeat() == HeatCondition.HEATED,
+			"Mixed processing recipe JSON round-trip lost parameters");
+
+		var invalid = JsonParser.parseString("""
+			{"ingredients":[{"item":"minecraft:iron_ingot"},{"item":"minecraft:gold_ingot"}],
+			"results":[{"id":"minecraft:diamond"}],"processing_time":1,"heat_requirement":"heated"}
+			""");
+		var invalidResult = pressingSerializer.codec().codec().parse(ops, invalid);
+		helper.assertTrue(invalidResult.error().isPresent()
+			&& invalidResult.error().get().message().contains("item inputs")
+			&& invalidResult.error().get().message().contains("duration")
+			&& invalidResult.error().get().message().contains("heat"),
+			"Invalid processing params were accepted");
+
+		Function<Boolean, com.google.gson.JsonElement> applicationJson = keep -> JsonParser.parseString("{\"ingredients\":[{\"item\":\"minecraft:iron_ingot\"},{\"item\":\"minecraft:stick\"}],\"results\":[{\"id\":\"minecraft:iron_block\"}],\"keep_held_item\":" + keep + "}");
+		ManualApplicationRecipe applicationFalse = applicationSerializer.codec().codec()
+			.parse(ops, applicationJson.apply(false)).getOrThrow();
+		ManualApplicationRecipe applicationTrue = applicationSerializer.codec().codec()
+			.parse(ops, applicationJson.apply(true)).getOrThrow();
+		helper.assertTrue(!applicationFalse.shouldKeepHeldItem() && applicationTrue.shouldKeepHeldItem(),
+			"Item application keep_held_item JSON was not preserved");
+
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			mixingSerializer.streamCodec().encode(buffer, standard);
+			applicationSerializer.streamCodec().encode(buffer, applicationFalse);
+			applicationSerializer.streamCodec().encode(buffer, applicationTrue);
+			MixingRecipe networkStandard = mixingSerializer.streamCodec().decode(buffer);
+			ManualApplicationRecipe networkFalse = applicationSerializer.streamCodec().decode(buffer);
+			ManualApplicationRecipe networkTrue = applicationSerializer.streamCodec().decode(buffer);
+			helper.assertTrue(networkStandard.getFluidResults().getFirst().getAmount() == 250
+				&& networkStandard.getIngredients().size() == 1
+				&& networkStandard.getFluidIngredients().getFirst().getRequiredAmount() == 2_147_483_772L
+				&& networkStandard.getRollableResults().getFirst().getStack().is(Items.GOLD_INGOT)
+				&& networkStandard.getRollableResults().getFirst().getStack().getCount() == 2
+				&& networkStandard.getProcessingDuration() == 20
+				&& networkStandard.getRequiredHeat() == HeatCondition.HEATED
+				&& !networkFalse.shouldKeepHeldItem() && networkTrue.shouldKeepHeldItem() && !buffer.isReadable(),
+				"Processing recipe network codecs did not round-trip or consume exactly");
+		} finally {
+			buffer.release();
+		}
+
+		var pressingJson = JsonParser.parseString("{\"type\":\"create:pressing\",\"ingredients\":[{\"item\":\"minecraft:iron_ingot\"}],\"results\":[{\"id\":\"minecraft:iron_block\"}]}");
+		var deployerJson = JsonParser.parseString("{\"type\":\"create:deploying\",\"ingredients\":[{\"item\":\"minecraft:iron_ingot\"},{\"item\":\"minecraft:stick\"}],\"results\":[{\"id\":\"minecraft:iron_block\"}]}");
+		SequencedRecipe<?> pressingSequence = SequencedRecipe.CODEC.parse(ops, pressingJson).getOrThrow();
+		SequencedRecipe<?> deployerSequence = SequencedRecipe.CODEC.parse(ops, deployerJson).getOrThrow();
+		helper.assertTrue(pressingSequence.getRecipe() instanceof PressingRecipe
+			&& deployerSequence.getRecipe() instanceof DeployerApplicationRecipe,
+			"Sequenced recipe codec rejected an assembly recipe");
+		var nonAssemblyJson = JsonParser.parseString("{\"type\":\"create:mixing\",\"ingredients\":[{\"item\":\"minecraft:iron_ingot\"}],\"results\":[{\"id\":\"minecraft:iron_block\"}]}");
+		helper.assertTrue(SequencedRecipe.CODEC.parse(ops, nonAssemblyJson).error().isPresent(),
+			"Sequenced recipe codec accepted a non-assembly recipe");
+
+		buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+		try {
+			SequencedRecipe.STREAM_CODEC.encode(buffer, pressingSequence);
+			SequencedRecipe.STREAM_CODEC.encode(buffer, deployerSequence);
+			SequencedRecipe<?> networkPressing = SequencedRecipe.STREAM_CODEC.decode(buffer);
+			SequencedRecipe<?> networkDeployer = SequencedRecipe.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(networkPressing.getRecipe() instanceof PressingRecipe
+				&& networkDeployer.getRecipe() instanceof DeployerApplicationRecipe && !buffer.isReadable(),
+				"Sequenced recipe network codec did not round-trip exactly");
+			Recipe.STREAM_CODEC.encode(buffer, standard);
+			try {
+				SequencedRecipe.STREAM_CODEC.decode(buffer);
+				helper.fail("Sequenced recipe network codec accepted a non-assembly recipe");
+			} catch (io.netty.handler.codec.DecoderException expected) {}
+		} finally {
+			buffer.release();
+		}
 		helper.succeed();
 	}
 
