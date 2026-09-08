@@ -19,9 +19,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.kinetics.saw.CuttingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeSerializer;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.pack.DynamicPack;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
@@ -169,8 +167,8 @@ public class RuntimeDataGenerator {
 		}
 	}
 
-	private static class Builder<T extends ProcessingRecipe<?>> extends ProcessingRecipeBuilder<T> {
-		public Builder(String modid, ProcessingRecipeBuilder.ProcessingRecipeFactory<T> factory, String from, String to) {
+	private static class Builder<T extends StandardProcessingRecipe<?>> extends StandardProcessingRecipe.Builder<T> {
+		public Builder(String modid, StandardProcessingRecipe.Factory<T> factory, String from, String to) {
 			super(factory, Create.asResource("runtime_generated/compat/" + modid + "/" + from + "_to_" + to));
 		}
 
@@ -181,11 +179,8 @@ public class RuntimeDataGenerator {
 			IRecipeTypeInfo recipeType = recipe.getTypeInfo();
 			ResourceLocation typeId = recipeType.getId();
 
-			if (!(recipeType.getSerializer() instanceof ProcessingRecipeSerializer))
-				throw new IllegalStateException("Cannot datagen ProcessingRecipe of type: " + typeId);
-
-			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(recipe.id.getNamespace(),
-				typeId.getPath() + "/" + recipe.id.getPath());
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(recipeId.getNamespace(),
+				typeId.getPath() + "/" + recipeId.getPath());
 
 			Optional<JsonElement> serialized = CatnipCodecUtils.encode(Recipe.CODEC, JsonOps.INSTANCE, recipe);
 			serialized.ifPresent(r -> JSON_FILES.put(id.withPrefix("recipe/"), r));

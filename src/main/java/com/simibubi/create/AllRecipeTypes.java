@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.compat.rei.ConversionRecipe;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperPolishingRecipe;
 import com.simibubi.create.content.equipment.toolbox.ToolboxDyeingRecipe;
@@ -21,6 +20,7 @@ import com.simibubi.create.content.kinetics.crafter.MechanicalCraftingRecipe;
 import com.simibubi.create.content.kinetics.crusher.CrushingRecipe;
 import com.simibubi.create.content.kinetics.deployer.DeployerApplicationRecipe;
 import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe;
+import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipeParams;
 import com.simibubi.create.content.kinetics.deployer.ManualApplicationRecipe;
 import com.simibubi.create.content.kinetics.fan.processing.HauntingRecipe;
 import com.simibubi.create.content.kinetics.fan.processing.SplashingRecipe;
@@ -31,8 +31,7 @@ import com.simibubi.create.content.kinetics.press.PressingRecipe;
 import com.simibubi.create.content.kinetics.saw.CuttingRecipe;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeFactory;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeSerializer;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeSerializer;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 import com.simibubi.create.foundation.recipe.ItemCopyingRecipe;
@@ -107,8 +106,13 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 		isProcessingRecipe = false;
 	}
 
-	AllRecipeTypes(ProcessingRecipeFactory<?> processingFactory) {
-		this(() -> new ProcessingRecipeSerializer<>(processingFactory));
+	AllRecipeTypes(StandardProcessingRecipe.Factory<?> processingFactory) {
+		this(() -> new StandardProcessingRecipe.Serializer<>(processingFactory));
+		isProcessingRecipe = true;
+	}
+
+	AllRecipeTypes(ProcessingRecipe.Factory<ItemApplicationRecipeParams, ? extends ItemApplicationRecipe> itemApplicationFactory) {
+		this(() -> new ItemApplicationRecipe.Serializer<>(itemApplicationFactory));
 		isProcessingRecipe = true;
 	}
 
@@ -161,11 +165,4 @@ public enum AllRecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 		};
 	}
 
-	public <T extends ProcessingRecipe<?>> MapCodec<T> processingCodec() {
-		if (!isProcessingRecipe)
-			throw new AssertionError("AllRecipeTypes#processingCodec called on " + name() + ", which is not a processing recipe");
-		if (this == DEPLOYING || this == ITEM_APPLICATION)
-			return ItemApplicationRecipe.codec(this);
-		return ProcessingRecipeSerializer.codec(this);
-	}
 }

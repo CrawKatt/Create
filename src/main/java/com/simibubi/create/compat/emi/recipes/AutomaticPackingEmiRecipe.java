@@ -14,13 +14,12 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 public class AutomaticPackingEmiRecipe extends CreateEmiRecipe<BasinRecipe> {
 
-	public AutomaticPackingEmiRecipe(BasinRecipe recipe) {
+	public AutomaticPackingEmiRecipe(BasinRecipe recipe, ResourceLocation recipeId) {
 		super(CreateEmiPlugin.AUTOMATIC_PACKING, recipe, 177, 108);
 		if (recipe.getRequiredHeat() == HeatCondition.NONE) {
 			height = 90;
 		}
-		ResourceLocation id = recipe.id;
-		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/automatic_packing/" + id.getNamespace() + "/" + id.getPath());
+		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/automatic_packing/" + recipeId.getNamespace() + "/" + recipeId.getPath());
 	}
 
 	@Override

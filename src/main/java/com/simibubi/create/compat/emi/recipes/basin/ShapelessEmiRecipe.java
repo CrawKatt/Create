@@ -7,9 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ShapelessEmiRecipe extends MixingEmiRecipe {
 
-	public ShapelessEmiRecipe(EmiRecipeCategory category, BasinRecipe recipe) {
+	public ShapelessEmiRecipe(EmiRecipeCategory category, BasinRecipe recipe, ResourceLocation recipeId) {
 		super(category, recipe);
-		ResourceLocation id = recipe.id;
-		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/shapeless/" + id.getNamespace() + "/" + id.getPath());
+		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/shapeless/" + recipeId.getNamespace() + "/" + recipeId.getPath());
 	}
 }

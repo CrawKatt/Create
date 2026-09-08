@@ -27,11 +27,11 @@ public class DeployingRecipeGen extends ProcessingRecipeGen {
 
 	GeneratedRecipe
 
-		COGWHEEL = create("cogwheel", b -> b.require(I.shaft())
+		COGWHEEL = createItemApplication("cogwheel", b -> b.require(I.shaft())
 			.require(I.planks())
 			.output(I.cog())),
 
-		LARGE_COGWHEEL = create("large_cogwheel", b -> b.require(I.cog())
+		LARGE_COGWHEEL = createItemApplication("large_cogwheel", b -> b.require(I.cog())
 			.require(I.planks())
 			.output(I.largeCog()));
 
@@ -94,7 +94,7 @@ public class DeployingRecipeGen extends ProcessingRecipeGen {
 		for (int i = 0; i < chain.size() - 1; i++) {
 			Supplier<ItemLike> to = chain.get(i);
 			Supplier<ItemLike> from = chain.get(i + 1);
-			createWithDeferredId(idWithSuffix(to, "_from_deoxidising"), b -> b.require(from.get())
+			createItemApplicationWithDeferredId(idWithSuffix(to, "_from_deoxidising"), b -> b.require(from.get())
 				.require(ItemTags.AXES)
 				.toolNotConsumed()
 				.output(to.get()));
@@ -107,12 +107,12 @@ public class DeployingRecipeGen extends ProcessingRecipeGen {
 	}
 
 	public GeneratedRecipe addWax(Supplier<ItemLike> waxed, Supplier<ItemLike> nonWaxed) {
-		createWithDeferredId(idWithSuffix(nonWaxed, "_from_removing_wax"), b -> b.require(waxed.get())
+		createItemApplicationWithDeferredId(idWithSuffix(nonWaxed, "_from_removing_wax"), b -> b.require(waxed.get())
 			.require(ItemTags.AXES)
 			.toolNotConsumed()
 			.output(nonWaxed.get()));
 
-		return createWithDeferredId(idWithSuffix(waxed, "_from_adding_wax"), b -> b.require(nonWaxed.get())
+		return createItemApplicationWithDeferredId(idWithSuffix(waxed, "_from_adding_wax"), b -> b.require(nonWaxed.get())
 			.require(Items.HONEYCOMB_BLOCK)
 			.toolNotConsumed()
 			.output(waxed.get()));

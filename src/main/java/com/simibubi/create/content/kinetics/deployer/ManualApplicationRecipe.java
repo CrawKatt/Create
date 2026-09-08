@@ -6,8 +6,6 @@ import java.util.Optional;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.advancement.CreateAdvancement;
 import com.simibubi.create.foundation.utility.AdventureUtil;
@@ -113,15 +111,15 @@ public class ManualApplicationRecipe extends ItemApplicationRecipe {
 		advancement.awardTo(player);
 	}
 
-	public ManualApplicationRecipe(ProcessingRecipeParams params) {
+	public ManualApplicationRecipe(ItemApplicationRecipeParams params) {
 		super(AllRecipeTypes.ITEM_APPLICATION, params);
 	}
 
 	public static RecipeHolder<DeployerApplicationRecipe> asDeploying(RecipeHolder<?> recipe) {
 		ManualApplicationRecipe mar = (ManualApplicationRecipe) recipe.value();
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(mar.id.getNamespace(), mar.id.getPath() + "_using_deployer");
-		ProcessingRecipeBuilder<DeployerApplicationRecipe> builder =
-			new ProcessingRecipeBuilder<>(DeployerApplicationRecipe::new, id)
+		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(recipe.id().getNamespace(), recipe.id().getPath() + "_using_deployer");
+		ItemApplicationRecipe.Builder<DeployerApplicationRecipe> builder =
+			new ItemApplicationRecipe.Builder<>(DeployerApplicationRecipe::new, id)
 					.require(mar.ingredients.get(0))
 					.require(mar.ingredients.get(1));
 		for (ProcessingOutput output : mar.results)

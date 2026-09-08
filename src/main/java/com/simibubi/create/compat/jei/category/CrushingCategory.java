@@ -45,7 +45,7 @@ public class CrushingCategory extends CreateRecipeCategory<AbstractCrushingRecip
 		);
 	}
 
-	private List<LayoutEntry> layoutOutput(ProcessingRecipe<?> recipe) {
+	private List<LayoutEntry> layoutOutput(ProcessingRecipe<?, ?> recipe) {
 		int size = recipe.getRollableResults().size();
 		List<LayoutEntry> positions = new ArrayList<>(size);
 

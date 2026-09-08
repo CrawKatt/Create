@@ -7,9 +7,11 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeSerializer;
+import com.simibubi.create.AllRecipeTypes;
+import com.simibubi.create.content.kinetics.deployer.DeployerApplicationRecipe;
+import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe;
+import com.simibubi.create.content.kinetics.deployer.ManualApplicationRecipe;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import net.createmod.catnip.registry.RegisteredObjectsHelper;
@@ -71,13 +73,13 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 	 * Create a processing recipe with a single itemstack ingredient, using its id
 	 * as the name of the recipe
 	 */
-	protected <T extends ProcessingRecipe<?>> GeneratedRecipe create(String namespace,
-		Supplier<ItemLike> singleIngredient, UnaryOperator<ProcessingRecipeBuilder<T>> transform) {
-		ProcessingRecipeSerializer<T> serializer = getSerializer();
+	protected GeneratedRecipe create(String namespace,
+		Supplier<ItemLike> singleIngredient, UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
+		StandardProcessingRecipe.Serializer<?> serializer = getSerializer();
 		GeneratedRecipe generatedRecipe = c -> {
 			ItemLike itemLike = singleIngredient.get();
 			transform
-				.apply(new ProcessingRecipeBuilder<>(serializer.getFactory(),
+				.apply(new StandardProcessingRecipe.Builder<>(serializer.factory(),
 					ResourceLocation.fromNamespaceAndPath(namespace, RegisteredObjectsHelper.getKeyOrThrow(itemLike.asItem())
 						.getPath())).withItemIngredients(Ingredient.of(itemLike)))
 				.build(c);
@@ -90,16 +92,16 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 	 * Create a processing recipe with a single itemstack ingredient, using its id
 	 * as the name of the recipe
 	 */
-	<T extends ProcessingRecipe<?>> GeneratedRecipe create(Supplier<ItemLike> singleIngredient,
-		UnaryOperator<ProcessingRecipeBuilder<T>> transform) {
+	protected GeneratedRecipe create(Supplier<ItemLike> singleIngredient,
+		UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
 		return create(Create.ID, singleIngredient, transform);
 	}
 
-	protected <T extends ProcessingRecipe<?>> GeneratedRecipe createWithDeferredId(Supplier<ResourceLocation> name,
-		UnaryOperator<ProcessingRecipeBuilder<T>> transform) {
-		ProcessingRecipeSerializer<T> serializer = getSerializer();
+	protected GeneratedRecipe createWithDeferredId(Supplier<ResourceLocation> name,
+		UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
+		StandardProcessingRecipe.Serializer<?> serializer = getSerializer();
 		GeneratedRecipe generatedRecipe =
-			c -> transform.apply(new ProcessingRecipeBuilder<>(serializer.getFactory(), name.get()))
+			c -> transform.apply(new StandardProcessingRecipe.Builder<>(serializer.factory(), name.get()))
 				.build(c);
 		all.add(generatedRecipe);
 		return generatedRecipe;
@@ -109,8 +111,8 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 	 * Create a new processing recipe, with recipe definitions provided by the
 	 * function
 	 */
-	protected <T extends ProcessingRecipe<?>> GeneratedRecipe create(ResourceLocation name,
-		UnaryOperator<ProcessingRecipeBuilder<T>> transform) {
+	protected GeneratedRecipe create(ResourceLocation name,
+		UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
 		return createWithDeferredId(() -> name, transform);
 	}
 
@@ -118,15 +120,41 @@ public abstract class ProcessingRecipeGen extends CreateRecipeProvider {
 	 * Create a new processing recipe, with recipe definitions provided by the
 	 * function
 	 */
-	<T extends ProcessingRecipe<?>> GeneratedRecipe create(String name,
-		UnaryOperator<ProcessingRecipeBuilder<T>> transform) {
+	protected GeneratedRecipe create(String name,
+		UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
 		return create(Create.asResource(name), transform);
 	}
 
 	protected abstract IRecipeTypeInfo getRecipeType();
 
-	protected <T extends ProcessingRecipe<?>> ProcessingRecipeSerializer<T> getSerializer() {
-		return getRecipeType().getSerializer();
+	@SuppressWarnings("unchecked")
+	protected StandardProcessingRecipe.Serializer<?> getSerializer() {
+		return (StandardProcessingRecipe.Serializer<?>) getRecipeType().getSerializer();
+	}
+
+	protected GeneratedRecipe createItemApplication(String name,
+		UnaryOperator<ItemApplicationRecipe.Builder<?>> transform) {
+		return createItemApplication(Create.asResource(name), transform);
+	}
+
+	protected GeneratedRecipe createItemApplication(ResourceLocation name,
+		UnaryOperator<ItemApplicationRecipe.Builder<?>> transform) {
+		GeneratedRecipe generatedRecipe = c -> transform.apply(new ItemApplicationRecipe.Builder<ItemApplicationRecipe>(getItemApplicationFactory(), name)).build(c);
+		all.add(generatedRecipe);
+		return generatedRecipe;
+	}
+
+	protected GeneratedRecipe createItemApplicationWithDeferredId(Supplier<ResourceLocation> name,
+		UnaryOperator<ItemApplicationRecipe.Builder<?>> transform) {
+		GeneratedRecipe generatedRecipe = c -> transform.apply(new ItemApplicationRecipe.Builder<ItemApplicationRecipe>(getItemApplicationFactory(), name.get())).build(c);
+		all.add(generatedRecipe);
+		return generatedRecipe;
+	}
+
+	private ItemApplicationRecipe.Factory<ItemApplicationRecipe> getItemApplicationFactory() {
+		if (getRecipeType() == AllRecipeTypes.DEPLOYING)
+			return params -> new DeployerApplicationRecipe(params);
+		return params -> new ManualApplicationRecipe(params);
 	}
 
 	protected Supplier<ResourceLocation> idWithSuffix(Supplier<ItemLike> item, String suffix) {

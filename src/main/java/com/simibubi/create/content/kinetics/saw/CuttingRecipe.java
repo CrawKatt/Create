@@ -8,8 +8,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.compat.recipeViewerCommon.SequencedAssemblySubCategoryType;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
 import com.simibubi.create.content.processing.sequenced.IAssemblyRecipe;
 import com.simibubi.create.foundation.utility.CreateLang;
 
@@ -23,7 +23,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
 @ParametersAreNonnullByDefault
-public class CuttingRecipe extends ProcessingRecipe<RecipeInput> implements IAssemblyRecipe {
+public class CuttingRecipe extends StandardProcessingRecipe<RecipeInput> implements IAssemblyRecipe {
 
 	public CuttingRecipe(ProcessingRecipeParams params) {
 		super(AllRecipeTypes.CUTTING, params);

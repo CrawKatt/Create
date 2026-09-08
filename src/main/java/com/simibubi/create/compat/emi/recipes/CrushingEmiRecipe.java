@@ -10,10 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CrushingEmiRecipe extends CreateEmiRecipe<AbstractCrushingRecipe> {
 
-	public CrushingEmiRecipe(AbstractCrushingRecipe recipe) {
+	public CrushingEmiRecipe(AbstractCrushingRecipe recipe, ResourceLocation recipeId) {
 		super(CreateEmiPlugin.CRUSHING, recipe, 134, 110);
-		ResourceLocation rid = recipe.id;
-		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/crushing/" + rid.getNamespace() + "/" + rid.getPath());
+		this.id = ResourceLocation.fromNamespaceAndPath("emi", "create/crushing/" + recipeId.getNamespace() + "/" + recipeId.getPath());
 	}
 
 	@Override

@@ -19,8 +19,7 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.content.decoration.palettes.AllPaletteStoneTypes;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.HolderLookup;
@@ -434,13 +433,13 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 	}
 
 	protected GeneratedRecipe mineralRecycling(AllPaletteStoneTypes type,
-		UnaryOperator<ProcessingRecipeBuilder<ProcessingRecipe<?>>> transform) {
+		UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
 		create(Lang.asId(type.name()) + "_recycling", b -> transform.apply(b.require(type.materialTag)));
 		return create(type.getBaseBlock()::get, transform);
 	}
 
 	protected GeneratedRecipe ensMineralRecycling(AllPaletteStoneTypes type,
-											   UnaryOperator<ProcessingRecipeBuilder<ProcessingRecipe<?>>> transform) {
+													   UnaryOperator<StandardProcessingRecipe.Builder<?>> transform) {
 		create(Lang.asId(type.name()) + "_recycling", b -> transform.apply(b.require(type.materialTag)));
 		return create(type.getBaseBlock()::get, b -> transform.apply(b.whenModMissing(Mods.ENS.getId())));
 	}
@@ -463,7 +462,7 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 	protected GeneratedRecipe ore(ItemLike stoneType, Supplier<ItemLike> ore, Supplier<ItemLike> raw,
 		float expectedAmount, int duration) {
 		return create(ore, b -> {
-			ProcessingRecipeBuilder<ProcessingRecipe<?>> builder = b.duration(duration)
+			StandardProcessingRecipe.Builder<?> builder = b.duration(duration)
 				.output(raw.get(), Mth.floor(expectedAmount));
 			float extra = expectedAmount - Mth.floor(expectedAmount);
 			if (extra > 0)

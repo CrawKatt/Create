@@ -7,38 +7,32 @@ import java.util.stream.Collectors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import com.simibubi.create.AllRecipeTypes;
-
-import net.minecraft.core.HolderLookup;
-import net.minecraft.world.item.crafting.RecipeInput;
-
-import org.slf4j.Logger;
-
-import com.simibubi.create.Create;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
-import com.simibubi.create.foundation.fluid.FluidIngredient;
+import com.google.common.base.Joiner;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
+import com.simibubi.create.foundation.fluid.FluidIngredient;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class ProcessingRecipe<T extends RecipeInput> implements Recipe<T> {
+public abstract class ProcessingRecipe<I extends RecipeInput, P extends ProcessingRecipeParams> implements Recipe<I> {
 
-	public ResourceLocation id;
+	protected P params;
 	protected NonNullList<Ingredient> ingredients;
 	protected NonNullList<ProcessingOutput> results;
 	protected NonNullList<FluidIngredient> fluidIngredients;
@@ -51,20 +45,18 @@ public abstract class ProcessingRecipe<T extends RecipeInput> implements Recipe<
 	private IRecipeTypeInfo typeInfo;
 	private Supplier<ItemStack> forcedResult;
 
-	public ProcessingRecipe(IRecipeTypeInfo typeInfo, ProcessingRecipeParams params) {
-		this.forcedResult = null;
-		this.typeInfo = typeInfo;
-		this.processingDuration = params.processingDuration;
-		this.fluidIngredients = params.fluidIngredients;
-		this.fluidResults = params.fluidResults;
-		this.serializer = typeInfo.getSerializer();
-		this.requiredHeat = params.requiredHeat;
+	public ProcessingRecipe(IRecipeTypeInfo typeInfo, P params) {
+		this.params = params;
 		this.ingredients = params.ingredients;
-		this.type = typeInfo.getType();
+		this.fluidIngredients = params.fluidIngredients;
 		this.results = params.results;
-		this.id = params.id;
-
-		validate(typeInfo.getId());
+		this.fluidResults = params.fluidResults;
+		this.processingDuration = params.processingDuration;
+		this.requiredHeat = params.requiredHeat;
+		this.type = typeInfo.getType();
+		this.serializer = typeInfo.getSerializer();
+		this.typeInfo = typeInfo;
+		this.forcedResult = null;
 	}
 
 	// Recipe type options:
@@ -89,39 +81,41 @@ public abstract class ProcessingRecipe<T extends RecipeInput> implements Recipe<
 		return 0;
 	}
 
-	//
-
-	private void validate(ResourceLocation recipeTypeId) {
-		String messageHeader = "Your custom " + recipeTypeId + " recipe (" + id.toString() + ")";
-		Logger logger = Create.LOGGER;
+	public List<String> validate() {
+		List<String> errors = new ArrayList<>();
 		int ingredientCount = ingredients.size();
 		int outputCount = results.size();
 
 		if (ingredientCount > getMaxInputCount())
-			logger.warn(messageHeader + " has more item inputs (" + ingredientCount + ") than supported ("
+			errors.add("Recipe has more item inputs (" + ingredientCount + ") than supported ("
 				+ getMaxInputCount() + ").");
 
 		if (outputCount > getMaxOutputCount())
-			logger.warn(messageHeader + " has more item outputs (" + outputCount + ") than supported ("
+			errors.add("Recipe has more item outputs (" + outputCount + ") than supported ("
 				+ getMaxOutputCount() + ").");
-
-		if (processingDuration > 0 && !canSpecifyDuration())
-			logger.warn(messageHeader + " specified a duration. Durations have no impact on this type of recipe.");
-
-		if (requiredHeat != HeatCondition.NONE && !canRequireHeat())
-			logger.warn(
-				messageHeader + " specified a heat condition. Heat conditions have no impact on this type of recipe.");
 
 		ingredientCount = fluidIngredients.size();
 		outputCount = fluidResults.size();
 
 		if (ingredientCount > getMaxFluidInputCount())
-			logger.warn(messageHeader + " has more fluid inputs (" + ingredientCount + ") than supported ("
-				+ getMaxFluidInputCount() + ").");
+			errors.add("Recipe has more fluid inputs (" + ingredientCount + ") than supported ("
+						+ getMaxFluidInputCount() + ").");
 
 		if (outputCount > getMaxFluidOutputCount())
-			logger.warn(messageHeader + " has more fluid outputs (" + outputCount + ") than supported ("
-				+ getMaxFluidOutputCount() + ").");
+			errors.add("Recipe has more fluid outputs (" + outputCount + ") than supported ("
+						+ getMaxFluidOutputCount() + ").");
+
+		if (processingDuration > 0 && !canSpecifyDuration())
+			errors.add("Recipe specified a duration. Durations have no impact on this type of recipe.");
+
+		if (requiredHeat != HeatCondition.NONE && !canRequireHeat())
+			errors.add("Recipe specified a heat condition. Heat conditions have no impact on this type of recipe.");
+
+		return errors;
+	}
+
+	public P getParams() {
+		return params;
 	}
 
 	@Override
@@ -177,7 +171,7 @@ public abstract class ProcessingRecipe<T extends RecipeInput> implements Recipe<
 	// IRecipe<> paperwork
 
 	@Override
-	public ItemStack assemble(T t, HolderLookup.Provider provider) {
+	public ItemStack assemble(I t, HolderLookup.Provider provider) {
 		return getResultItem(provider);
 	}
 
@@ -218,13 +212,27 @@ public abstract class ProcessingRecipe<T extends RecipeInput> implements Recipe<
 		return typeInfo;
 	}
 
-	public AllRecipeTypes getRecipeType() {
-		return (AllRecipeTypes) typeInfo;
+	public static <P extends ProcessingRecipeParams, R extends ProcessingRecipe<?, P>> MapCodec<R> codec(
+		Factory<P, R> factory, MapCodec<P> paramsCodec
+	) {
+		return paramsCodec.xmap(factory::create, recipe -> recipe.getParams())
+			.validate(recipe -> {
+				var errors = recipe.validate();
+				if (errors.isEmpty())
+					return DataResult.success(recipe);
+				errors.add(recipe.getClass().getSimpleName() + " failed validation:");
+				return DataResult.error(() -> Joiner.on('\n').join(errors), recipe);
+			});
 	}
 
-	// Additional Data added by subtypes
+	public static <P extends ProcessingRecipeParams, R extends ProcessingRecipe<?, P>> StreamCodec<RegistryFriendlyByteBuf, R> streamCodec(
+		Factory<P, R> factory, StreamCodec<RegistryFriendlyByteBuf, P> streamCodec
+	) {
+		return streamCodec.map(factory::create, ProcessingRecipe::getParams);
+	}
 
-	public void readAdditional(FriendlyByteBuf buffer) {}
-
-	public void writeAdditional(FriendlyByteBuf buffer) {}
+	@FunctionalInterface
+	public interface Factory<P extends ProcessingRecipeParams, R extends ProcessingRecipe<?, P>> {
+		R create(P params);
+	}
 }

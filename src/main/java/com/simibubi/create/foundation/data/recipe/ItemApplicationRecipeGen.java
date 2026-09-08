@@ -19,7 +19,7 @@ import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
 public class ItemApplicationRecipeGen extends ProcessingRecipeGen {
 
-	GeneratedRecipe BOUND_CARDBOARD_BLOCK = create("bound_cardboard_inworld",
+	GeneratedRecipe BOUND_CARDBOARD_BLOCK = createItemApplication("bound_cardboard_inworld",
 		b -> b.require(AllBlocks.CARDBOARD_BLOCK.get())
 			.require(Tags.Items.STRINGS)
 			.output(AllBlocks.BOUND_CARDBOARD_BLOCK.asStack()));
@@ -27,7 +27,7 @@ public class ItemApplicationRecipeGen extends ProcessingRecipeGen {
 	GeneratedRecipe ANDESITE = woodCasing("andesite", I::andesiteAlloy, I::andesiteCasing);
 	GeneratedRecipe COPPER = woodCasingTag("copper", I::copper, I::copperCasing);
 	GeneratedRecipe BRASS = woodCasingTag("brass", I::brass, I::brassCasing);
-	GeneratedRecipe RAILWAY = create("railway_casing", b -> b.require(I.brassCasing())
+	GeneratedRecipe RAILWAY = createItemApplication("railway_casing", b -> b.require(I.brassCasing())
 		.require(I.sturdySheet())
 		.output(I.railwayCasing()));
 
@@ -41,10 +41,10 @@ public class ItemApplicationRecipeGen extends ProcessingRecipeGen {
 
 	protected GeneratedRecipe woodCasingIngredient(String type, Supplier<Ingredient> ingredient,
 		Supplier<ItemLike> output) {
-		create(type + "_casing_from_log", b -> b.require(Ingredient.of(com.simibubi.create.AllTags.commonItemTag("stripped_logs")))
+		createItemApplication(type + "_casing_from_log", b -> b.require(Ingredient.of(com.simibubi.create.AllTags.commonItemTag("stripped_logs")))
 			.require(ingredient.get())
 			.output(output.get()));
-		return create(type + "_casing_from_wood", b -> b.require(Ingredient.of(com.simibubi.create.AllTags.commonItemTag("stripped_woods")))
+		return createItemApplication(type + "_casing_from_wood", b -> b.require(Ingredient.of(com.simibubi.create.AllTags.commonItemTag("stripped_woods")))
 			.require(ingredient.get())
 			.output(output.get()));
 	}

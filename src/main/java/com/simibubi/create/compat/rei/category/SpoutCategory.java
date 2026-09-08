@@ -12,7 +12,7 @@ import com.simibubi.create.compat.rei.display.CreateDisplay;
 import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.content.fluids.transfer.FillingRecipe;
 import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
+import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.item.ItemHelper;
@@ -62,7 +62,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 			if (stack.getItem() instanceof PotionItem) {
 				FluidStack fluidFromPotionItem = PotionFluidHandler.getFluidFromPotionItem(stack);
 				Ingredient bottle = Ingredient.of(Items.GLASS_BOTTLE);
-				consumer.accept(new ProcessingRecipeBuilder<>(FillingRecipe::new, Create.asResource("potions"))
+				consumer.accept(new StandardProcessingRecipe.Builder<>(FillingRecipe::new, Create.asResource("potions"))
 					.withItemIngredients(bottle)
 					.withFluidIngredients(FluidIngredient.fromFluidStack(fluidFromPotionItem))
 					.withSingleItemOutput(stack)
@@ -95,7 +95,7 @@ public class SpoutCategory extends CreateRecipeCategory<FillingRecipe> {
 								.getKey(stack.getItem());
 						ResourceLocation fluidName = BuiltInRegistries.FLUID
 								.getKey(fluidCopy.getFluid());
-						consumer.accept(new ProcessingRecipeBuilder<>(FillingRecipe::new,
+						consumer.accept(new StandardProcessingRecipe.Builder<>(FillingRecipe::new,
 								Create.asResource("fill_" + itemName.getNamespace() + "_" + itemName.getPath()
 										+ "_with_" + fluidName.getNamespace() + "_" + fluidName.getPath()))
 								.withItemIngredients(bucket)

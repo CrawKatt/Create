@@ -8,7 +8,7 @@ import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.access
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.kinetics.deployer.ManualApplicationRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
+import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
@@ -65,7 +65,7 @@ public class LogStrippingFakeRecipes {
 	private static RecipeHolder<ManualApplicationRecipe> create(Item fromItem, Item toItem, ItemStack axe) {
 		ResourceLocation rn = RegisteredObjectsHelper.getKeyOrThrow(toItem);
 		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(rn.getNamespace(), rn.getPath() + "_via_vanilla_stripping");
-		ManualApplicationRecipe recipe = new ProcessingRecipeBuilder<>(ManualApplicationRecipe::new, id)
+		ManualApplicationRecipe recipe = new ItemApplicationRecipe.Builder<>(ManualApplicationRecipe::new, id)
 				.require(fromItem)
 				.require(Ingredient.of(axe))
 				.output(toItem)

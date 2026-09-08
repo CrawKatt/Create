@@ -43,7 +43,7 @@ public abstract class FanEmiRecipe<T extends Recipe<?>> extends CreateEmiRecipe<
 		return EmiStack.of(fan);
 	}
 
-	public static abstract class MultiOutput<T extends ProcessingRecipe<?>> extends FanEmiRecipe<T> {
+	public static abstract class MultiOutput<T extends ProcessingRecipe<?, ?>> extends FanEmiRecipe<T> {
 
 		public MultiOutput(EmiRecipeCategory type, T recipe) {
 			super(type, recipe);

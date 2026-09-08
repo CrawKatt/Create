@@ -301,7 +301,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	}
 
 	private void applyRecipe() {
-		Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> recipe = findRecipe();
+		Optional<RecipeHolder<ProcessingRecipe<RecipeInput, ?>>> recipe = findRecipe();
 
 		List<ItemStack> list = new ArrayList<>();
 		if (recipe.isPresent()) {
@@ -323,12 +323,12 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 
 	}
 
-	public Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> findRecipe() {
+	public Optional<RecipeHolder<ProcessingRecipe<RecipeInput, ?>>> findRecipe() {
 		SingleRecipeInput input = new SingleRecipeInput(inventory.getStackInSlot(0));
-		Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> crushingRecipe =
-			AllRecipeTypes.CRUSHING.<RecipeInput, ProcessingRecipe<RecipeInput>>find(input, level);
+		Optional<RecipeHolder<ProcessingRecipe<RecipeInput, ?>>> crushingRecipe =
+			AllRecipeTypes.CRUSHING.<RecipeInput, ProcessingRecipe<RecipeInput, ?>>find(input, level);
 		if (!crushingRecipe.isPresent())
-			crushingRecipe = AllRecipeTypes.MILLING.<RecipeInput, ProcessingRecipe<RecipeInput>>find(input, level);
+			crushingRecipe = AllRecipeTypes.MILLING.<RecipeInput, ProcessingRecipe<RecipeInput, ?>>find(input, level);
 		return crushingRecipe;
 	}
 
@@ -358,7 +358,7 @@ public class CrushingWheelControllerBlockEntity extends SmartBlockEntity impleme
 	}
 
 	private void itemInserted(ItemStack stack) {
-		Optional<RecipeHolder<ProcessingRecipe<RecipeInput>>> recipe = findRecipe();
+		Optional<RecipeHolder<ProcessingRecipe<RecipeInput, ?>>> recipe = findRecipe();
 		inventory.remainingTime = recipe.isPresent() ? recipe.get().value()
 			.getProcessingDuration() : 100;
 		inventory.appliedRecipe = false;
