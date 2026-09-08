@@ -9,6 +9,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
 import com.simibubi.create.content.equipment.clipboard.ClipboardOverrides.ClipboardType;
+import com.simibubi.create.content.equipment.sandPaper.SandPaperItemComponent;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.equipment.symmetryWand.mirror.SymmetryMirror;
 import com.simibubi.create.content.equipment.zapper.PlacementPatterns;
@@ -42,7 +43,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -227,9 +227,9 @@ public class AllDataComponents {
 			builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
 	);
 
-	public static final DataComponentType<ItemStack> SAND_PAPER_POLISHING = register(
+	public static final DataComponentType<SandPaperItemComponent> SAND_PAPER_POLISHING = register(
 			"sand_paper_polishing",
-			builder -> builder.persistent(ItemStack.CODEC).networkSynchronized(ItemStack.STREAM_CODEC)
+			builder -> builder.persistent(SandPaperItemComponent.BACKWARDS_COMPAT_CODEC).networkSynchronized(SandPaperItemComponent.STREAM_CODEC)
 	);
 
 	public static final DataComponentType<Unit> SAND_PAPER_JEI = register(

@@ -8,7 +8,9 @@ import java.util.stream.Stream;
 
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
+import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.content.equipment.sandPaper.SandPaperItemComponent;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.equipment.toolbox.ToolboxMenu;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
@@ -33,6 +35,7 @@ import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import io.netty.buffer.Unpooled;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -41,6 +44,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.EnchantedBookItem;
@@ -64,6 +68,44 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "depot_comparator_output")
+	public static void sandpaperComponent(CreateGameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		ItemStack input = AllItems.ROSE_QUARTZ.asStack();
+		input.set(DataComponents.CUSTOM_NAME, Component.literal("Polishing input"));
+		ItemStack sandpaper = AllItems.SAND_PAPER.asStack();
+		sandpaper.set(AllDataComponents.SAND_PAPER_POLISHING, new SandPaperItemComponent(input));
+		ItemStack restored = ItemStack.parse(registries, sandpaper.save(registries)).orElseThrow();
+		helper.assertTrue(ItemStack.matches(input, restored.get(AllDataComponents.SAND_PAPER_POLISHING).item()),
+			"Sandpaper persistence lost its polishing item or components");
+		var saved = (net.minecraft.nbt.CompoundTag) sandpaper.save(registries);
+		helper.assertTrue(saved.getCompound("components").getCompound("create:sand_paper_polishing").contains("item"),
+			"Sandpaper did not write the 6.0.10 component format");
+		saved.getCompound("components").put("create:sand_paper_polishing", input.save(registries));
+		ItemStack migrated = ItemStack.parse(registries, saved).orElseThrow();
+		helper.assertTrue(ItemStack.matches(input, migrated.get(AllDataComponents.SAND_PAPER_POLISHING).item()),
+			"Loading a 6.0.2 sandpaper stack lost the polishing item");
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+		try {
+			ItemStack.STREAM_CODEC.encode(buffer, restored);
+			SandPaperItemComponent.STREAM_CODEC.encode(buffer, new SandPaperItemComponent(ItemStack.EMPTY));
+			helper.assertTrue(ItemStack.matches(input,
+				ItemStack.STREAM_CODEC.decode(buffer).get(AllDataComponents.SAND_PAPER_POLISHING).item()),
+				"Sandpaper network codec lost polishing item components");
+			helper.assertTrue(SandPaperItemComponent.STREAM_CODEC.decode(buffer).item().isEmpty() && !buffer.isReadable(),
+				"Sandpaper optional item codec did not consume the buffer exactly");
+		} finally {
+			buffer.release();
+		}
+		var player = helper.makeMockPlayer(GameType.SURVIVAL);
+		AllItems.SAND_PAPER.get().releaseUsing(restored, helper.getLevel(), player, 10);
+		helper.assertTrue(!restored.has(AllDataComponents.SAND_PAPER_POLISHING)
+			&& player.getInventory().items.stream().filter(stack -> ItemStack.isSameItemSameComponents(input, stack))
+				.mapToInt(ItemStack::getCount).sum() == 1,
+			"Cancelling polishing did not return exactly one original item");
+		helper.succeed();
+	}
+
 	@GameTest(template = "andesite_tunnel_split")
 	public static void andesiteTunnelSplit(CreateGameTestHelper helper) {
 		BlockPos lever = new BlockPos(2, 6, 2);
