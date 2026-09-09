@@ -539,15 +539,16 @@ public class PackagerBlockEntity extends SmartBlockEntity implements SidedStorag
 		BlockEntity blockEntity = level.getBlockEntity(worldPosition.relative(side));
 		if (!(blockEntity instanceof SignBlockEntity sign))
 			return null;
+		StringBuilder address = new StringBuilder();
 		for (boolean front : Iterate.trueAndFalse) {
 			SignText text = sign.getText(front);
 			for (Component component : text.getMessages(false)) {
-				String address = component.getString();
-				if (!address.isBlank())
-					return address;
+				String line = component.getString();
+				if (!line.isBlank())
+					address.append(line.trim()).append(' ');
 			}
 		}
-		return null;
+		return address.isEmpty() ? null : address.toString().trim();
 	}
 
 	protected void wakeTheFrogs() {

@@ -13,6 +13,7 @@ import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
+import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.tableCloth.TableClothBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlockEntity;
@@ -30,6 +31,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,6 +47,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.phys.Vec3;
 
 @GameTestGroup(path = "misc")
@@ -99,6 +103,22 @@ public class TestMisc {
 		TableClothBlockEntity cloth = helper.getBlockEntity(AllBlockEntityTypes.TABLE_CLOTH.get(), pos);
 		cloth.transform(cloth, new StructureTransform(BlockPos.ZERO, Direction.Axis.Y, Rotation.CLOCKWISE_90, Mirror.NONE));
 		helper.assertTrue(cloth.facing == Direction.WEST, "Table cloth did not rotate its facing with the contraption");
+		helper.succeed();
+	}
+
+	@GameTest(template = "smart_observer_blocks")
+	public static void packagerReadsAllSignLines(CreateGameTestHelper helper) {
+		BlockPos packagerPos = new BlockPos(1, 1, 1);
+		BlockPos signPos = packagerPos.relative(Direction.NORTH);
+		helper.setBlock(packagerPos, AllBlocks.PACKAGER.getDefaultState());
+		helper.setBlock(signPos, Blocks.OAK_SIGN.defaultBlockState());
+		SignBlockEntity sign = (SignBlockEntity) helper.getBlockEntity(signPos);
+		sign.setText(new SignText()
+			.setMessage(0, Component.literal("A"))
+			.setMessage(1, Component.literal("B")), false);
+		PackagerBlockEntity packager = helper.getBlockEntity(AllBlockEntityTypes.PACKAGER.get(), packagerPos);
+		packager.activate();
+		helper.assertTrue("A B".equals(packager.signBasedAddress), "Packager did not combine sign lines");
 		helper.succeed();
 	}
 
