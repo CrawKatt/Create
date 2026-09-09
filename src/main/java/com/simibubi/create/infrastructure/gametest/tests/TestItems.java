@@ -1,5 +1,6 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
+import java.util.UUID;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,6 +36,8 @@ import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
+import com.simibubi.create.content.redstone.thresholdSwitch.ConfigureThresholdSwitchPacket;
+import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.content.trains.display.FlapDisplayLayout;
 import com.simibubi.create.content.trains.display.FlapDisplaySection;
@@ -47,6 +50,7 @@ import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import io.netty.buffer.Unpooled;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,6 +75,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
@@ -88,6 +94,25 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "threshold_switch")
+	public static void configurationPacketRange(CreateGameTestHelper helper) {
+		BlockPos switchLocal = new BlockPos(1, 2, 1);
+		helper.setBlock(switchLocal, AllBlocks.THRESHOLD_SWITCH.getDefaultState());
+		BlockPos switchPos = helper.absolutePos(switchLocal);
+		ThresholdSwitchBlockEntity threshold = helper.getBlockEntity(AllBlockEntityTypes.THRESHOLD_SWITCH.get(), switchLocal);
+		ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+			new GameProfile(UUID.randomUUID(), "gametest"), ClientInformation.createDefault());
+		player.moveTo(switchPos.getX() + .5, switchPos.getY() + .5, switchPos.getZ() + .5, 0, 0);
+		new ConfigureThresholdSwitchPacket(switchPos, 3, 7, true, true).handle(player);
+		helper.assertTrue(threshold.onWhenAbove == 7 && threshold.offWhenBelow == 3 && threshold.inStacks,
+			"In-range configuration packet was not applied");
+		player.moveTo(switchPos.getX() + 40.5, switchPos.getY() + .5, switchPos.getZ() + .5, 0, 0);
+		new ConfigureThresholdSwitchPacket(switchPos, 99, 101, false, false).handle(player);
+		helper.assertTrue(threshold.onWhenAbove == 7 && threshold.offWhenBelow == 3 && threshold.inStacks,
+			"Out-of-range configuration packet changed the block entity");
+		helper.succeed();
+	}
+
 	@GameTest(template = "depot_comparator_output")
 	public static void inventoryIdentifierApi(CreateGameTestHelper helper) {
 		BlockPos first = helper.absolutePos(new BlockPos(2, 1, 1));
