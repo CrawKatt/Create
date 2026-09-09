@@ -1356,10 +1356,54 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 		}
 
 		PackageOrderWithCrafts order = PackageOrderWithCrafts.simple(itemsToOrder);
-		if (canRequestCraftingPackage && !itemsToOrder.isEmpty() && !recipesToOrder.isEmpty())
-			if (recipesToOrder.get(0).recipe instanceof CraftingRecipe cr)
-				order = new PackageOrderWithCrafts(order.orderedStacks(), List.of(new PackageOrderWithCrafts.CraftingEntry(
-					new PackageOrder(FactoryPanelScreen.convertRecipeToPackageOrderContext(cr, itemsToOrder)), 1)));
+		if (canRequestCraftingPackage && !itemsToOrder.isEmpty() && !recipesToOrder.isEmpty()) {
+			List<PackageOrderWithCrafts.CraftingEntry> craftList = new ArrayList<>();
+			for (CraftableBigItemStack cbis : recipesToOrder) {
+				if (!(cbis.recipe instanceof CraftingRecipe cr))
+					continue;
+				int craftedCount = 0;
+				int targetCount = cbis.count / cbis.getOutputCount(blockEntity.getLevel());
+				List<BigItemStack> mutableOrder = BigItemStack.duplicateWrappers(itemsToOrder);
+
+				while (craftedCount < targetCount) {
+					PackageOrder pattern = new PackageOrder(
+						FactoryPanelScreen.convertRecipeToPackageOrderContext(cr, mutableOrder, true));
+					int maxCrafts = targetCount - craftedCount;
+					int availableCrafts = 0;
+
+					boolean itemsExhausted = false;
+					Outer:
+					while (availableCrafts < maxCrafts && !itemsExhausted) {
+						List<BigItemStack> previousSnapshot = BigItemStack.duplicateWrappers(mutableOrder);
+						itemsExhausted = true;
+						Pattern:
+						for (BigItemStack patternStack : pattern.stacks()) {
+							if (patternStack.stack.isEmpty())
+								continue;
+							for (BigItemStack ordered : mutableOrder) {
+								if (!ItemStack.isSameItemSameComponents(ordered.stack, patternStack.stack))
+									continue;
+								if (ordered.count == 0)
+									continue;
+								ordered.count -= 1;
+								itemsExhausted = false;
+								continue Pattern;
+							}
+							mutableOrder = previousSnapshot;
+							break Outer;
+						}
+						availableCrafts++;
+					}
+
+					if (availableCrafts == 0)
+						break;
+
+					craftList.add(new PackageOrderWithCrafts.CraftingEntry(pattern, availableCrafts));
+					craftedCount += availableCrafts;
+				}
+			}
+			order = new PackageOrderWithCrafts(order.orderedStacks(), craftList);
+		}
 
 		CatnipServices.NETWORK.sendToServer(new PackageOrderRequestPacket(blockEntity.getBlockPos(), order,
 				addressBox.getValue(), encodeRequester));
