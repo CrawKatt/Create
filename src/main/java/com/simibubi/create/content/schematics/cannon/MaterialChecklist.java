@@ -8,8 +8,8 @@ import java.util.Locale;
 import com.google.common.collect.Sets;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
-import com.simibubi.create.content.equipment.clipboard.ClipboardOverrides;
 import com.simibubi.create.content.equipment.clipboard.ClipboardOverrides.ClipboardType;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement.ItemUseType;
@@ -24,7 +24,6 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.network.Filterable;
-import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -234,11 +233,9 @@ public class MaterialChecklist {
 		}
 
 		pages.add(currentPage);
-		ClipboardEntry.saveAll(pages, clipboard);
-		ClipboardOverrides.switchTo(ClipboardType.WRITTEN, clipboard);
+		clipboard.set(AllDataComponents.CLIPBOARD_CONTENT, new ClipboardContent(ClipboardType.WRITTEN, pages, true));
 		clipboard.set(DataComponents.CUSTOM_NAME, CreateLang.translateDirect("materialChecklist")
 				.setStyle(Style.EMPTY.withItalic(false)));
-		clipboard.set(AllDataComponents.CLIPBOARD_READ_ONLY, Unit.INSTANCE);
 		return clipboard;
 	}
 

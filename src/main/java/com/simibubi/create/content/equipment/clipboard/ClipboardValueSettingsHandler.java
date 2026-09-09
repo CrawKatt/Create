@@ -45,8 +45,9 @@ public class ClipboardValueSettingsHandler {
 
 	@Environment(EnvType.CLIENT)
 	public static boolean drawCustomBlockSelection(LevelRenderer context, Camera camera, HitResult hitResult, DeltaTracker deltaTracker, PoseStack ms, MultiBufferSource buffers) {
+		if (!(hitResult instanceof BlockHitResult target))
+			return false;
 		Minecraft mc = Minecraft.getInstance();
-		BlockHitResult target = (BlockHitResult) hitResult;
 		BlockPos pos = target.getBlockPos();
 		BlockState blockstate = mc.level.getBlockState(pos);
 
@@ -59,18 +60,11 @@ public class ClipboardValueSettingsHandler {
 			return false;
 		if (!(mc.level.getBlockEntity(pos) instanceof SmartBlockEntity smartBE))
 			return false;
-		if (!(smartBE instanceof ClipboardBlockEntity) && !(smartBE instanceof ClipboardCloneable)) {
-			boolean canCopy = false;
-			for (BlockEntityBehaviour behaviour : smartBE.getAllBehaviours()) {
-				if (behaviour instanceof ClipboardCloneable cc
-					&& cc.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection())) {
-					canCopy = true;
-					break;
-				}
-			}
-			if (!canCopy)
-				return false;
-		}
+		if (!(smartBE instanceof ClipboardBlockEntity) && smartBE.getAllBehaviours().stream()
+			.noneMatch(b -> b instanceof ClipboardCloneable cc
+				&& cc.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection()))
+			&& !(smartBE instanceof ClipboardCloneable))
+			return false;
 
 		VoxelShape shape = blockstate.getShape(mc.level, pos);
 		if (shape.isEmpty())
@@ -109,32 +103,21 @@ public class ClipboardValueSettingsHandler {
 			return;
 		}
 
-		CompoundTag tagElement = mc.player.getMainHandItem().get(AllDataComponents.CLIPBOARD_COPIED_VALUES);
+		ClipboardContent content = mc.player.getMainHandItem().getOrDefault(AllDataComponents.CLIPBOARD_CONTENT, ClipboardContent.EMPTY);
+		CompoundTag tagElement = content.copiedValues().orElse(null);
 
-		boolean canCopy = false;
-		for (BlockEntityBehaviour behaviour : smartBE.getAllBehaviours()) {
-			if (behaviour instanceof ClipboardCloneable cc
-				&& cc.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection())) {
-				canCopy = true;
-				break;
-			}
-		}
-		if (!canCopy && smartBE instanceof ClipboardCloneable ccbe)
-			canCopy = ccbe.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection());
+		boolean canCopy = smartBE.getAllBehaviours().stream().anyMatch(b -> b instanceof ClipboardCloneable cc
+			&& cc.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection()))
+			|| smartBE instanceof ClipboardCloneable ccbe
+				&& ccbe.writeToClipboard(mc.level.registryAccess(), new CompoundTag(), target.getDirection());
 
 		boolean canPaste = false;
-		if (tagElement != null) {
-			for (BlockEntityBehaviour behaviour : smartBE.getAllBehaviours()) {
-				if (behaviour instanceof ClipboardCloneable cc && cc.readFromClipboard(mc.level.registryAccess(),
-					tagElement.getCompound(cc.getClipboardKey()), player, target.getDirection(), true)) {
-					canPaste = true;
-					break;
-				}
-			}
-			if (!canPaste && smartBE instanceof ClipboardCloneable ccbe)
-				canPaste = ccbe.readFromClipboard(mc.level.registryAccess(),
+		if (tagElement != null)
+			canPaste = smartBE.getAllBehaviours().stream().anyMatch(b -> b instanceof ClipboardCloneable cc
+				&& cc.readFromClipboard(mc.level.registryAccess(), tagElement.getCompound(cc.getClipboardKey()), player,
+					target.getDirection(), true))
+				|| smartBE instanceof ClipboardCloneable ccbe && ccbe.readFromClipboard(mc.level.registryAccess(),
 					tagElement.getCompound(ccbe.getClipboardKey()), player, target.getDirection(), true);
-		}
 
 		if (!canCopy && !canPaste)
 			return;
@@ -168,10 +151,12 @@ public class ClipboardValueSettingsHandler {
 		if (!(world.getBlockEntity(pos) instanceof SmartBlockEntity smartBE))
 			return InteractionResult.PASS;
 
+		ClipboardContent clipboardContent = itemStack.getOrDefault(AllDataComponents.CLIPBOARD_CONTENT, ClipboardContent.EMPTY);
+
 		if (smartBE instanceof ClipboardBlockEntity cbe) {
 			if (!world.isClientSide()) {
-				List<List<ClipboardEntry>> listTo = ClipboardEntry.readAll(itemStack);
-				List<List<ClipboardEntry>> listFrom = ClipboardEntry.readAll(cbe.dataContainer);
+				List<List<ClipboardEntry>> listTo = ClipboardEntry.readAll(clipboardContent);
+				List<List<ClipboardEntry>> listFrom = ClipboardEntry.readAll(cbe.components());
 				List<ClipboardEntry> toAdd = new ArrayList<>();
 
 				for (List<ClipboardEntry> page : listFrom) {
@@ -198,10 +183,12 @@ public class ClipboardValueSettingsHandler {
 						listTo.add(page);
 					}
 					page.add(entry);
-					ClipboardOverrides.switchTo(ClipboardType.WRITTEN, itemStack);
+					clipboardContent = clipboardContent.setType(ClipboardType.WRITTEN);
+					itemStack.set(AllDataComponents.CLIPBOARD_CONTENT, clipboardContent);
 				}
 
-				ClipboardEntry.saveAll(listTo, itemStack);
+				clipboardContent = clipboardContent.setPages(listTo);
+				itemStack.set(AllDataComponents.CLIPBOARD_CONTENT, clipboardContent);
 			}
 
 			player.displayClientMessage(CreateLang.translate("clipboard.copied_from_clipboard", world.getBlockState(pos)
@@ -213,7 +200,7 @@ public class ClipboardValueSettingsHandler {
 			return InteractionResult.SUCCESS;
 		}
 
-		CompoundTag tag = itemStack.get(AllDataComponents.CLIPBOARD_COPIED_VALUES);
+		CompoundTag tag = clipboardContent.copiedValues().orElse(null);
 		if (paste && tag == null)
 			return InteractionResult.PASS;
 		if (!paste)
@@ -270,8 +257,8 @@ public class ClipboardValueSettingsHandler {
 			.component(), true);
 
 		if (!paste) {
-			ClipboardOverrides.switchTo(ClipboardType.WRITTEN, itemStack);
-			itemStack.set(AllDataComponents.CLIPBOARD_COPIED_VALUES, tag);
+			clipboardContent = clipboardContent.setType(ClipboardType.WRITTEN).setCopiedValues(tag);
+			itemStack.set(AllDataComponents.CLIPBOARD_CONTENT, clipboardContent);
 		}
 		return InteractionResult.SUCCESS;
 	}

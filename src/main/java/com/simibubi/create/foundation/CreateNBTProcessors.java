@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
+import com.simibubi.create.content.equipment.clipboard.ClipboardEditPacket;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
 
 import net.createmod.catnip.codecs.CatnipCodecUtils;
@@ -55,23 +57,25 @@ public class CreateNBTProcessors {
 	}
 
 	public static CompoundTag clipboardProcessor(CompoundTag data) {
-		if (!data.contains("Item", Tag.TAG_COMPOUND))
-			return data;
+		// Check both formats: old Fabric schematics can still contain the Item payload.
+		for (CompoundTag container : List.of(data, data.getCompound("Item"))) {
+			DataComponentMap components = CatnipCodecUtils.decodeOrNull(DataComponentMap.CODEC,
+				container.getCompound("components"));
+			if (components == null)
+				continue;
 
-		CompoundTag clipboard = data.getCompound("Item");
-		DataComponentMap components = CatnipCodecUtils.decodeOrNull(DataComponentMap.CODEC,
-			clipboard.getCompound("components"));
-		if (components == null)
-			return data;
+			ClipboardContent content = components.get(AllDataComponents.CLIPBOARD_CONTENT);
+			if (content != null && ClipboardEditPacket.clipboardProcessor(content) == null)
+				return null;
 
-		List<List<ClipboardEntry>> pages = components.get(AllDataComponents.CLIPBOARD_PAGES);
-		if (pages == null)
-			return data;
-
-		for (List<ClipboardEntry> entries : pages) {
-			for (ClipboardEntry entry : entries) {
-				if (NBTProcessors.textComponentHasClickEvent(entry.text))
-					return null;
+			List<List<ClipboardEntry>> legacyPages = components.get(AllDataComponents.CLIPBOARD_PAGES);
+			if (legacyPages == null)
+				continue;
+			for (List<ClipboardEntry> entries : legacyPages) {
+				for (ClipboardEntry entry : entries) {
+					if (NBTProcessors.textComponentHasClickEvent(entry.text))
+						return null;
+				}
 			}
 		}
 

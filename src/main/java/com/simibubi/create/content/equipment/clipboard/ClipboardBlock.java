@@ -2,8 +2,6 @@ package com.simibubi.create.content.equipment.clipboard;
 
 import java.util.List;
 
-import com.simibubi.create.infrastructure.fabric.item.ItemUtils;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -16,13 +14,16 @@ import com.simibubi.create.AllShapes;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
+import com.simibubi.create.infrastructure.fabric.item.ItemUtils;
 
 import net.createmod.catnip.gui.ScreenOpener;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
@@ -42,15 +44,10 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.FakePlayer;
-
-import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
 
 public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 	implements IBE<ClipboardBlockEntity>, IWrenchable, ProperWaterloggedBlock {
@@ -104,15 +101,15 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 
 		return onBlockEntityUse(level, pos, cbe -> {
 			if (level.isClientSide())
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> openScreen(player, cbe.dataContainer, pos));
+				CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> openScreen(player, cbe.components(), pos));
 			return InteractionResult.SUCCESS;
 		});
 	}
 
 	@Environment(EnvType.CLIENT)
-	private void openScreen(Player player, ItemStack stack, BlockPos pos) {
+	private void openScreen(Player player, DataComponentMap components, BlockPos pos) {
 		if (Minecraft.getInstance().player == player)
-			ScreenOpener.open(new ClipboardScreen(player.getInventory().selected, stack, pos));
+			ScreenOpener.open(new ClipboardScreen(player.getInventory().selected, components, pos));
 	}
 
 	@Override
@@ -127,36 +124,46 @@ public class ClipboardBlock extends FaceAttachedHorizontalDirectionalBlock
 			return;
 		ItemStack cloneItemStack = getCloneItemStack(pLevel, pPos, pState);
 		pLevel.destroyBlock(pPos, false);
-		if (pLevel.getBlockState(pPos) != pState)
-			pPlayer.getInventory()
-				.placeItemBackInInventory(cloneItemStack);
+		if (pLevel.getBlockState(pPos) != pState) {
+			Inventory inv = pPlayer.getInventory();
+			ItemStack selected = inv.getSelected();
+			if (selected.isEmpty())
+				inv.setItem(inv.selected, cloneItemStack);
+			else
+				inv.placeItemBackInInventory(cloneItemStack);
+		}
 	}
 
 	@Override
 	public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-		if (level.getBlockEntity(pos) instanceof ClipboardBlockEntity cbe)
-			return cbe.dataContainer;
-		return new ItemStack(this);
+		return applyComponentsToDropStack(new ItemStack(this), level.getBlockEntity(pos));
 	}
 
 	@Override
-	public BlockState playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
-		if (!(pLevel.getBlockEntity(pPos) instanceof ClipboardBlockEntity cbe))
-			return pState;
-		if (pLevel.isClientSide || pPlayer.isCreative())
-			return pState;
-		Block.popResource(pLevel, pPos, cbe.dataContainer.copy());
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+		if (!(level.getBlockEntity(pos) instanceof ClipboardBlockEntity cbe))
+			return state;
+		if (level.isClientSide || player.isCreative())
+			return state;
+		Block.popResource(level, pos, applyComponentsToDropStack(new ItemStack(this), cbe));
 
-		return pState;
+		return state;
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public List<ItemStack> getDrops(BlockState pState, LootParams.Builder pBuilder) {
 		if (!(pBuilder.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof ClipboardBlockEntity cbe))
 			return super.getDrops(pState, pBuilder);
-		pBuilder.withDynamicDrop(ShulkerBoxBlock.CONTENTS, p_56219_ -> p_56219_.accept(cbe.dataContainer.copy()));
-		return ImmutableList.of(cbe.dataContainer.copy());
+		ItemStack drop = applyComponentsToDropStack(new ItemStack(this), cbe);
+		pBuilder.withDynamicDrop(ShulkerBoxBlock.CONTENTS, c -> c.accept(drop.copy()));
+		return ImmutableList.of(drop);
+	}
+
+	@SuppressWarnings("deprecation")
+	private ItemStack applyComponentsToDropStack(ItemStack stack, BlockEntity blockEntity) {
+		if (blockEntity instanceof ClipboardBlockEntity cbe)
+			stack.applyComponents(cbe.components());
+		return stack;
 	}
 
 	@Override

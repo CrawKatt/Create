@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -48,20 +45,17 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
-import net.minecraft.world.item.ItemStack;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 public class ClipboardScreen extends AbstractSimiScreen {
 
-	public ItemStack item;
+	public ClipboardContent content;
 	public BlockPos targetedBlock;
 
 	List<List<ClipboardEntry>> pages;
@@ -70,7 +64,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 	int frameTick;
 	PageButton forward;
 	PageButton backward;
-	int currentPage;
+	int currentPage = 0;
 	long lastClickTime;
 	int lastIndex = -1;
 
@@ -84,21 +78,23 @@ public class ClipboardScreen extends AbstractSimiScreen {
 	IconButton closeBtn;
 	IconButton clearBtn;
 
-	private int targetSlot;
+	private final int targetSlot;
 
-	public ClipboardScreen(int targetSlot, ItemStack item, @Nullable BlockPos pos) {
+	public ClipboardScreen(int targetSlot, DataComponentMap components, @Nullable BlockPos pos) {
 		this.targetSlot = targetSlot;
 		this.targetedBlock = pos;
-		reopenWith(item);
+		reopenWith(components.getOrDefault(AllDataComponents.CLIPBOARD_CONTENT, ClipboardContent.EMPTY));
 	}
 
-	public void reopenWith(ItemStack clipboard) {
-		item = clipboard;
-		pages = ClipboardEntry.readAll(item);
+	public void reopenWith(ClipboardContent content) {
+		this.content = content;
+
+		pages = ClipboardEntry.readAll(content);
 		if (pages.isEmpty())
 			pages.add(new ArrayList<>());
 		if (clearBtn == null) {
-			currentPage = item.getOrDefault(AllDataComponents.CLIPBOARD_PREVIOUSLY_OPENED_PAGE, 0);
+			if (content != null)
+				currentPage = content.previouslyOpenedPage();
 			currentPage = Mth.clamp(currentPage, 0, pages.size() - 1);
 		}
 		currentEntries = pages.get(currentPage);
@@ -109,7 +105,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		editContext = new TextFieldHelper(this::getCurrentEntryText, this::setCurrentEntryText, this::getClipboard,
 			this::setClipboard, this::validateTextForEntry);
 		editingIndex = startEmpty ? 0 : -1;
-		readonly = item.has(AllDataComponents.CLIPBOARD_READ_ONLY);
+		readonly = content != null && content.readOnly();
 		if (readonly)
 			editingIndex = -1;
 		if (clearBtn != null)
@@ -158,13 +154,12 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		frameTick++;
 
 		if (targetedBlock != null) {
-			if (!minecraft.player.blockPosition()
-				.closerThan(targetedBlock, 10)) {
-				removed();
+			if (!minecraft.player.canInteractWithBlock(targetedBlock, 10)) {
+				minecraft.setScreen(null);
 				return;
 			}
 			if (!AllBlocks.CLIPBOARD.has(minecraft.level.getBlockState(targetedBlock))) {
-				removed();
+				minecraft.setScreen(null);
 				return;
 			}
 		}
@@ -345,12 +340,11 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			.isBlank()));
 		pages.removeIf(List::isEmpty);
 
-		for (int i = 0; i < pages.size(); i++)
+		for (int i = 0; i < pages.size(); i++) {
 			if (pages.get(i) == currentEntries) {
-				item.set(AllDataComponents.CLIPBOARD_PREVIOUSLY_OPENED_PAGE, i);
-				if (i == 0)
-					item.remove(AllDataComponents.CLIPBOARD_PREVIOUSLY_OPENED_PAGE);
+				content = content.setPreviouslyOpenedPage(i);
 			}
+		}
 
 		send();
 
@@ -365,23 +359,15 @@ public class ClipboardScreen extends AbstractSimiScreen {
 	}
 
 	private void send() {
-		ClipboardEntry.saveAll(pages, item);
-		ClipboardOverrides.switchTo(ClipboardType.WRITTEN, item);
+		content = content.setPages(pages);
+		content = content.setType(ClipboardType.WRITTEN);
 
-		if (pages.isEmpty()) {
-			item.remove(AllDataComponents.CLIPBOARD_PAGES);
-			item.remove(AllDataComponents.CLIPBOARD_PREVIOUSLY_OPENED_PAGE);
-			item.remove(AllDataComponents.CLIPBOARD_READ_ONLY);
-			item.remove(AllDataComponents.CLIPBOARD_TYPE);
-			item.remove(AllDataComponents.CLIPBOARD_COPIED_VALUES);
+		ClipboardContent toSend = null;
+		if (!pages.isEmpty()) {
+			toSend = content;
 		}
 
-		CatnipServices.NETWORK.sendToServer(new ClipboardEditPacket(targetSlot, item.getComponentsPatch(), targetedBlock));
-	}
-
-	@Override
-	public boolean isPauseScreen() {
-		return false;
+		CatnipServices.NETWORK.sendToServer(new ClipboardEditPacket(targetSlot, toSend, targetedBlock));
 	}
 
 	@Override
@@ -405,8 +391,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 			clearDisplayCache();
 			return true;
 		}
-		if (super.keyPressed(pKeyCode, pScanCode, pModifiers))
-			return true;
+		super.keyPressed(pKeyCode, pScanCode, pModifiers);
 		return true;
 	}
 
@@ -801,7 +786,6 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		return new Rect2i(i, k, j - i, l - k);
 	}
 
-	@Environment(EnvType.CLIENT)
 	static class DisplayCache {
 		static final DisplayCache EMPTY = new DisplayCache("", new Pos2i(0, 0), true, new int[] { 0 },
 			new LineInfo[] { new LineInfo(Style.EMPTY, "", 0, 0) }, new Rect2i[0]);
@@ -859,7 +843,6 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
 	static class LineInfo {
 		final Style style;
 		final String contents;
@@ -877,15 +860,7 @@ public class ClipboardScreen extends AbstractSimiScreen {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
-	static class Pos2i {
-		public final int x;
-		public final int y;
-
-		Pos2i(int pX, int pY) {
-			x = pX;
-			y = pY;
-		}
+	record Pos2i(int x, int y) {
 	}
 
 }

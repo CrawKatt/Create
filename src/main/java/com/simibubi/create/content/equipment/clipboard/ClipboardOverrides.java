@@ -19,10 +19,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 import io.github.fabricators_of_create.porting_lib.models.generators.ModelFile.UncheckedModelFile;
 import io.github.fabricators_of_create.porting_lib.models.generators.ItemModelBuilder;
@@ -35,7 +31,7 @@ public class ClipboardOverrides {
 		public static final Codec<ClipboardType> CODEC = StringRepresentable.fromValues(ClipboardType::values);
 		public static final StreamCodec<ByteBuf, ClipboardType> STREAM_CODEC = CatnipStreamCodecBuilders.ofEnum(ClipboardType.class);
 
-		public String file;
+		public final String file;
 		public static ResourceLocation ID = Create.asResource("clipboard_type");
 
 		ClipboardType(String file) {
@@ -48,14 +44,10 @@ public class ClipboardOverrides {
 		}
 	}
 
-	public static void switchTo(ClipboardType type, ItemStack clipboardItem) {
-		clipboardItem.set(AllDataComponents.CLIPBOARD_TYPE, type);
-	}
-
 	@Environment(EnvType.CLIENT)
 	public static void registerModelOverridesClient(ClipboardBlockItem item) {
 		ItemProperties.register(item, ClipboardType.ID, (pStack, pLevel, pEntity, pSeed) ->
-				pStack.getOrDefault(AllDataComponents.CLIPBOARD_TYPE, ClipboardType.EMPTY).ordinal()
+				pStack.getOrDefault(AllDataComponents.CLIPBOARD_CONTENT, ClipboardContent.EMPTY).type().ordinal()
 		);
 	}
 
