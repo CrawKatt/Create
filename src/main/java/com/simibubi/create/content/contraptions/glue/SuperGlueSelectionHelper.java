@@ -77,11 +77,11 @@ public class SuperGlueSelectionHelper {
 			ItemStack stack = items.get(slot);
 			if (stack.isEmpty())
 				continue;
+			if (!(stack.getItem() instanceof SuperGlueItem))
+				continue;
 			if (stack.has(DataComponents.UNBREAKABLE))
 				return true;
 			if (!stack.isDamageableItem())
-				continue;
-			if (!(stack.getItem() instanceof SuperGlueItem))
 				continue;
 
 			int charges = Math.min(requiredAmount, stack.getMaxDamage() - stack.getDamageValue());
