@@ -315,11 +315,11 @@ public class SymmetryWandItem extends Item {
 	 * @return true if canceled
 	 */
 	public static boolean handlePreEvent(Level world, Player player, BlockPos pos, BlockState state, BlockEntity be) {
-		if (PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, player, pos, state, be)) {
-			return false;
+		if (!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, player, pos, state, be)) {
+			PlayerBlockBreakEvents.CANCELED.invoker().onBlockBreakCanceled(world, player, pos, state, be);
+			return true;
 		}
-		PlayerBlockBreakEvents.CANCELED.invoker().onBlockBreakCanceled(world, player, pos, state, be);
-		return true;
+		return false;
 	}
 
 	public static void handlePostEvent(Level world, Player player, BlockPos pos, BlockState state, BlockEntity be) {
