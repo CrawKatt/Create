@@ -13,6 +13,7 @@ import com.simibubi.create.content.trains.graph.EdgePointType;
 import com.simibubi.create.content.trains.track.TrackTargetingBlockItem.OverlapResult;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 import com.simibubi.create.foundation.utility.CreateLang;
+import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -84,7 +85,7 @@ public class CurvedTrackSelectionPacket extends BlockEntityConfigurationPacket<T
 
 	@Override
 	protected int maxRange() {
-		return 64;
+		return AllConfigs.server().trains.maxTrackPlacementLength.get() + 16;
 	}
 
 	@Override
