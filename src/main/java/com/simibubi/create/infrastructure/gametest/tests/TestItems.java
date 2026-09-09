@@ -28,6 +28,7 @@ import com.simibubi.create.content.kinetics.belt.transport.ItemHandlerBeltSegmen
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
 import com.simibubi.create.content.kinetics.chainConveyor.ChainPackageInteractionPacket;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
+import com.simibubi.create.content.contraptions.glue.SuperGlueSelectionHelper;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
@@ -79,6 +80,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.GameType;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
@@ -163,6 +165,23 @@ public class TestItems {
 		chute.clearContent();
 		helper.assertTrue(filtering.getFilter().isEmpty() && chute.getItem().isEmpty(),
 			"Smart chute clearContent left filter or item behind");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void superGlueInventoryValidation(CreateGameTestHelper helper) {
+		ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+			new GameProfile(UUID.randomUUID(), "gametest"), ClientInformation.createDefault());
+		ItemStack unbreakableStone = new ItemStack(Items.STONE);
+		unbreakableStone.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+		player.getInventory().items.set(0, unbreakableStone);
+		helper.assertTrue(!SuperGlueSelectionHelper.collectGlueFromInventory(player, 1, true),
+			"Non-glue unbreakable item satisfied a glue requirement");
+		ItemStack unbreakableGlue = AllItems.SUPER_GLUE.get().getDefaultInstance();
+		unbreakableGlue.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+		player.getInventory().items.set(0, unbreakableGlue);
+		helper.assertTrue(SuperGlueSelectionHelper.collectGlueFromInventory(player, 1, true),
+			"Unbreakable super glue did not satisfy a glue requirement");
 		helper.succeed();
 	}
 
