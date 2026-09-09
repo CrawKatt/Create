@@ -12,6 +12,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.api.packager.InventoryIdentifier;
+import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
 import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
@@ -29,6 +30,8 @@ import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.filter.FilterMenu;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
 import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity.SelectionMode;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock.HeatLevel;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
@@ -99,6 +102,30 @@ public class TestItems {
 			Set.of(Direction.UP));
 		helper.assertTrue(multiFace.contains(firstFace) && !multiFace.contains(secondFace),
 			"Inventory identifier face filtering was incorrect");
+		helper.succeed();
+	}
+
+	@GameTest(template = "depot_comparator_output")
+	public static void packageOrderWithCraftsCodecs(CreateGameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+		BigItemStack ordered = new BigItemStack(Items.DIAMOND.getDefaultInstance(), 2);
+		PackageOrderWithCrafts expected = new PackageOrderWithCrafts(new PackageOrder(List.of(ordered)),
+			List.of(new PackageOrderWithCrafts.CraftingEntry(new PackageOrder(List.of(ordered)), 1)));
+		var encoded = PackageOrderWithCrafts.CODEC.encodeStart(ops, expected).getOrThrow();
+		var decoded = PackageOrderWithCrafts.CODEC.parse(ops, encoded).getOrThrow();
+		helper.assertTrue(decoded.orderedStacks().stacks().size() == 1 && decoded.orderedCrafts().size() == 1
+			&& decoded.orderedStacksMatchOrderedRecipes() && PackageOrderWithCrafts.hasCraftingInformation(decoded)
+			&& !PackageOrderWithCrafts.hasCraftingInformation(null), "Package order codecs lost crafting context");
+
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+		try {
+			PackageOrderWithCrafts.STREAM_CODEC.encode(buffer, expected);
+			PackageOrderWithCrafts network = PackageOrderWithCrafts.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(network.equals(expected) && !buffer.isReadable(), "Package order network codec left unread data");
+		} finally {
+			buffer.release();
+		}
 		helper.succeed();
 	}
 
