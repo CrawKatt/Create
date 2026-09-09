@@ -13,14 +13,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.fabric.transfer.item.SlotItemHandler;
@@ -73,8 +71,7 @@ public class StockKeeperCategoryMenu extends MenuBase<StockTickerBlockEntity> {
 
 	@Override
 	public boolean stillValid(Player player) {
-		return !contentHolder.isRemoved() && player.position()
-			.closerThan(Vec3.atCenterOf(contentHolder.getBlockPos()), player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 4);
+		return !contentHolder.isRemoved() && player.canInteractWithBlock(contentHolder.getBlockPos(), 4);
 	}
 
 	class InactiveSlot extends Slot {
