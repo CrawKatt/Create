@@ -7,6 +7,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.gui.menu.GhostItemMenu;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.fabric.transfer.item.SlotItemHandler;
@@ -77,7 +78,11 @@ public class RedstoneRequesterMenu extends GhostItemMenu<RedstoneRequesterBlockE
 			list.add(new BigItemStack(ghostInventory.getStackInSlot(i)
 				.copyWithCount(1), i < stacks.size() ? stacks.get(i).count : 1));
 
-		contentHolder.encodedRequest = new PackageOrder(list);
+		PackageOrderWithCrafts newRequest = new PackageOrderWithCrafts(new PackageOrder(list),
+			contentHolder.encodedRequest.orderedCrafts());
+		if (!newRequest.orderedStacksMatchOrderedRecipes())
+			newRequest = PackageOrderWithCrafts.simple(newRequest.stacks());
+		contentHolder.encodedRequest = newRequest;
 		contentHolder.sendData();
 	}
 

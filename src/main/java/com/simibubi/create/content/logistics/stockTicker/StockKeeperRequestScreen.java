@@ -1334,8 +1334,8 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 	@Override
 	public void removed() {
 		BlockPos pos = blockEntity.getBlockPos();
-		CatnipServices.NETWORK.sendToServer(new PackageOrderRequestPacket(pos, new PackageOrder(Collections.emptyList()),
-			addressBox.getValue(), false, PackageOrder.empty()));
+		CatnipServices.NETWORK.sendToServer(new PackageOrderRequestPacket(pos, PackageOrderWithCrafts.empty(),
+			addressBox.getValue(), false));
 		CatnipServices.NETWORK.sendToServer(new StockKeeperCategoryHidingPacket(pos, new ArrayList<>(hiddenCategories)));
 		super.removed();
 	}
@@ -1355,13 +1355,14 @@ public class StockKeeperRequestScreen extends AbstractSimiContainerScreen<StockK
 			forcedEntries.add(toOrder.stack.copy(), -1 - Math.max(0, countOf - toOrder.count));
 		}
 
-		PackageOrder craftingRequest = PackageOrder.empty();
+		PackageOrderWithCrafts order = PackageOrderWithCrafts.simple(itemsToOrder);
 		if (canRequestCraftingPackage && !itemsToOrder.isEmpty() && !recipesToOrder.isEmpty())
 			if (recipesToOrder.get(0).recipe instanceof CraftingRecipe cr)
-				craftingRequest = new PackageOrder(FactoryPanelScreen.convertRecipeToPackageOrderContext(cr, itemsToOrder));
+				order = new PackageOrderWithCrafts(order.orderedStacks(), List.of(new PackageOrderWithCrafts.CraftingEntry(
+					new PackageOrder(FactoryPanelScreen.convertRecipeToPackageOrderContext(cr, itemsToOrder)), 1)));
 
-		CatnipServices.NETWORK.sendToServer(new PackageOrderRequestPacket(blockEntity.getBlockPos(), new PackageOrder(itemsToOrder),
-				addressBox.getValue(), encodeRequester, craftingRequest));
+		CatnipServices.NETWORK.sendToServer(new PackageOrderRequestPacket(blockEntity.getBlockPos(), order,
+				addressBox.getValue(), encodeRequester));
 
 		itemsToOrder = new ArrayList<>();
 		recipesToOrder = new ArrayList<>();

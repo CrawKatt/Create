@@ -1,11 +1,14 @@
 package com.simibubi.create.content.logistics.redstoneRequester;
 
+import java.util.List;
+
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.equipment.bell.BasicParticleData.WiFiData;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.stockTicker.StockCheckingBlockEntity;
 import com.simibubi.create.foundation.gui.menu.WrappedExtendedMenuProvider;
 
@@ -32,8 +35,7 @@ import net.fabricmc.fabric.api.entity.FakePlayer;
 public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity implements MenuProvider {
 
 	public boolean allowPartialRequests;
-	public PackageOrder encodedRequest = PackageOrder.empty();
-	public PackageOrder encodedRequestContext = PackageOrder.empty();
+	public PackageOrderWithCrafts encodedRequest = PackageOrderWithCrafts.empty();
 	public String encodedTargetAdress = "";
 
 	public boolean lastRequestSucceeded;
@@ -81,7 +83,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 			}
 		}
 
-		broadcastPackageRequest(RequestType.REDSTONE, encodedRequest, null, encodedTargetAdress, encodedRequestContext.isEmpty() ? null : encodedRequestContext);
+		broadcastPackageRequest(RequestType.REDSTONE, encodedRequest, null, encodedTargetAdress);
 		if (level instanceof ServerLevel serverLevel)
 			CatnipServices.NETWORK.sendToClientsAround(serverLevel, worldPosition, 32, new RedstoneRequesterEffectPacket(worldPosition, anySucceeded));
 		lastRequestSucceeded = true;
@@ -93,9 +95,21 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 		redstonePowered = tag.getBoolean("Powered");
 		lastRequestSucceeded = tag.getBoolean("Success");
 		allowPartialRequests = tag.getBoolean("AllowPartial");
-		encodedRequest = CatnipCodecUtils.decode(PackageOrder.CODEC, tag.getCompound("EncodedRequest")).orElse(PackageOrder.empty());
-		encodedRequestContext = CatnipCodecUtils.decode(PackageOrder.CODEC, tag.getCompound("EncodedRequestContext")).orElse(PackageOrder.empty());
+		encodedRequest = decodeRequest(tag);
 		encodedTargetAdress = tag.getString("EncodedAddress");
+	}
+
+	private static PackageOrderWithCrafts decodeRequest(CompoundTag tag) {
+		PackageOrderWithCrafts request = CatnipCodecUtils.decode(PackageOrderWithCrafts.CODEC,
+			tag.getCompound("EncodedRequest")).orElse(PackageOrderWithCrafts.empty());
+		if (request.orderedCrafts().isEmpty() && tag.contains("EncodedRequestContext")) {
+			PackageOrder context = CatnipCodecUtils.decode(PackageOrder.CODEC, tag.getCompound("EncodedRequestContext"))
+				.orElse(PackageOrder.empty());
+			if (!context.isEmpty())
+				request = new PackageOrderWithCrafts(request.orderedStacks(),
+					List.of(new PackageOrderWithCrafts.CraftingEntry(context, 1)));
+		}
+		return request;
 	}
 
 	@Override
@@ -103,8 +117,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 		super.writeSafe(tag, registries);
 		tag.putBoolean("AllowPartial", allowPartialRequests);
 		tag.putString("EncodedAddress", encodedTargetAdress);
-		tag.put("EncodedRequest", CatnipCodecUtils.encode(PackageOrder.CODEC, encodedRequest).orElseThrow());
-		tag.put("EncodedRequestContext", CatnipCodecUtils.encode(PackageOrder.CODEC, encodedRequestContext).orElseThrow());
+		tag.put("EncodedRequest", CatnipCodecUtils.encode(PackageOrderWithCrafts.CODEC, encodedRequest).orElseThrow());
 	}
 
 	@Override
@@ -114,8 +127,7 @@ public class RedstoneRequesterBlockEntity extends StockCheckingBlockEntity imple
 		tag.putBoolean("Success", lastRequestSucceeded);
 		tag.putBoolean("AllowPartial", allowPartialRequests);
 		tag.putString("EncodedAddress", encodedTargetAdress);
-		tag.put("EncodedRequest", CatnipCodecUtils.encode(PackageOrder.CODEC, encodedRequest).orElseThrow());
-		tag.put("EncodedRequestContext", CatnipCodecUtils.encode(PackageOrder.CODEC, encodedRequestContext).orElseThrow());
+		tag.put("EncodedRequest", CatnipCodecUtils.encode(PackageOrderWithCrafts.CODEC, encodedRequest).orElseThrow());
 	}
 
 	public InteractionResult use(Player player) {

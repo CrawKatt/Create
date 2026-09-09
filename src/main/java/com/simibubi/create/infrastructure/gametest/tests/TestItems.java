@@ -117,6 +117,12 @@ public class TestItems {
 		helper.assertTrue(decoded.orderedStacks().stacks().size() == 1 && decoded.orderedCrafts().size() == 1
 			&& decoded.orderedStacksMatchOrderedRecipes() && PackageOrderWithCrafts.hasCraftingInformation(decoded)
 			&& !PackageOrderWithCrafts.hasCraftingInformation(null), "Package order codecs lost crafting context");
+		var legacy = PackageOrder.CODEC.encodeStart(ops, new PackageOrder(List.of(ordered))).getOrThrow();
+		var legacyDecoded = PackageOrderWithCrafts.CODEC.parse(ops, legacy).getOrThrow();
+		var rewritten = PackageOrderWithCrafts.CODEC.encodeStart(ops, legacyDecoded).getOrThrow();
+		var rewrittenDecoded = PackageOrderWithCrafts.CODEC.parse(ops, rewritten).getOrThrow();
+		helper.assertTrue(legacyDecoded.orderedCrafts().isEmpty() && rewrittenDecoded.equals(legacyDecoded),
+			"Legacy package order lost stacks while being rewritten");
 
 		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
 		try {
