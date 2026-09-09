@@ -30,7 +30,8 @@ public class CardboardArmorHandler {
 		if (!testForStealth(entity))
 			return;
 
-		event.setNewSize(EntityDimensions.fixed(0.6F, 0.8F).withEyeHeight(0.6F));
+		float scale = entity instanceof LivingEntity living ? living.getScale() : 1.0F;
+		event.setNewSize(EntityDimensions.fixed(0.6F * scale, 0.8F * scale).withEyeHeight(0.6F * scale));
 
 		if (!entity.level()
 			.isClientSide() && entity instanceof Player p)
