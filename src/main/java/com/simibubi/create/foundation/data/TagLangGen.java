@@ -43,12 +43,10 @@ public class TagLangGen {
 		common.subDir("raw_materials")
 				.auto("zinc");
 
-		common.suffixedCategory("dough")
-				.autoRoot()
-				.auto("wheat");
-		common.suffixedCategory("flour")
-				.autoRoot()
-				.auto("wheat");
+		common.put("foods/dough", "Dough")
+				.put("foods/dough/wheat", "Wheat Doughs");
+		common.put("flours", "Flours")
+				.put("flours/wheat", "Wheat Flours");
 
 		common.subDir("dusts")
 				.auto("obsidian");

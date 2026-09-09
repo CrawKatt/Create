@@ -105,8 +105,8 @@ public class AllItems {
 	}
 
 	public static final ItemEntry<Item>
-		WHEAT_FLOUR = taggedIngredient("wheat_flour", commonItemTag("flours/wheat"), commonItemTag("flours")),
-		DOUGH = taggedIngredient("dough", commonItemTag("doughs"), commonItemTag("doughs/wheat")),
+		WHEAT_FLOUR = taggedIngredient("wheat_flour", commonItemTag("flours"), commonItemTag("flours/wheat")),
+		DOUGH = taggedIngredient("dough", commonItemTag("foods/dough"), AllItemTags.FOODS_DOUGH_WHEAT.tag),
 		CINDER_FLOUR = ingredient("cinder_flour"), ROSE_QUARTZ = ingredient("rose_quartz"),
 		POLISHED_ROSE_QUARTZ = ingredient("polished_rose_quartz"), POWDERED_OBSIDIAN = ingredient("powdered_obsidian"),
 		STURDY_SHEET = taggedIngredient("sturdy_sheet", commonItemTag("plates/obsidian"), PLATES.tag),

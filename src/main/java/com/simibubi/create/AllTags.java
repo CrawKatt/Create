@@ -194,6 +194,7 @@ public class AllTags {
 
 		PLATES(COMMON),
 		OBSIDIAN_DUST(COMMON, "dusts/obsidian"),
+		FOODS_DOUGH_WHEAT(COMMON, "foods/dough/wheat"),
 		WRENCH(COMMON, "tools/wrench"),
 
 		ALLURITE(MOD, "stone_types/galosphere/allurite"),

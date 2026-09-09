@@ -260,10 +260,10 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 				.pattern("I")
 				.pattern("P")),
 
-		CAKE = create(() -> Items.CAKE).unlockedByTag(() -> AllTags.commonItemTag("doughs"))
+		CAKE = create(() -> Items.CAKE).unlockedByTag(() -> AllTags.commonItemTag("foods/dough"))
 			.viaShaped(b -> b.define('E', Tags.Items.EGGS)
 				.define('S', Items.SUGAR)
-				.define('P', AllTags.commonItemTag("doughs"))
+				.define('P', AllTags.commonItemTag("foods/dough"))
 				.define('M', () -> Items.MILK_BUCKET)
 				.pattern(" M ")
 				.pattern("SES")
