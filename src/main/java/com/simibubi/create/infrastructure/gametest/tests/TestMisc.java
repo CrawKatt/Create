@@ -2,6 +2,9 @@ package com.simibubi.create.infrastructure.gametest.tests;
 
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.FIFTEEN_SECONDS;
 
+import java.util.UUID;
+
+import com.mojang.authlib.GameProfile;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
@@ -11,6 +14,7 @@ import com.simibubi.create.content.schematics.SchematicExport;
 import com.simibubi.create.content.schematics.SchematicItem;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity.State;
+import com.simibubi.create.content.trains.entity.TrainRelocationPacket;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -19,6 +23,8 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -29,9 +35,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneLampBlock;
+import net.minecraft.world.phys.Vec3;
 
 @GameTestGroup(path = "misc")
 public class TestMisc {
+	@GameTest(template = "smart_observer_blocks")
+	public static void missingTrainRelocationPacket(CreateGameTestHelper helper) {
+		ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+			new GameProfile(UUID.randomUUID(), "gametest"), ClientInformation.createDefault());
+		new TrainRelocationPacket(UUID.randomUUID(), BlockPos.ZERO, Vec3.ZERO, -1, false, null).handle(player);
+		helper.succeed();
+	}
+
 	@GameTest(template = "smart_observer_blocks")
 	public static void schematicannonLegacyOptions(CreateGameTestHelper helper) {
 		SchematicannonBlockEntity cannon = new SchematicannonBlockEntity(AllBlockEntityTypes.SCHEMATICANNON.get(),
