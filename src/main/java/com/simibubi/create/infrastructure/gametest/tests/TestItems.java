@@ -30,6 +30,7 @@ import com.simibubi.create.content.kinetics.chainConveyor.ChainPackageInteractio
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
+import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.filter.FilterMenu;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
@@ -146,6 +147,22 @@ public class TestItems {
 		helper.assertTrue(chute.getItem().getCount() == 3, "Chute did not retain inserted items");
 		chute.clearContent();
 		helper.assertTrue(chute.getItem().isEmpty(), "Chute clearContent left items behind");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void smartChuteClearContent(CreateGameTestHelper helper) {
+		BlockPos chuteLocal = new BlockPos(5, 2, 1);
+		helper.setBlock(chuteLocal, AllBlocks.SMART_CHUTE.getDefaultState());
+		ChuteBlockEntity chute = helper.getBlockEntity(AllBlockEntityTypes.SMART_CHUTE.get(), chuteLocal);
+		FilteringBehaviour filtering = chute.getBehaviour(FilteringBehaviour.TYPE);
+		filtering.setFilter(new ItemStack(Items.DIAMOND));
+		chute.setItem(new ItemStack(Items.DIAMOND, 2));
+		helper.assertTrue(!filtering.getFilter().isEmpty() && chute.getItem().getCount() == 2,
+			"Smart chute did not retain its filter and item");
+		chute.clearContent();
+		helper.assertTrue(filtering.getFilter().isEmpty() && chute.getItem().isEmpty(),
+			"Smart chute clearContent left filter or item behind");
 		helper.succeed();
 	}
 
