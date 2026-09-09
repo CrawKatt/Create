@@ -25,7 +25,10 @@ import com.simibubi.create.content.equipment.toolbox.ToolboxMenu;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.transport.BeltInventory;
 import com.simibubi.create.content.kinetics.belt.transport.ItemHandlerBeltSegment;
+import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
+import com.simibubi.create.content.kinetics.chainConveyor.ChainPackageInteractionPacket;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
+import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.filter.FilterMenu;
@@ -67,6 +70,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -110,6 +114,26 @@ public class TestItems {
 		new ConfigureThresholdSwitchPacket(switchPos, 99, 101, false, false).handle(player);
 		helper.assertTrue(threshold.onWhenAbove == 7 && threshold.offWhenBelow == 3 && threshold.inStacks,
 			"Out-of-range configuration packet changed the block entity");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void chainPackagePacketValidation(CreateGameTestHelper helper) {
+		BlockPos conveyorLocal = new BlockPos(5, 2, 1);
+		helper.setBlock(conveyorLocal, AllBlocks.CHAIN_CONVEYOR.getDefaultState());
+		BlockPos conveyorPos = helper.absolutePos(conveyorLocal);
+		ChainConveyorBlockEntity conveyor = helper.getBlockEntity(AllBlockEntityTypes.CHAIN_CONVEYOR.get(), conveyorLocal);
+		ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(),
+			new GameProfile(UUID.randomUUID(), "gametest"), ClientInformation.createDefault());
+		player.moveTo(conveyorPos.getX() + .5, conveyorPos.getY() + .5, conveyorPos.getZ() + .5, 0, 0);
+		player.setItemInHand(InteractionHand.MAIN_HAND, Items.STONE.getDefaultInstance());
+		new ChainPackageInteractionPacket(conveyorPos, null, 0, false).handle(player);
+		helper.assertTrue(conveyor.getLoopingPackages().isEmpty() && player.getMainHandItem().is(Items.STONE),
+			"Chain conveyor accepted a non-package item");
+		player.setItemInHand(InteractionHand.MAIN_HAND, PackageStyles.getDefaultBox());
+		new ChainPackageInteractionPacket(conveyorPos, null, 0, false).handle(player);
+		helper.assertTrue(conveyor.getLoopingPackages().size() == 1 && player.getMainHandItem().isEmpty(),
+			"Chain conveyor did not consume and queue a package item");
 		helper.succeed();
 	}
 
