@@ -2,12 +2,16 @@ package com.simibubi.create.infrastructure.gametest.tests;
 
 import static com.simibubi.create.infrastructure.gametest.CreateGameTestHelper.FIFTEEN_SECONDS;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlockEntity;
 import com.simibubi.create.content.schematics.SchematicExport;
@@ -15,6 +19,7 @@ import com.simibubi.create.content.schematics.SchematicItem;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity.State;
 import com.simibubi.create.content.trains.entity.TrainRelocationPacket;
+import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -56,6 +61,29 @@ public class TestMisc {
 		cannon.loadWithComponents(tag, helper.getLevel().registryAccess());
 		helper.assertTrue(cannon.replaceMode == 2 && !cannon.skipMissing && !cannon.replaceBlockEntities,
 			"Schematicannon legacy defaults changed when Options was absent");
+		helper.succeed();
+	}
+
+	@GameTest(template = "smart_observer_blocks")
+	public static void factoryGaugeTimerClampsLegacyState(CreateGameTestHelper helper) {
+		FactoryPanelBlockEntity panel = new FactoryPanelBlockEntity(AllBlockEntityTypes.FACTORY_PANEL.get(), BlockPos.ZERO,
+			AllBlocks.FACTORY_GAUGE.getDefaultState());
+		panel.addBehaviours(new ArrayList<>());
+		FactoryPanelBehaviour behaviour = panel.panels.get(PanelSlot.TOP_LEFT);
+		behaviour.active = true;
+		behaviour.resetTimer();
+
+		int configured = AllConfigs.server().logistics.factoryGaugeTimer.get();
+		CompoundTag saved = new CompoundTag();
+		behaviour.write(saved, helper.getLevel().registryAccess(), false);
+		CompoundTag panelTag = saved.getCompound("top_left");
+		panelTag.putInt("Timer", configured + 50);
+		behaviour.read(saved, helper.getLevel().registryAccess(), false);
+
+		CompoundTag roundTrip = new CompoundTag();
+		behaviour.write(roundTrip, helper.getLevel().registryAccess(), false);
+		helper.assertTrue(configured >= 5 && roundTrip.getCompound("top_left").getInt("Timer") == configured,
+			"Factory gauge timer did not use the configured interval or clamp legacy state");
 		helper.succeed();
 	}
 
