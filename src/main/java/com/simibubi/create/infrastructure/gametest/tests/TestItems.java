@@ -3,6 +3,7 @@ package com.simibubi.create.infrastructure.gametest.tests;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -10,6 +11,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.api.packager.InventoryIdentifier;
 import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
 import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
@@ -44,6 +46,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import io.netty.buffer.Unpooled;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -67,6 +70,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneLampBlock;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
+import net.createmod.catnip.math.BlockFace;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -76,6 +82,26 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "depot_comparator_output")
+	public static void inventoryIdentifierApi(CreateGameTestHelper helper) {
+		BlockPos first = helper.absolutePos(new BlockPos(2, 1, 1));
+		BlockPos second = helper.absolutePos(new BlockPos(3, 1, 1));
+		BlockFace firstFace = new BlockFace(first, Direction.UP);
+		BlockFace secondFace = new BlockFace(second, Direction.DOWN);
+		InventoryIdentifier.Pair pair = new InventoryIdentifier.Pair(second, first);
+		helper.assertTrue(pair.first().equals(first) && pair.second().equals(second)
+			&& pair.contains(firstFace) && pair.contains(secondFace),
+			"Inventory identifier pair did not canonicalize positions");
+		InventoryIdentifier.Bounds bounds = new InventoryIdentifier.Bounds(BoundingBox.fromCorners(first, second));
+		helper.assertTrue(bounds.contains(firstFace) && bounds.contains(secondFace),
+			"Inventory identifier bounds did not contain both chest blocks");
+		InventoryIdentifier.MultiFace multiFace = new InventoryIdentifier.MultiFace(first,
+			Set.of(Direction.UP));
+		helper.assertTrue(multiFace.contains(firstFace) && !multiFace.contains(secondFace),
+			"Inventory identifier face filtering was incorrect");
+		helper.succeed();
+	}
+
 	@GameTest(template = "depot_comparator_output")
 	public static void clipboardContentCodecs(CreateGameTestHelper helper) {
 		var registries = helper.getLevel().registryAccess();

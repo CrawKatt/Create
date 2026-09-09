@@ -159,6 +159,7 @@ public class Create implements ModInitializer {
 		AllBiomeModifiers.bootstrap(); // moved out of datagen
 		CreateRegistriesImpl.registerDatapackRegistries();
 		AllInventoryIdentifiers.registerDefaults();
+		com.simibubi.create.content.logistics.packager.AllInventoryIdentifiers.registerDefaults();
 	}
 
 	public static void init() {

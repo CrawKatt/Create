@@ -16,6 +16,7 @@ import com.simibubi.create.foundation.data.recipe.Mods;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
 
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalEntityTypeTags;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
@@ -35,6 +36,14 @@ import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
 public class CreateRegistrateTags {
 	private static final CreateRegistrate REGISTRATE = Create.registrate();
+
+	private static final Block[] SHULKER_BOXES = {
+		Blocks.SHULKER_BOX,
+		Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX,
+		Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX,
+		Blocks.LIGHT_GRAY_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX,
+		Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX
+	};
 
 	public static void addGenerators() {
 		REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, CreateRegistrateTags::genBlockTags);
@@ -125,12 +134,13 @@ public class CreateRegistrateTags {
 			Blocks.CHEST, Blocks.TRAPPED_CHEST
 		);
 		prov.tag(AllBlockTags.SIMPLE_MOUNTED_STORAGE.tag).add(
-			Blocks.BARREL, Blocks.SHULKER_BOX,
-			Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX,
-			Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX,
-			Blocks.LIGHT_GRAY_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX,
-			Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX
-		);
+			Blocks.BARREL
+		).add(SHULKER_BOXES);
+
+		prov.tag(AllBlockTags.SINGLE_BLOCK_INVENTORIES.tag)
+			.add(SHULKER_BOXES)
+			.add(Blocks.HOPPER, Blocks.DISPENSER, Blocks.DROPPER, Blocks.CHISELED_BOOKSHELF, Blocks.JUKEBOX)
+			.addTag(ConventionalBlockTags.BARRELS);
 
 		prov.tag(AllBlockTags.ROOTS.tag)
 			.add(Blocks.MANGROVE_ROOTS);
