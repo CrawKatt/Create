@@ -137,6 +137,18 @@ public class TestItems {
 		helper.succeed();
 	}
 
+	@GameTest(template = "threshold_switch")
+	public static void chuteClearContent(CreateGameTestHelper helper) {
+		BlockPos chuteLocal = new BlockPos(5, 2, 1);
+		helper.setBlock(chuteLocal, AllBlocks.CHUTE.getDefaultState());
+		ChuteBlockEntity chute = helper.getBlockEntity(AllBlockEntityTypes.CHUTE.get(), chuteLocal);
+		chute.setItem(new ItemStack(Items.DIAMOND, 3));
+		helper.assertTrue(chute.getItem().getCount() == 3, "Chute did not retain inserted items");
+		chute.clearContent();
+		helper.assertTrue(chute.getItem().isEmpty(), "Chute clearContent left items behind");
+		helper.succeed();
+	}
+
 	@GameTest(template = "depot_comparator_output")
 	public static void inventoryIdentifierApi(CreateGameTestHelper helper) {
 		BlockPos first = helper.absolutePos(new BlockPos(2, 1, 1));
