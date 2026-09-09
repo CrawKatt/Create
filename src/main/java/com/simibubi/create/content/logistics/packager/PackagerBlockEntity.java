@@ -620,7 +620,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements SidedStorag
 	public boolean isTargetingSameInventory(@Nullable InventoryIdentifier identifier) {
 		if (identifier == null || !this.targetInventory.hasInventory())
 			return false;
-		BlockFace target = this.targetInventory.getTarget();
+		BlockFace target = this.targetInventory.getTarget().getOpposite();
 		return identifier.contains(target);
 	}
 
