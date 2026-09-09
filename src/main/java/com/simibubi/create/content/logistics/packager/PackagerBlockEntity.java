@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
-import com.simibubi.create.api.unpacking.UnpackingHandler;
+import com.simibubi.create.api.packager.unpacking.UnpackingHandler;
 import com.simibubi.create.content.contraptions.actors.psi.PortableStorageInterfaceBlockEntity;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.box.PackageItem;
