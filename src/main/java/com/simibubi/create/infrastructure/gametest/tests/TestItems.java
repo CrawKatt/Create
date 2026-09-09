@@ -41,6 +41,10 @@ import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.filter.FilterMenu;
+import com.simibubi.create.content.logistics.filter.FilterItemStack;
+import com.simibubi.create.content.logistics.filter.AttributeFilterWhitelistMode;
+import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute.ItemAttributeEntry;
+import com.simibubi.create.content.logistics.item.filter.attribute.attributes.InTagAttribute;
 import com.simibubi.create.content.logistics.packagePort.PackagePortMenu;
 import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity.SelectionMode;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
@@ -92,6 +96,8 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.GameType;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
@@ -109,6 +115,59 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "threshold_switch")
+	public static void filterItemApi(CreateGameTestHelper helper) {
+		ItemStack listFilter = AllItems.FILTER.asStack();
+		ItemStack diamond = new ItemStack(Items.DIAMOND, 2);
+		diamond.set(DataComponents.CUSTOM_NAME, Component.literal("Named diamond"));
+		listFilter.set(AllDataComponents.FILTER_ITEMS, ItemContainerContents.fromItems(List.of(diamond)));
+		listFilter.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, true);
+		var handler = AllItems.FILTER.get().getFilterItemHandler(listFilter);
+		ItemStack[] displayed = AllItems.FILTER.get().getFilterItems(listFilter);
+		helper.assertTrue(handler.getSlotCount() == 18 && displayed.length == 1
+			&& ItemStack.matches(displayed[0], diamond), "List filter API lost slots, counts or components");
+		var listWrapper = FilterItemStack.of(listFilter.copy());
+		helper.assertTrue(listWrapper instanceof FilterItemStack.ListFilterItemStack
+			&& listWrapper.test(helper.getLevel(), diamond)
+			&& !listWrapper.test(helper.getLevel(), Items.DIAMOND.getDefaultInstance()),
+			"List filter wrapper did not preserve component-sensitive matching");
+		listFilter.set(AllDataComponents.FILTER_ITEMS_BLACKLIST, true);
+		helper.assertTrue(AllItems.FILTER.get().getFilterItems(listFilter).length == 0
+			&& !FilterItemStack.of(listFilter.copy()).test(helper.getLevel(), diamond),
+			"Blacklist displayed or accepted an excluded item");
+		listFilter.set(AllDataComponents.FILTER_ITEMS, ItemContainerContents.EMPTY);
+		helper.assertTrue(FilterItemStack.of(listFilter.copy()).test(helper.getLevel(), diamond),
+			"Empty blacklist did not accept items");
+		listFilter.set(AllDataComponents.FILTER_ITEMS_BLACKLIST, false);
+		helper.assertTrue(!FilterItemStack.of(listFilter.copy()).test(helper.getLevel(), diamond),
+			"Empty allow-list accepted an item");
+
+		ItemStack attributeFilter = AllItems.ATTRIBUTE_FILTER.asStack();
+		attributeFilter.set(AllDataComponents.ATTRIBUTE_FILTER_WHITELIST_MODE, AttributeFilterWhitelistMode.WHITELIST_DISJ);
+		attributeFilter.set(AllDataComponents.ATTRIBUTE_FILTER_MATCHED_ATTRIBUTES,
+			List.of(new ItemAttributeEntry(new InTagAttribute(ItemTags.PLANKS), false)));
+		ItemStack[] matchingTag = AllItems.ATTRIBUTE_FILTER.get().getFilterItems(attributeFilter);
+		helper.assertTrue(matchingTag.length > 0 && Stream.of(matchingTag).allMatch(stack -> stack.is(ItemTags.PLANKS))
+			&& FilterItemStack.of(attributeFilter.copy()) instanceof FilterItemStack.AttributeFilterItemStack,
+			"Attribute filter API did not expose its tag entries or wrapper");
+		attributeFilter.set(AllDataComponents.ATTRIBUTE_FILTER_WHITELIST_MODE, AttributeFilterWhitelistMode.BLACKLIST);
+		helper.assertTrue(AllItems.ATTRIBUTE_FILTER.get().getFilterItems(attributeFilter).length == 0,
+			"Attribute blacklist exposed tag entries as accepted items");
+
+		ItemStack packageFilter = AllItems.PACKAGE_FILTER.asStack();
+		packageFilter.set(AllDataComponents.PACKAGE_ADDRESS, "Station*");
+		ItemStack box = PackageStyles.getDefaultBox();
+		box.set(AllDataComponents.PACKAGE_ADDRESS, "Station 1");
+		var packageWrapper = FilterItemStack.of(packageFilter.copy());
+		helper.assertTrue(packageWrapper instanceof FilterItemStack.PackageFilterItemStack
+			&& packageWrapper.test(helper.getLevel(), box)
+			&& AllItems.PACKAGE_FILTER.get().getFilterItems(packageFilter).length == 0,
+			"Package filter API lost its address matcher or exposed a fabricated item list");
+		box.set(AllDataComponents.PACKAGE_ADDRESS, "Other");
+		helper.assertTrue(!packageWrapper.test(helper.getLevel(), box), "Package filter accepted a different address");
+		helper.succeed();
+	}
+
 	@GameTest(template = "threshold_switch")
 	public static void clientCommandSuggestionsMerge(CreateGameTestHelper helper) throws CommandSyntaxException {
 		var client = LiteralArgumentBuilder.<Boolean>literal("create")
