@@ -19,7 +19,9 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.api.data.datamaps.BlazeBurnerFuel;
 import com.simibubi.create.api.packager.InventoryIdentifier;
+import com.simibubi.create.api.registry.CreateDataMaps;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
 import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
@@ -199,6 +201,18 @@ public class TestItems {
 			&& customWrapper.test(helper.getLevel(), new ItemStack(Items.GOLD_INGOT))
 			&& !customWrapper.test(helper.getLevel(), new ItemStack(Items.STONE)),
 			"Blueprint custom ingredient did not preserve its matching stacks");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void blazeBurnerFuelDataMap(CreateGameTestHelper helper) {
+		BlazeBurnerFuel fuel = CreateDataMaps.getSuperheated(AllItems.BLAZE_CAKE.get());
+		helper.assertTrue(fuel != null && fuel.burnTime() == 3200,
+			"Superheated Blaze Burner data map did not load blaze cake at 3200 ticks");
+		helper.assertTrue(fuel != null && fuel.equals(CreateDataMaps.get(CreateDataMaps.SUPERHEATED_BLAZE_BURNER_FUELS,
+			AllItems.BLAZE_CAKE.get())), "Data map lookup by id disagreed with the typed lookup");
+		helper.assertTrue(CreateDataMaps.getRegular(AllItems.BLAZE_CAKE.get()) == null,
+			"Blaze cake unexpectedly appeared in the regular fuel data map");
 		helper.succeed();
 	}
 
