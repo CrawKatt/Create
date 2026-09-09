@@ -33,6 +33,18 @@ import net.minecraft.world.level.block.RedstoneLampBlock;
 @GameTestGroup(path = "misc")
 public class TestMisc {
 	@GameTest(template = "smart_observer_blocks")
+	public static void schematicannonLegacyOptions(CreateGameTestHelper helper) {
+		SchematicannonBlockEntity cannon = new SchematicannonBlockEntity(AllBlockEntityTypes.SCHEMATICANNON.get(),
+			BlockPos.ZERO, AllBlocks.SCHEMATICANNON.getDefaultState());
+		CompoundTag tag = new CompoundTag();
+		tag.putString("State", State.STOPPED.name());
+		cannon.loadWithComponents(tag, helper.getLevel().registryAccess());
+		helper.assertTrue(cannon.replaceMode == 2 && !cannon.skipMissing && !cannon.replaceBlockEntities,
+			"Schematicannon legacy defaults changed when Options was absent");
+		helper.succeed();
+	}
+
+	@GameTest(template = "smart_observer_blocks")
 	public static void virtualNixieText(CreateGameTestHelper helper) {
 		var nixie = new NixieTubeBlockEntity(AllBlockEntityTypes.NIXIE_TUBE.get(), BlockPos.ZERO,
 			AllBlocks.ORANGE_NIXIE_TUBE.getDefaultState());
