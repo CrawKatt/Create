@@ -26,6 +26,7 @@ import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEditPacket;
 import com.simibubi.create.content.equipment.clipboard.ClipboardOverrides.ClipboardType;
+import com.simibubi.create.content.equipment.blueprint.BlueprintItem;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItemComponent;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
 import com.simibubi.create.content.equipment.toolbox.ToolboxMenu;
@@ -72,6 +73,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -93,6 +95,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.component.Unbreakable;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.GameType;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
@@ -108,6 +113,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.createmod.catnip.math.BlockFace;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.recipe.v1.ingredient.DefaultCustomIngredients;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
@@ -165,6 +171,34 @@ public class TestItems {
 			"Package filter API lost its address matcher or exposed a fabricated item list");
 		box.set(AllDataComponents.PACKAGE_ADDRESS, "Other");
 		helper.assertTrue(!packageWrapper.test(helper.getLevel(), box), "Package filter accepted a different address");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
+	public static void blueprintIngredientFilters(CreateGameTestHelper helper) {
+		NonNullList<Ingredient> ingredients = NonNullList.of(Ingredient.EMPTY,
+			Ingredient.of(ItemTags.PLANKS),
+			DefaultCustomIngredients.any(Ingredient.of(Items.DIAMOND), Ingredient.of(Items.GOLD_INGOT)));
+		ShapelessRecipe recipe = new ShapelessRecipe("blueprint", CraftingBookCategory.MISC,
+			new ItemStack(Items.STICK), ingredients);
+		ItemStackHandler inventory = new ItemStackHandler(10);
+		BlueprintItem.assignCompleteRecipe(helper.getLevel(), inventory, recipe);
+
+		ItemStack tagFilter = inventory.getStackInSlot(0);
+		FilterItemStack tagWrapper = FilterItemStack.of(tagFilter.copy());
+		helper.assertTrue(tagFilter.is(AllItems.ATTRIBUTE_FILTER.get())
+			&& tagWrapper instanceof FilterItemStack.AttributeFilterItemStack
+			&& tagWrapper.test(helper.getLevel(), new ItemStack(Blocks.OAK_PLANKS.asItem()))
+			&& !tagWrapper.test(helper.getLevel(), new ItemStack(Items.STONE)),
+			"Blueprint tag ingredient was flattened instead of preserved");
+
+		ItemStack customFilter = inventory.getStackInSlot(1);
+		FilterItemStack customWrapper = FilterItemStack.of(customFilter.copy());
+		helper.assertTrue(customFilter.is(AllItems.FILTER.get())
+			&& customWrapper.test(helper.getLevel(), new ItemStack(Items.DIAMOND))
+			&& customWrapper.test(helper.getLevel(), new ItemStack(Items.GOLD_INGOT))
+			&& !customWrapper.test(helper.getLevel(), new ItemStack(Items.STONE)),
+			"Blueprint custom ingredient did not preserve its matching stacks");
 		helper.succeed();
 	}
 
