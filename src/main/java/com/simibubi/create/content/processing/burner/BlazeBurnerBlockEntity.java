@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags.AllItemTags;
+import com.simibubi.create.api.data.datamaps.BlazeBurnerFuel;
+import com.simibubi.create.api.registry.CreateDataMaps;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinBlock;
@@ -240,7 +242,15 @@ public class BlazeBurnerBlockEntity extends SmartBlockEntity {
 		FuelType newFuel = FuelType.NONE;
 		int newBurnTime;
 
-		if (AllItemTags.BLAZE_BURNER_FUEL_SPECIAL.matches(itemStack)) {
+		BlazeBurnerFuel superheatedFuel = CreateDataMaps.getSuperheated(itemStack.getItem());
+		BlazeBurnerFuel regularFuel = CreateDataMaps.getRegular(itemStack.getItem());
+		if (superheatedFuel != null) {
+			newBurnTime = superheatedFuel.burnTime();
+			newFuel = FuelType.SPECIAL;
+		} else if (regularFuel != null) {
+			newBurnTime = regularFuel.burnTime();
+			newFuel = FuelType.NORMAL;
+		} else if (AllItemTags.BLAZE_BURNER_FUEL_SPECIAL.matches(itemStack)) {
 			newBurnTime = 3200;
 			newFuel = FuelType.SPECIAL;
 		} else {
