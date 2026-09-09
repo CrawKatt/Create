@@ -10,6 +10,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.event.BlockPostProcessPlaceEvent;
 import com.simibubi.create.api.event.PipeCollisionEvent;
+import com.simibubi.create.api.registry.CreateDataMaps;
 import com.simibubi.create.compat.trainmap.TrainMapSync;
 import com.simibubi.create.content.contraptions.ContraptionHandler;
 import com.simibubi.create.content.contraptions.actors.psi.PortableFluidInterfaceBlockEntity;
@@ -221,6 +222,7 @@ public class CommonEvents {
 	public static void addReloadListeners() {
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(RecipeFinder.LISTENER);
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(BeltHelper.LISTENER);
+		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(CreateDataMaps.LISTENER);
 	}
 
 	public static void serverStopping(MinecraftServer server) {
