@@ -72,7 +72,10 @@ import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import net.createmod.catnip.math.BlockFace;
@@ -102,6 +105,31 @@ public class TestItems {
 			Set.of(Direction.UP));
 		helper.assertTrue(multiFace.contains(firstFace) && !multiFace.contains(secondFace),
 			"Inventory identifier face filtering was incorrect");
+
+		BlockPos chestPos = new BlockPos(1, 8, 1);
+		BlockState leftChest = Blocks.CHEST.defaultBlockState()
+			.setValue(ChestBlock.FACING, Direction.NORTH)
+			.setValue(ChestBlock.TYPE, ChestType.LEFT);
+		Direction toOther = ChestBlock.getConnectedDirection(leftChest);
+		BlockPos otherChestPos = chestPos.relative(toOther);
+		helper.setBlock(chestPos, leftChest);
+		helper.setBlock(otherChestPos, leftChest.setValue(ChestBlock.TYPE, ChestType.RIGHT));
+		InventoryIdentifier chestIdentifier = InventoryIdentifier.get(helper.getLevel(),
+			new BlockFace(helper.absolutePos(chestPos), Direction.UP));
+		helper.assertTrue(chestIdentifier != null
+			&& chestIdentifier.contains(new BlockFace(helper.absolutePos(chestPos), Direction.UP))
+			&& chestIdentifier.contains(new BlockFace(helper.absolutePos(otherChestPos), Direction.UP)),
+			"Placed double chest was not identified as one inventory");
+
+		BlockPos composterPos = new BlockPos(5, 8, 1);
+		helper.setBlock(composterPos, Blocks.COMPOSTER.defaultBlockState());
+		BlockPos absoluteComposterPos = helper.absolutePos(composterPos);
+		InventoryIdentifier composterIdentifier = InventoryIdentifier.get(helper.getLevel(),
+			new BlockFace(absoluteComposterPos, Direction.UP));
+		helper.assertTrue(composterIdentifier != null
+			&& composterIdentifier.contains(new BlockFace(absoluteComposterPos, Direction.UP))
+			&& !composterIdentifier.contains(new BlockFace(absoluteComposterPos, Direction.NORTH)),
+			"WorldlyContainer faces were not identified by their slot access");
 		helper.succeed();
 	}
 
