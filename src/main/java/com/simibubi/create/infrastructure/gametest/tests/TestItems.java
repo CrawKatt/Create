@@ -123,6 +123,9 @@ public class TestItems {
 		var rewrittenDecoded = PackageOrderWithCrafts.CODEC.parse(ops, rewritten).getOrThrow();
 		helper.assertTrue(legacyDecoded.orderedCrafts().isEmpty() && rewrittenDecoded.equals(legacyDecoded),
 			"Legacy package order lost stacks while being rewritten");
+		List<BigItemStack> duplicated = BigItemStack.duplicateWrappers(List.of(ordered));
+		helper.assertTrue(duplicated.size() == 1 && duplicated.get(0).equals(ordered) && duplicated.get(0) != ordered,
+			"Big item stack wrapper duplication was not independent");
 
 		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
 		try {
