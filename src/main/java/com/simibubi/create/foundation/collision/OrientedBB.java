@@ -1,7 +1,5 @@
 package com.simibubi.create.foundation.collision;
 
-import com.simibubi.create.foundation.collision.ContinuousOBBCollider.ContinuousSeparationManifold;
-
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,23 +25,6 @@ public class OrientedBB {
 
 	public OrientedBB copy() {
 		return new OrientedBB(center, extents, rotation);
-	}
-
-	public Vec3 intersect(AABB bb) {
-		Vec3 extentsA = extentsFromBB(bb);
-		Vec3 intersects = OBBCollider.separateBBs(bb.getCenter(), center, extentsA, extents, rotation);
-		return intersects;
-	}
-
-	public ContinuousSeparationManifold intersect(AABB bb, Vec3 motion) {
-		Vec3 extentsA = extentsFromBB(bb);
-		return ContinuousOBBCollider.separateBBs(bb.getCenter(), center, extentsA, extents, rotation, motion);
-	}
-
-	public ContinuousSeparationManifold intersect(CollisionList collisionList, int bbIdx, Vec3 motion) {
-		Vec3 centerA = new Vec3(collisionList.centerX[bbIdx], collisionList.centerY[bbIdx], collisionList.centerZ[bbIdx]);
-		Vec3 extentsA = new Vec3(collisionList.extentsX[bbIdx], collisionList.extentsY[bbIdx], collisionList.extentsZ[bbIdx]);
-		return ContinuousOBBCollider.separateBBs(centerA, center, extentsA, extents, rotation, motion);
 	}
 
 	private static Vec3 extentsFromBB(AABB bb) {

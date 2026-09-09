@@ -1,12 +1,7 @@
 package com.simibubi.create.foundation.collision;
 
-import org.joml.Matrix4f;
-
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 public class Matrix3d {
 
@@ -59,36 +54,10 @@ public class Matrix3d {
 		return this;
 	}
 
-	public Matrix3d transpose() {
-		double d = m01;
-		m01 = m10;
-		m10 = d;
-		d = m02;
-		m02 = m20;
-		m20 = d;
-		d = m12;
-		m12 = m21;
-		m21 = d;
-		return this;
-	}
-
 	public Matrix3d scale(double d) {
 		m00 *= d;
 		m11 *= d;
 		m22 *= d;
-		return this;
-	}
-
-	public Matrix3d add(Matrix3d matrix) {
-		m00 += matrix.m00;
-		m01 += matrix.m01;
-		m02 += matrix.m02;
-		m10 += matrix.m10;
-		m11 += matrix.m11;
-		m12 += matrix.m12;
-		m20 += matrix.m20;
-		m21 += matrix.m21;
-		m22 += matrix.m22;
 		return this;
 	}
 
@@ -121,29 +90,14 @@ public class Matrix3d {
 		return new Vec3(x, y, z);
 	}
 
-	public Matrix3d copy() {
-		return new Matrix3d().add(this);
+	public Vec3 transformTransposed(Vec3 vec) {
+		return transformTransposed(vec.x, vec.y, vec.z);
 	}
 
-	float[] conversionBuffer = new float[16];
-
-	@Environment(EnvType.CLIENT)
-	public Matrix4f getAsMatrix4f() {
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 4; j++)
-				conversionBuffer[j * 4 + i] = i == j ? 1 : 0;
-
-		conversionBuffer[0] = (float) m00;
-		conversionBuffer[1] = (float) m01;
-		conversionBuffer[2] = (float) m02;
-		conversionBuffer[4] = (float) m10;
-		conversionBuffer[5] = (float) m11;
-		conversionBuffer[6] = (float) m12;
-		conversionBuffer[8] = (float) m20;
-		conversionBuffer[9] = (float) m21;
-		conversionBuffer[10] = (float) m22;
-
-		return new Matrix4f().setTransposed(conversionBuffer);
+	public Vec3 transformTransposed(double x, double y, double z) {
+		return new Vec3(x * m00 + y * m10 + z * m20,
+			x * m01 + y * m11 + z * m21,
+			x * m02 + y * m12 + z * m22);
 	}
 
 }
