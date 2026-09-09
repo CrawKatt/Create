@@ -4,7 +4,10 @@ import java.util.Collections;
 import java.util.function.Predicate;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
@@ -16,9 +19,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.world.entity.player.Player;
 
 public class AllCommands {
+	@Environment(EnvType.CLIENT)
+	private static LiteralCommandNode<FabricClientCommandSource> clientRoot;
 
 	public static final Predicate<CommandSourceStack> SOURCE_IS_PLAYER = cs -> cs.getEntity() instanceof Player;
 
@@ -72,14 +78,51 @@ public class AllCommands {
 			.then(FabulousWarningCommand.register())
 			.then(OverlayConfigCommand.register())
 			.then(util);
-		LiteralCommandNode<FabricClientCommandSource> createRoot = dispatcher.register(root);
-		createRoot.addChild(buildClientRedirect("u", util));
+		clientRoot = root.build();
+		clientRoot.addChild(buildClientRedirect("u", util));
+		dispatcher.getRoot().addChild(clientRoot);
 		CommandNode<FabricClientCommandSource> shortcut = dispatcher.findNode(Collections.singleton("c"));
 		if (shortcut != null)
-			for (CommandNode<FabricClientCommandSource> child : createRoot.getChildren())
+			for (CommandNode<FabricClientCommandSource> child : clientRoot.getChildren())
 				shortcut.addChild(child);
 		else
-			dispatcher.getRoot().addChild(buildClientRedirect("c", createRoot));
+			dispatcher.getRoot().addChild(buildClientRedirect("c", clientRoot));
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void mergeClientCommandSuggestions(CommandDispatcher<SharedSuggestionProvider> dispatcher,
+		FabricClientCommandSource source) {
+		mergeClientCommandSuggestions(clientRoot, dispatcher, source);
+	}
+
+	public static <S> void mergeClientCommandSuggestions(CommandNode<S> createRoot,
+		CommandDispatcher<SharedSuggestionProvider> dispatcher, S source) {
+		for (String alias : new String[] { "create", "c" }) {
+			var root = LiteralArgumentBuilder.<SharedSuggestionProvider>literal(alias).build();
+			copyClientSuggestions(createRoot, root, source);
+			dispatcher.getRoot().addChild(root);
+		}
+	}
+
+	private static <S> void copyClientSuggestions(CommandNode<S> origin,
+		CommandNode<SharedSuggestionProvider> target, S source) {
+		// ponytail: Create's local tree uses expanded aliases and default argument suggestions;
+		// extend this copier if local commands gain redirects or custom suggestion providers.
+		for (CommandNode<S> child : origin.getChildren()) {
+			if (!child.canUse(source))
+				continue;
+			ArgumentBuilder<SharedSuggestionProvider, ?> builder;
+			if (child instanceof ArgumentCommandNode<S, ?> argument)
+				builder = RequiredArgumentBuilder.argument(child.getName(), argument.getType());
+			else
+				builder = LiteralArgumentBuilder.literal(child.getName());
+			if (child.getCommand() != null)
+				builder.executes(context -> 0);
+			var copy = builder.build();
+			copyClientSuggestions(child, copy, source);
+			// Fabric 2.2.28 adds empty nodes before recursion, losing children on shared roots.
+			target.addChild(copy);
+		}
 	}
 
 	@Environment(EnvType.CLIENT)

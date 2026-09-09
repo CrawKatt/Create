@@ -8,6 +8,13 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.simibubi.create.infrastructure.command.AllCommands;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
@@ -57,6 +64,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import io.netty.buffer.Unpooled;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.Util;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -101,6 +109,54 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "threshold_switch")
+	public static void clientCommandSuggestionsMerge(CreateGameTestHelper helper) throws CommandSyntaxException {
+		var client = LiteralArgumentBuilder.<Boolean>literal("create")
+			.then(LiteralArgumentBuilder.<Boolean>literal("overlay").executes(context -> 1))
+			.then(LiteralArgumentBuilder.<Boolean>literal("rainbowDebug")
+				.then(RequiredArgumentBuilder.<Boolean, Boolean>argument("status", BoolArgumentType.bool())
+					.executes(context -> 1)));
+		var suggestions = new CommandDispatcher<SharedSuggestionProvider>();
+		for (String utilityAlias : List.of("util", "u"))
+			client.then(LiteralArgumentBuilder.<Boolean>literal(utilityAlias)
+				.then(LiteralArgumentBuilder.<Boolean>literal("camera")
+					.then(RequiredArgumentBuilder.<Boolean, Float>argument("multiplier", FloatArgumentType.floatArg(1))
+						.executes(context -> 1)))
+				.then(LiteralArgumentBuilder.<Boolean>literal("angle").requires(allowed -> allowed)));
+		for (String alias : List.of("create", "c")) {
+			var existing = LiteralArgumentBuilder.<SharedSuggestionProvider>literal(alias)
+				.then(LiteralArgumentBuilder.<SharedSuggestionProvider>literal("trains"))
+				.then(LiteralArgumentBuilder.<SharedSuggestionProvider>literal("otherMod"));
+			for (String utilityAlias : List.of("util", "u"))
+				existing.then(LiteralArgumentBuilder.<SharedSuggestionProvider>literal(utilityAlias)
+					.then(LiteralArgumentBuilder.<SharedSuggestionProvider>literal("replaceInCommandBlocks")));
+			suggestions.register(existing);
+		}
+		var clientRoot = client.build();
+		AllCommands.mergeClientCommandSuggestions(clientRoot, suggestions, false);
+		var source = helper.getLevel().getServer().createCommandSourceStack();
+		for (String alias : List.of("create", "c")) {
+			var root = suggestions.getRoot().getChild(alias);
+			helper.assertTrue(root.getChild("trains") != null && root.getChild("otherMod") != null,
+				"Completion merge removed existing commands from /" + alias);
+			helper.assertTrue(root.getChild("overlay") != null
+				&& suggestions.execute(alias + " rainbowDebug true", source) == 0,
+				"Client literal/boolean suggestions were lost or retained an execution callback");
+			for (String utilityAlias : List.of("util", "u")) {
+				var utility = root.getChild(utilityAlias);
+				helper.assertTrue(utility.getChild("replaceInCommandBlocks") != null && utility.getChild("angle") == null,
+					"Completion merge lost a server utility or exposed a forbidden command");
+				String command = alias + " " + utilityAlias + " camera ";
+				helper.assertTrue(suggestions.execute(command + "2", source) == 0
+					&& !suggestions.parse(command + "0.5", source).getExceptions().isEmpty(),
+					"Completion merge changed the camera argument bounds");
+			}
+		}
+		helper.assertTrue(clientRoot.getChild("util").getChild("angle") != null,
+			"Permission filtering modified the original client command tree");
+		helper.succeed();
+	}
+
 	@GameTest(template = "threshold_switch")
 	public static void serverCommandSeparation(CreateGameTestHelper helper) {
 		var dispatcher = helper.getLevel().getServer().getCommands().getDispatcher();

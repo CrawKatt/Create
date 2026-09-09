@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.brigadier.CommandDispatcher;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllKeys;
 import com.simibubi.create.AllMapDecorationTypes;
@@ -127,7 +128,9 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
@@ -159,8 +162,12 @@ import io.github.fabricators_of_create.porting_lib.event.client.TextureAtlasStit
 
 import com.simibubi.create.api.event.client.AttackAirCallback;
 import com.simibubi.create.api.event.client.CameraSetupCallback;
+import com.simibubi.create.infrastructure.command.AllCommands;
+
+import net.minecraft.commands.SharedSuggestionProvider;
 
 public class ClientEvents {
+	private static CommandDispatcher<SharedSuggestionProvider> mergedCommandTree;
 
 	private static ClientLevel previousWorld = null;
 
@@ -175,6 +182,15 @@ public class ClientEvents {
 	}
 
 	public static void onTick(Minecraft client) {
+		ClientPacketListener connection = client.getConnection();
+		if (connection == null) {
+			mergedCommandTree = null;
+		} else if (client.player != null && ClientCommandManager.getActiveDispatcher() != null
+			&& mergedCommandTree != connection.getCommands()
+			&& connection.getSuggestionsProvider() instanceof FabricClientCommandSource source) {
+			AllCommands.mergeClientCommandSuggestions(connection.getCommands(), source);
+			mergedCommandTree = connection.getCommands();
+		}
 		if (!isGameActive())
 			return;
 
@@ -453,7 +469,7 @@ public class ClientEvents {
 	public static void register() {
 //		ModBusEvents.registerClientReloadListeners();
 		registerItemDecorations();
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> com.simibubi.create.infrastructure.command.AllCommands.registerClient(dispatcher));
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> AllCommands.registerClient(dispatcher));
 
 		ClientTickEvents.END_CLIENT_TICK.register(ClientEvents::onTick);
 		ClientTickEvents.START_CLIENT_TICK.register(ClientEvents::onTickStart);
