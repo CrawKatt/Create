@@ -1,22 +1,35 @@
 package com.simibubi.create.infrastructure.gametest.tests;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.lang3.tuple.MutablePair;
 
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
+import com.simibubi.create.content.contraptions.actors.contraptionControls.ContraptionControlsMovingInteraction;
 import com.simibubi.create.content.contraptions.actors.plough.PloughMovementBehaviour;
+import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
 import com.simibubi.create.content.contraptions.elevator.ElevatorPulleyBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock;
+import com.simibubi.create.content.trains.entity.Carriage;
+import com.simibubi.create.content.trains.entity.CarriageBogey;
+import com.simibubi.create.content.trains.entity.CarriageContraption;
+import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
+import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.Item;
@@ -27,6 +40,9 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
+import net.minecraft.world.phys.AABB;
 
 import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
 
@@ -177,6 +193,78 @@ public class TestContraptions {
 				}
 			}
 		});
+	}
+
+	@GameTest(template = "controls")
+	public static void trainDoorControlsAcrossCarriages(CreateGameTestHelper helper) {
+		TestCarriage first = new TestCarriage();
+		TestCarriage second = new TestCarriage();
+		TestCarriage third = new TestCarriage();
+		new Train(UUID.randomUUID(), null, null, List.of(first, second, third), List.of(32, 32), false, 0);
+
+		CarriageContraption sourceContraption = new CarriageContraption(Direction.NORTH);
+		sourceContraption.bounds = new AABB(BlockPos.ZERO);
+		addControlActor(helper, sourceContraption);
+		MovementContext firstDoor = addDoorActor(helper, sourceContraption, new BlockPos(1, 0, 0));
+		CarriageContraption secondContraption = new CarriageContraption(Direction.NORTH);
+		secondContraption.bounds = new AABB(BlockPos.ZERO);
+		MovementContext secondDoor = addDoorActor(helper, secondContraption, BlockPos.ZERO);
+		CarriageContraption thirdContraption = new CarriageContraption(Direction.NORTH);
+		thirdContraption.bounds = new AABB(BlockPos.ZERO);
+		MovementContext thirdDoor = addDoorActor(helper, thirdContraption, BlockPos.ZERO);
+
+		first.entity = CarriageContraptionEntity.create(helper.getLevel(), sourceContraption);
+		first.entity.setCarriage(first);
+		second.entity = CarriageContraptionEntity.create(helper.getLevel(), secondContraption);
+		second.entity.setCarriage(second);
+		third.entity = CarriageContraptionEntity.create(helper.getLevel(), thirdContraption);
+		third.entity.setCarriage(third);
+
+		boolean handled = new ContraptionControlsMovingInteraction().handlePlayerInteraction(
+			helper.makeMockPlayer(GameType.CREATIVE), InteractionHand.MAIN_HAND, BlockPos.ZERO,
+			first.entity
+		);
+		helper.assertTrue(handled, "Train controls interaction was not handled");
+		helper.assertTrue(firstDoor.disabled && secondDoor.disabled && thirdDoor.disabled,
+			"Train door filter did not disable doors in every carriage");
+
+		handled = new ContraptionControlsMovingInteraction().handlePlayerInteraction(
+			helper.makeMockPlayer(GameType.CREATIVE), InteractionHand.MAIN_HAND, BlockPos.ZERO,
+			first.entity
+		);
+		helper.assertTrue(handled, "Second train controls interaction was not handled");
+		helper.assertTrue(!firstDoor.disabled && !secondDoor.disabled && !thirdDoor.disabled,
+			"Train door filter did not re-enable doors in every carriage");
+		helper.succeed();
+	}
+
+	private static void addControlActor(CreateGameTestHelper helper, CarriageContraption contraption) {
+		CompoundTag data = new CompoundTag();
+		data.put("Filter", AllBlocks.TRAIN_DOOR.asStack().saveOptional(helper.getLevel().registryAccess()));
+		StructureBlockInfo info = new StructureBlockInfo(BlockPos.ZERO,
+			AllBlocks.CONTRAPTION_CONTROLS.getDefaultState(), data);
+		MovementContext context = new MovementContext(helper.getLevel(), info, contraption);
+		contraption.getActors().add(MutablePair.of(info, context));
+	}
+
+	private static MovementContext addDoorActor(CreateGameTestHelper helper, CarriageContraption contraption, BlockPos pos) {
+		StructureBlockInfo info = new StructureBlockInfo(pos, AllBlocks.TRAIN_DOOR.getDefaultState(), null);
+		MovementContext context = new MovementContext(helper.getLevel(), info, contraption);
+		contraption.getActors().add(MutablePair.of(info, context));
+		return context;
+	}
+
+	private static class TestCarriage extends Carriage {
+		private CarriageContraptionEntity entity;
+
+		private TestCarriage() {
+			super(new CarriageBogey(AllBlocks.SMALL_BOGEY.get(), false, new CompoundTag()), null, 0);
+		}
+
+		@Override
+		public CarriageContraptionEntity anyAvailableEntity() {
+			return entity;
+		}
 	}
 
 	@GameTest(template = "elevator")
