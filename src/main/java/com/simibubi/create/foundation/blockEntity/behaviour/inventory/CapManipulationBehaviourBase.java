@@ -103,7 +103,10 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 
 	@Nullable
 	public InventoryIdentifier getIdentifier() {
-		return !this.hasInventory() ? null : InventoryIdentifier.get(getWorld(), blockEntity.getBlockPos(), side);
+		if (!this.hasInventory())
+			return null;
+		BlockFace target = getTarget().getOpposite();
+		return InventoryIdentifier.get(getWorld(), target.getPos(), target.getFace());
 	}
 
 	protected boolean onHandlerInvalidated() {
