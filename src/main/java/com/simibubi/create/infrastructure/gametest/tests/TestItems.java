@@ -102,6 +102,29 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 @GameTestGroup(path = "items")
 public class TestItems {
 	@GameTest(template = "threshold_switch")
+	public static void serverCommandSeparation(CreateGameTestHelper helper) {
+		var dispatcher = helper.getLevel().getServer().getCommands().getDispatcher();
+		for (String alias : List.of("create", "c")) {
+			var root = dispatcher.getRoot().getChild(alias);
+			helper.assertTrue(root != null, "Missing server command root /" + alias);
+			helper.assertTrue(root.getChild("trains") != null && root.getChild("debuginfo") != null,
+				"Server commands missing from /" + alias);
+			for (String clientCommand : List.of("rainbowDebug", "dismissFabulousWarning", "overlay"))
+				helper.assertTrue(root.getChild(clientCommand) == null,
+					"Client command registered on server: /" + alias + " " + clientCommand);
+			for (String utilityAlias : List.of("util", "u")) {
+				var utility = root.getChild(utilityAlias);
+				helper.assertTrue(utility != null && utility.getChild("replaceInCommandBlocks") != null,
+					"Server utility missing from /" + alias + " " + utilityAlias);
+				for (String clientCommand : List.of("clearRenderBuffers", "camera", "angle"))
+					helper.assertTrue(utility.getChild(clientCommand) == null,
+						"Client utility registered on server: /" + alias + " " + utilityAlias + " " + clientCommand);
+			}
+		}
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
 	public static void configurationPacketRange(CreateGameTestHelper helper) {
 		BlockPos switchLocal = new BlockPos(1, 2, 1);
 		helper.setBlock(switchLocal, AllBlocks.THRESHOLD_SWITCH.getDefaultState());
