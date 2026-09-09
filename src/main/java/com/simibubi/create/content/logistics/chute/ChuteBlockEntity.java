@@ -61,6 +61,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -88,7 +89,7 @@ import io.github.fabricators_of_create.porting_lib.util.StorageProvider;
  * Commented Code: Chutes create air streams and act similarly to encased fans
  * (Unfinished)
  */
-public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, CustomRenderBoundingBoxBlockEntity, SidedStorageBlockEntity { // , IAirCurrentSource {
+public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, CustomRenderBoundingBoxBlockEntity, SidedStorageBlockEntity, Clearable { // , IAirCurrentSource {
 
 	// public AirCurrent airCurrent;
 
@@ -627,6 +628,11 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 
 		float motion = (push + pull) * fanSpeedModifier;
 		return (Mth.clamp(motion, -maxItemSpeed, maxItemSpeed) + (motion <= 0 ? -gravity : 0)) / 20f;
+	}
+
+	@Override
+	public void clearContent() {
+		item = ItemStack.EMPTY;
 	}
 
 	@Override

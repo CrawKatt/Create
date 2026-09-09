@@ -50,6 +50,12 @@ public class SmartChuteBlockEntity extends ChuteBlockEntity {
 		super.addBehaviours(behaviours);
 	}
 
+	@Override
+	public void clearContent() {
+		super.clearContent();
+		filtering.setFilter(ItemStack.EMPTY);
+	}
+
 	private boolean isExtracting() {
 		boolean up = getItemMotion() < 0;
 		BlockPos chutePos = worldPosition.relative(up ? Direction.UP : Direction.DOWN);
