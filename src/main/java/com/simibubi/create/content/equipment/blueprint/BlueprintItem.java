@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
-import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.core.BlockPos;
@@ -88,7 +87,7 @@ public class BlueprintItem extends Item {
 			return acceptedItems[0].copy();
 
 		ItemStack result = AllItems.FILTER.asStack();
-		ItemStackHandler filterItems = FilterItem.getFilterItems(result);
+		ItemStackHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
 		for (int i = 0; i < acceptedItems.length; i++)
 			filterItems.setStackInSlot(i, acceptedItems[i].copy());
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));

@@ -106,4 +106,9 @@ public class PackageFilterScreen extends AbstractFilterScreen<PackageFilterMenu>
 		return false;
 	}
 
+	@Override
+	protected int getTitleColor() {
+		return 0x3D3C48;
+	}
+
 }
