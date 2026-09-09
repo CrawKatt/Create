@@ -1,16 +1,23 @@
 package com.simibubi.create.content.equipment.blueprint;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.content.logistics.filter.AttributeFilterWhitelistMode;
+import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute.ItemAttributeEntry;
+import com.simibubi.create.content.logistics.item.filter.attribute.attributes.InTagAttribute;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -23,7 +30,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
+import net.minecraft.resources.ResourceLocation;
 
+import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
+import net.fabricmc.fabric.api.recipe.v1.ingredient.FabricIngredient;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 public class BlueprintItem extends Item {
@@ -80,18 +90,52 @@ public class BlueprintItem extends Item {
 	}
 
 	private static ItemStack convertIngredientToFilter(Ingredient ingredient) {
+		if (ingredient instanceof FabricIngredient fabricIngredient) {
+			CustomIngredient customIngredient = fabricIngredient.getCustomIngredient();
+			if (customIngredient != null)
+				return makeListFilter(customIngredient.getMatchingStacks(), customIngredient.requiresTesting());
+		}
+
+		ResourceLocation tag = getTag(ingredient);
+		if (tag != null)
+			return makeTagFilter(tag);
+
 		ItemStack[] acceptedItems = ingredient.getItems();
 		if (acceptedItems == null || acceptedItems.length == 0 || acceptedItems.length > 18)
 			return ItemStack.EMPTY;
 		if (acceptedItems.length == 1)
 			return acceptedItems[0].copy();
+		return makeListFilter(List.of(acceptedItems), true);
+	}
 
+	private static ItemStack makeTagFilter(ResourceLocation tag) {
+		ItemStack filter = AllItems.ATTRIBUTE_FILTER.asStack();
+		filter.set(AllDataComponents.ATTRIBUTE_FILTER_WHITELIST_MODE, AttributeFilterWhitelistMode.WHITELIST_DISJ);
+		filter.set(AllDataComponents.ATTRIBUTE_FILTER_MATCHED_ATTRIBUTES,
+			List.of(new ItemAttributeEntry(new InTagAttribute(TagKey.create(Registries.ITEM, tag)), false)));
+		return filter;
+	}
+
+	private static ResourceLocation getTag(Ingredient ingredient) {
+		JsonElement encoded = Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, ingredient)
+			.result()
+			.orElse(null);
+		if (!(encoded instanceof JsonObject object))
+			return null;
+		JsonElement tag = object.get("tag");
+		return tag != null && tag.isJsonPrimitive() ? ResourceLocation.tryParse(tag.getAsString()) : null;
+	}
+
+	private static ItemStack makeListFilter(List<ItemStack> acceptedItems, boolean respectNbt) {
+		if (acceptedItems.isEmpty())
+			return ItemStack.EMPTY;
 		ItemStack result = AllItems.FILTER.asStack();
 		ItemStackHandler filterItems = AllItems.FILTER.get().getFilterItemHandler(result);
-		for (int i = 0; i < acceptedItems.length; i++)
-			filterItems.setStackInSlot(i, acceptedItems[i].copy());
+		for (int i = 0; i < acceptedItems.size() && i < filterItems.getSlotCount(); i++)
+			filterItems.setStackInSlot(i, acceptedItems.get(i).copy());
 		result.set(AllDataComponents.FILTER_ITEMS, ItemHelper.containerContentsFromHandler(filterItems));
-		result.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, true);
+		if (respectNbt)
+			result.set(AllDataComponents.FILTER_ITEMS_RESPECT_NBT, true);
 		return result;
 	}
 
