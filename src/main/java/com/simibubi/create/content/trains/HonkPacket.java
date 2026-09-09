@@ -17,6 +17,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.gameevent.GameEvent;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -87,6 +89,12 @@ public abstract class HonkPacket implements CustomPacketPayload {
 
 			AllAdvancements.TRAIN_WHISTLE.awardTo(player);
 			CatnipServices.NETWORK.sendToAllClients(new HonkPacket.Clientbound(train, isHonk));
+
+			Entity entity = train.carriages.get(0).anyAvailableEntity();
+			if (entity == null)
+				entity = player;
+
+			player.level().gameEvent(entity, GameEvent.RESONATE_15, player.position());
 		}
 
 		@Override
