@@ -3,7 +3,6 @@ package com.simibubi.create.content.contraptions;
 import static net.minecraft.world.entity.Entity.collideBoundingBox;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,8 @@ import com.simibubi.create.content.contraptions.sync.ClientMotionPacket;
 import com.simibubi.create.content.kinetics.base.BlockBreakingMovementBehaviour;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
+import com.simibubi.create.foundation.collision.CollisionList;
+import com.simibubi.create.foundation.collision.CollisionList.Populate;
 import com.simibubi.create.foundation.collision.ContinuousOBBCollider.ContinuousSeparationManifold;
 import com.simibubi.create.foundation.collision.Matrix3d;
 import com.simibubi.create.foundation.collision.OrientedBB;
@@ -66,6 +67,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes.DoubleLineConsumer;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.fabricmc.api.EnvType;
@@ -159,18 +161,12 @@ public class ContraptionCollider {
 			obb.setRotation(rotationMatrix);
 
 			// Use simplified bbs when present
-			final Vec3 motionCopy = motion;
-			List<AABB> collidableBBs = contraption.getSimplifiedEntityColliders()
-				.orElseGet(() -> {
-
-					// Else find 'nearby' individual block shapes to collide with
-					List<AABB> bbs = new ArrayList<>();
-					List<VoxelShape> potentialHits =
-						getPotentiallyCollidedShapes(world, contraption, localBB.expandTowards(motionCopy));
-					potentialHits.forEach(shape -> bbs.addAll(shape.toAabbs()));
-					return bbs;
-
-				});
+			CollisionList collidableBBs = contraption.getSimplifiedEntityColliders();
+			if (collidableBBs == null) {
+				// Else find 'nearby' individual block shapes to collide with
+				collidableBBs = new CollisionList();
+				getPotentiallyCollidedShapes(world, contraption, localBB.expandTowards(motion), new Populate(collidableBBs));
+			}
 
 			MutableObject<Vec3> collisionResponse = new MutableObject<>(Vec3.ZERO);
 			MutableObject<Vec3> normal = new MutableObject<>(Vec3.ZERO);
@@ -184,20 +180,20 @@ public class ContraptionCollider {
 			for (boolean horizontalPass : Iterate.trueAndFalse) {
 				boolean verticalPass = !horizontalPass || !doHorizontalPass;
 
-				for (AABB bb : collidableBBs) {
+				for (int bbIdx = 0; bbIdx < collidableBBs.size; ++bbIdx) {
 					Vec3 currentResponse = collisionResponse.getValue();
 					Vec3 currentCenter = obbCenter.add(currentResponse);
 
-					if (Math.abs(currentCenter.x - bb.getCenter().x) - entityBounds.getXsize() - 1 > bb.getXsize() / 2)
+					if (Math.abs(currentCenter.x - collidableBBs.centerX[bbIdx]) - entityBounds.getXsize() - 1 > collidableBBs.extentsX[bbIdx])
 						continue;
-					if (Math.abs((currentCenter.y + motion.y) - bb.getCenter().y) - entityBounds.getYsize()
-						- 1 > bb.getYsize() / 2)
+					if (Math.abs((currentCenter.y + motion.y) - collidableBBs.centerY[bbIdx]) - entityBounds.getYsize()
+						- 1 > collidableBBs.extentsY[bbIdx])
 						continue;
-					if (Math.abs(currentCenter.z - bb.getCenter().z) - entityBounds.getZsize() - 1 > bb.getZsize() / 2)
+					if (Math.abs(currentCenter.z - collidableBBs.centerZ[bbIdx]) - entityBounds.getZsize() - 1 > collidableBBs.extentsZ[bbIdx])
 						continue;
 
 					obb.setCenter(currentCenter);
-					ContinuousSeparationManifold intersect = obb.intersect(bb, motion);
+					ContinuousSeparationManifold intersect = obb.intersect(collidableBBs, bbIdx, motion);
 
 					if (intersect == null)
 						continue;
@@ -240,7 +236,6 @@ public class ContraptionCollider {
 				// Re-run collisions with horizontal offset
 				collisionResponse.setValue(collisionResponse.getValue()
 					.multiply(129 / 128f, 0, 129 / 128f));
-				continue;
 			}
 
 			// Resolve collision
@@ -658,8 +653,7 @@ public class ContraptionCollider {
 		return entity instanceof LocalPlayer;
 	}
 
-	private static List<VoxelShape> getPotentiallyCollidedShapes(Level world, Contraption contraption, AABB localBB) {
-
+	private static void getPotentiallyCollidedShapes(Level world, Contraption contraption, AABB localBB, DoubleLineConsumer out) {
 		double height = localBB.getYsize();
 		double width = localBB.getXsize();
 		double horizontalFactor = (height > width && width != 0) ? height / width : 1;
@@ -669,8 +663,6 @@ public class ContraptionCollider {
 
 		BlockPos min = BlockPos.containing(blockScanBB.minX, blockScanBB.minY, blockScanBB.minZ);
 		BlockPos max = BlockPos.containing(blockScanBB.maxX, blockScanBB.maxY, blockScanBB.maxZ);
-
-		List<VoxelShape> potentialHits = new ArrayList<>();
 
 		for (BlockPos p : BlockPos.betweenClosed(min, max)) {
 			if (contraption.blocks.containsKey(p) && !contraption.isHiddenInPortal(p)) {
@@ -683,12 +675,10 @@ public class ContraptionCollider {
 						.move(pos.getX(), pos.getY(), pos.getZ());
 
 				if (!collisionShape.isEmpty()) {
-					potentialHits.add(collisionShape);
+					collisionShape.forAllBoxes(out);
 				}
 			}
 		}
-
-		return potentialHits;
 	}
 
 	public static boolean collideBlocks(AbstractContraptionEntity contraptionEntity) {

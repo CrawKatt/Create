@@ -40,6 +40,12 @@ public class OrientedBB {
 		return ContinuousOBBCollider.separateBBs(bb.getCenter(), center, extentsA, extents, rotation, motion);
 	}
 
+	public ContinuousSeparationManifold intersect(CollisionList collisionList, int bbIdx, Vec3 motion) {
+		Vec3 centerA = new Vec3(collisionList.centerX[bbIdx], collisionList.centerY[bbIdx], collisionList.centerZ[bbIdx]);
+		Vec3 extentsA = new Vec3(collisionList.extentsX[bbIdx], collisionList.extentsY[bbIdx], collisionList.extentsZ[bbIdx]);
+		return ContinuousOBBCollider.separateBBs(centerA, center, extentsA, extents, rotation, motion);
+	}
+
 	private static Vec3 extentsFromBB(AABB bb) {
 		return new Vec3(bb.getXsize() / 2, bb.getYsize() / 2, bb.getZsize() / 2);
 	}

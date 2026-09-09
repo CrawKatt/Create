@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -78,6 +77,8 @@ import com.simibubi.create.content.redstone.contact.RedstoneContactBlock;
 import com.simibubi.create.content.trains.bogey.AbstractBogeyBlock;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
+import com.simibubi.create.foundation.collision.CollisionList;
+import com.simibubi.create.foundation.collision.CollisionList.Populate;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
@@ -126,9 +127,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.HashMapPaletteAccessor;
@@ -136,7 +135,7 @@ import io.github.fabricators_of_create.porting_lib.util.StickinessUtil;
 
 public abstract class Contraption {
 
-	public Optional<List<AABB>> simplifiedEntityColliders;
+	public final CollisionList simplifiedEntityColliders = new CollisionList();
 	public AbstractContraptionEntity entity;
 
 	public AABB bounds;
@@ -162,8 +161,6 @@ public abstract class Contraption {
 	private Map<BlockPos, Entity> initialPassengers;
 	private List<BlockFace> pendingSubContraptions;
 
-	private CompletableFuture<Void> simplifiedEntityColliderProvider;
-
 	// Client
 	public Map<BlockPos, BlockEntity> presentBlockEntities;
 	public List<BlockEntity> renderedBlockEntities;
@@ -186,7 +183,6 @@ public abstract class Contraption {
 		renderedBlockEntities = new ArrayList<>();
 		pendingSubContraptions = new ArrayList<>();
 		stabilizedSubContraptions = new HashMap<>();
-		simplifiedEntityColliders = Optional.empty();
 		storage = new MountedStorageManager();
 		capturedMultiblocks = ArrayListMultimap.create();
 	}
@@ -221,7 +217,7 @@ public abstract class Contraption {
 		Contraption contraption = ContraptionType.fromType(type);
 		contraption.readNBT(world, nbt, spawnData);
 		contraption.world = new ContraptionWorld(world, contraption);
-		contraption.gatherBBsOffThread();
+		contraption.invalidateColliders();
 		return contraption;
 	}
 
@@ -272,14 +268,7 @@ public abstract class Contraption {
 		}
 
 		storage.initialize();
-		gatherBBsOffThread();
-	}
-
-	public void onEntityRemoved(AbstractContraptionEntity entity) {
-		if (simplifiedEntityColliderProvider != null) {
-			simplifiedEntityColliderProvider.cancel(false);
-			simplifiedEntityColliderProvider = null;
-		}
+		invalidateColliders();
 	}
 
 	public void onEntityInitialize(Level world, AbstractContraptionEntity contraptionEntity) {
@@ -1475,33 +1464,20 @@ public abstract class Contraption {
 	}
 
 	public void invalidateColliders() {
-		simplifiedEntityColliders = Optional.empty();
-		gatherBBsOffThread();
-	}
-
-	private void gatherBBsOffThread() {
 		getContraptionWorld();
-		if (simplifiedEntityColliderProvider != null) {
-			simplifiedEntityColliderProvider.cancel(false);
+		simplifiedEntityColliders.size = 0;
+		var populate = new Populate(simplifiedEntityColliders);
+		for (Entry<BlockPos, StructureBlockInfo> entry : blocks.entrySet()) {
+			StructureBlockInfo info = entry.getValue();
+			BlockPos localPos = entry.getKey();
+			VoxelShape collisionShape = info.state().getCollisionShape(world, localPos, CollisionContext.empty());
+			if (collisionShape.isEmpty())
+				continue;
+			populate.offsetX = localPos.getX();
+			populate.offsetY = localPos.getY();
+			populate.offsetZ = localPos.getZ();
+			collisionShape.forAllBoxes(populate);
 		}
-		simplifiedEntityColliderProvider = CompletableFuture.supplyAsync(() -> {
-					VoxelShape combinedShape = Shapes.empty();
-					for (Entry<BlockPos, StructureBlockInfo> entry : blocks.entrySet()) {
-						StructureBlockInfo info = entry.getValue();
-						BlockPos localPos = entry.getKey();
-						VoxelShape collisionShape = info.state().getCollisionShape(world, localPos, CollisionContext.empty());
-						if (collisionShape.isEmpty())
-							continue;
-						combinedShape = Shapes.joinUnoptimized(combinedShape,
-								collisionShape.move(localPos.getX(), localPos.getY(), localPos.getZ()), BooleanOp.OR);
-					}
-					return combinedShape.optimize()
-							.toAabbs();
-				})
-				.thenAccept(r -> {
-					simplifiedEntityColliders = Optional.of(r);
-
-				});
 	}
 
 	public static double getRadius(Iterable<? extends Vec3i> blocks, Axis axis) {
@@ -1560,7 +1536,8 @@ public abstract class Contraption {
 		return false;
 	}
 
-	public Optional<List<AABB>> getSimplifiedEntityColliders() {
+	@Nullable
+	public CollisionList getSimplifiedEntityColliders() {
 		return simplifiedEntityColliders;
 	}
 
