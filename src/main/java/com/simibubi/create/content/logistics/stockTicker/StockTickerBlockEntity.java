@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-import javax.annotation.Nullable;
-
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
@@ -94,9 +92,9 @@ public class StockTickerBlockEntity extends StockCheckingBlockEntity implements 
 	}
 
 	@Override
-	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, InventoryIdentifier identifier,
-										   String address, @Nullable PackageOrder orderContext) {
-		boolean result = super.broadcastPackageRequest(type, order, identifier, address, orderContext);
+	public boolean broadcastPackageRequest(RequestType type, PackageOrderWithCrafts order, InventoryIdentifier identifier,
+		String address) {
+		boolean result = super.broadcastPackageRequest(type, order, identifier, address);
 		previouslyUsedAddress = address;
 		notifyUpdate();
 		return result;

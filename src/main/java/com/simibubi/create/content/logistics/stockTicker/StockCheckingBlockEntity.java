@@ -40,12 +40,19 @@ public abstract class StockCheckingBlockEntity extends SmartBlockEntity {
 
 	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, InventoryIdentifier identifier,
 		String address) {
-		return broadcastPackageRequest(type, order, identifier, address, null);
+		return broadcastPackageRequest(type, PackageOrderWithCrafts.simple(order.stacks()), identifier, address);
+	}
+
+	public boolean broadcastPackageRequest(RequestType type, PackageOrderWithCrafts order, InventoryIdentifier identifier,
+		String address) {
+		return LogisticsManager.broadcastPackageRequest(behaviour.freqId, type, order, identifier, address);
 	}
 
 	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, InventoryIdentifier identifier,
 		String address, @Nullable PackageOrder orderContext) {
-		return LogisticsManager.broadcastPackageRequest(behaviour.freqId, type, order, identifier, address, orderContext);
+		List<PackageOrderWithCrafts.CraftingEntry> crafts = orderContext == null || orderContext.isEmpty() ? List.of()
+			: List.of(new PackageOrderWithCrafts.CraftingEntry(orderContext, 1));
+		return broadcastPackageRequest(type, new PackageOrderWithCrafts(order, crafts), identifier, address);
 	}
 
 }

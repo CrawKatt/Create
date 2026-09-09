@@ -23,6 +23,7 @@ import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.utility.TickBasedCache;
 
 import net.createmod.catnip.data.Pair;
@@ -62,13 +63,13 @@ public class LogisticsManager {
 		return sum;
 	}
 
-	public static boolean broadcastPackageRequest(UUID freqId, RequestType type, PackageOrder order,
-		InventoryIdentifier identifier, String address, @Nullable PackageOrder orderContext) {
+	public static boolean broadcastPackageRequest(UUID freqId, RequestType type, PackageOrderWithCrafts order,
+		InventoryIdentifier identifier, String address) {
 		if (order.isEmpty())
 			return false;
 
 		Multimap<PackagerBlockEntity, PackagingRequest> requests =
-			findPackagersForRequest(freqId, order, orderContext, identifier, address);
+			findPackagersForRequest(freqId, order, identifier, address);
 
 		// Check if packagers have accumulated too many packages already
 		for (PackagerBlockEntity packager : requests.keySet())
@@ -80,9 +81,15 @@ public class LogisticsManager {
 		return true;
 	}
 
+	public static boolean broadcastPackageRequest(UUID freqId, RequestType type, PackageOrder order,
+		InventoryIdentifier identifier, String address, @Nullable PackageOrder orderContext) {
+		List<PackageOrderWithCrafts.CraftingEntry> crafts = orderContext == null || orderContext.isEmpty() ? List.of()
+			: List.of(new PackageOrderWithCrafts.CraftingEntry(orderContext, 1));
+		return broadcastPackageRequest(freqId, type, new PackageOrderWithCrafts(order, crafts), identifier, address);
+	}
+
 	public static Multimap<PackagerBlockEntity, PackagingRequest> findPackagersForRequest(UUID freqId,
-		PackageOrder order, @Nullable PackageOrder customContext, @Nullable InventoryIdentifier identifier,
-		String address) {
+		PackageOrderWithCrafts order, @Nullable InventoryIdentifier identifier, String address) {
 		List<BigItemStack> stacks = new ArrayList<>();
 		for (BigItemStack stack : order.stacks())
 			if (!stack.stack.isEmpty() && stack.count > 0)
@@ -96,9 +103,7 @@ public class LogisticsManager {
 		MutableBoolean finalLinkTracker = new MutableBoolean(false);
 
 		// First box needs to carry the order specifics for successful defrag
-		PackageOrder contextToSend = order;
-		if (customContext != null)
-			contextToSend = customContext;
+		PackageOrderWithCrafts contextToSend = order;
 
 		// Packages from future orders should not be merged in the packager queue
 		int orderId = r.nextInt();
@@ -140,6 +145,14 @@ public class LogisticsManager {
 			}
 		}
 		return requests;
+	}
+
+	public static Multimap<PackagerBlockEntity, PackagingRequest> findPackagersForRequest(UUID freqId,
+		PackageOrder order, @Nullable PackageOrder customContext, @Nullable InventoryIdentifier identifier,
+		String address) {
+		List<PackageOrderWithCrafts.CraftingEntry> crafts = customContext == null || customContext.isEmpty() ? List.of()
+			: List.of(new PackageOrderWithCrafts.CraftingEntry(customContext, 1));
+		return findPackagersForRequest(freqId, new PackageOrderWithCrafts(order, crafts), identifier, address);
 	}
 
 	public static void performPackageRequests(Multimap<PackagerBlockEntity, PackagingRequest> requests) {

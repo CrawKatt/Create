@@ -17,6 +17,7 @@ import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packager.repackager.RepackagerBlockEntity;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.redstone.displayLink.LinkWithBulbBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
@@ -80,7 +81,7 @@ public class PackagerLinkBlockEntity extends LinkWithBulbBlockEntity {
 	}
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
-		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrder orderContext,
+		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrderWithCrafts orderContext,
 		@Nullable InventoryIdentifier identifier) {
 		PackagerBlockEntity packager = getPackager();
 		if (packager == null)
@@ -95,6 +96,13 @@ public class PackagerLinkBlockEntity extends LinkWithBulbBlockEntity {
 		int toWithdraw = Math.min(amount, availableCount);
 		return Pair.of(packager,
 			PackagingRequest.create(stack, toWithdraw, address, linkIndex, finalLink, 0, orderId, orderContext));
+	}
+
+	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
+		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrder orderContext,
+		@Nullable InventoryIdentifier identifier) {
+		return processRequest(stack, amount, address, linkIndex, finalLink, orderId,
+			orderContext == null ? null : PackageOrderWithCrafts.simple(orderContext.stacks()), identifier);
 	}
 
 	@Override

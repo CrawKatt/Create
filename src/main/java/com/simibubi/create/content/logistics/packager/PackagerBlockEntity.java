@@ -29,7 +29,6 @@ import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlock;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlockEntity;
 import com.simibubi.create.content.logistics.packagerLink.RequestPromiseQueue;
 import com.simibubi.create.content.logistics.packagerLink.WiFiEffectPacket;
-import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
@@ -402,7 +401,7 @@ public class PackagerBlockEntity extends SmartBlockEntity implements SidedStorag
 		boolean finalLinkInOrder = false;
 		int packageIndexAtLink = 0;
 		boolean finalPackageAtLink = false;
-		PackageOrder orderContext = null;
+		PackageOrderWithCrafts orderContext = null;
 		boolean requestQueue = queuedRequests != null;
 
 		if (requestQueue && !queuedRequests.isEmpty()) {

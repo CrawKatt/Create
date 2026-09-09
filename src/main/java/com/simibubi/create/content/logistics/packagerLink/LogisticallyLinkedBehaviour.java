@@ -20,6 +20,7 @@ import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
 import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -177,7 +178,7 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 	}
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
-		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrder orderContext,
+		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrderWithCrafts orderContext,
 		@Nullable InventoryIdentifier identifier) {
 
 		if (blockEntity instanceof PackagerLinkBlockEntity plbe)
@@ -185,6 +186,13 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 				identifier);
 
 		return null;
+	}
+
+	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
+		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrder orderContext,
+		@Nullable InventoryIdentifier identifier) {
+		return processRequest(stack, amount, address, linkIndex, finalLink, orderId,
+			orderContext == null ? null : PackageOrderWithCrafts.simple(orderContext.stacks()), identifier);
 	}
 
 	public InventorySummary getSummary(@Nullable InventoryIdentifier identifier) {
