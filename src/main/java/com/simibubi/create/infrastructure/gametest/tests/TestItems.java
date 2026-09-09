@@ -11,7 +11,9 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
+import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
 import com.simibubi.create.content.equipment.clipboard.ClipboardEntry;
+import com.simibubi.create.content.equipment.clipboard.ClipboardEditPacket;
 import com.simibubi.create.content.equipment.clipboard.ClipboardOverrides.ClipboardType;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItemComponent;
 import com.simibubi.create.content.equipment.toolbox.ToolboxInventory;
@@ -33,6 +35,7 @@ import com.simibubi.create.content.trains.display.FlapDisplayLayout;
 import com.simibubi.create.content.trains.display.FlapDisplaySection;
 import com.simibubi.create.content.trains.station.GlobalStation.GlobalPackagePort;
 import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.foundation.CreateNBTProcessors;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
@@ -51,6 +54,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.inventory.ClickType;
@@ -105,6 +109,122 @@ public class TestItems {
 		helper.assertTrue(ClipboardContent.EMPTY.type() == ClipboardType.EMPTY && ClipboardContent.EMPTY.pages().isEmpty()
 			&& !ClipboardContent.EMPTY.readOnly() && ClipboardContent.EMPTY.previouslyOpenedPage() == 0
 			&& ClipboardContent.EMPTY.copiedValues().isEmpty(), "Clipboard setters mutated the empty default");
+		helper.succeed();
+	}
+
+	@GameTest(template = "depot_comparator_output")
+	public static void clipboardBlockEntityComponents(CreateGameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		BlockPos pos = new BlockPos(1, 1, 1);
+		helper.setBlock(pos, AllBlocks.CLIPBOARD.getDefaultState());
+		ClipboardBlockEntity clipboard = helper.getBlockEntity(AllBlockEntityTypes.CLIPBOARD.get(), pos);
+		ClipboardContent content = ClipboardContent.EMPTY.setPages(List.of(List.of(new ClipboardEntry(false, Component.literal("placed")))));
+		CompoundTag legacyItem = new CompoundTag();
+		legacyItem.putString("id", "create:clipboard");
+		legacyItem.putInt("count", 1);
+		CompoundTag legacyComponents = new CompoundTag();
+		legacyComponents.put("create:clipboard_pages", ClipboardContent.PAGES_CODEC.encodeStart(
+			registries.createSerializationContext(NbtOps.INSTANCE), content.pages()).getOrThrow());
+		legacyComponents.put("create:clipboard_type", ClipboardType.CODEC.encodeStart(
+			registries.createSerializationContext(NbtOps.INSTANCE), ClipboardType.WRITTEN).getOrThrow());
+		legacyItem.put("components", legacyComponents);
+		CompoundTag legacyTag = new CompoundTag();
+		legacyTag.put("Item", legacyItem);
+		clipboard.loadWithComponents(legacyTag, registries);
+		helper.assertTrue(clipboard.components().get(AllDataComponents.CLIPBOARD_CONTENT).pages().get(0).get(0).text
+			.getString().equals("placed"),
+			"Clipboard block entity did not load legacy item components");
+		ItemStack item = AllBlocks.CLIPBOARD.asStack();
+		item.set(AllDataComponents.CLIPBOARD_CONTENT, content);
+		clipboard.applyComponentsFromItemStack(item);
+		helper.assertTrue(clipboard.components().get(AllDataComponents.CLIPBOARD_CONTENT).pages().get(0).get(0).text
+			.getString().equals("placed"), "Clipboard placement did not apply item components");
+		CompoundTag saved = clipboard.saveWithoutMetadata(registries);
+		helper.assertTrue(!saved.contains("Item") && saved.contains("components")
+			&& saved.getCompound("components").contains("create:clipboard_content"),
+			"Clipboard block entity did not save migrated components");
+		helper.succeed();
+	}
+
+	@GameTest(template = "depot_comparator_output")
+	public static void clipboardLegacyMigration(CreateGameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+		ClipboardContent expected = ClipboardContent.EMPTY.setType(ClipboardType.WRITTEN)
+			.setPages(List.of(List.of(new ClipboardEntry(true, Component.literal("legacy")).displayItem(Items.APPLE.getDefaultInstance(), 7))))
+			.setReadOnly(true).setPreviouslyOpenedPage(2);
+		CompoundTag oldComponents = new CompoundTag();
+		oldComponents.put("create:clipboard_pages", ClipboardContent.PAGES_CODEC.encodeStart(ops, expected.pages()).getOrThrow());
+		oldComponents.put("create:clipboard_type", ClipboardType.CODEC.encodeStart(ops, expected.type()).getOrThrow());
+		oldComponents.put("create:clipboard_read_only", net.minecraft.util.Unit.CODEC.encodeStart(ops, net.minecraft.util.Unit.INSTANCE).getOrThrow());
+		oldComponents.put("create:clipboard_copied_values", expected.setCopiedValues(new CompoundTag()).copiedValues().orElseThrow());
+		oldComponents.put("create:clipboard_previously_opened_page", net.minecraft.nbt.IntTag.valueOf(2));
+
+		CompoundTag saved = new CompoundTag();
+		saved.putString("id", "create:clipboard");
+		saved.putInt("count", 1);
+		saved.put("components", oldComponents.copy());
+		ItemStack migrated = ItemStack.parse(registries, saved).orElseThrow();
+		ClipboardContent actual = migrated.get(AllDataComponents.CLIPBOARD_CONTENT);
+		helper.assertTrue(actual != null && actual.type() == expected.type() && actual.pages().size() == 1
+			&& actual.pages().get(0).get(0).text.getString().equals("legacy")
+			&& actual.pages().get(0).get(0).itemAmount == 7 && actual.readOnly()
+			&& actual.previouslyOpenedPage() == 2 && !migrated.has(AllDataComponents.CLIPBOARD_PAGES)
+			&& !migrated.has(AllDataComponents.CLIPBOARD_TYPE), "Legacy clipboard components were not migrated");
+
+		ClipboardContent canonical = ClipboardContent.EMPTY.setType(ClipboardType.EDITING)
+			.setPages(List.of(List.of(new ClipboardEntry(false, Component.literal("canonical")))));
+		CompoundTag mixed = saved.copy();
+		CompoundTag mixedComponents = mixed.getCompound("components");
+		mixedComponents.put("create:clipboard_content", ClipboardContent.CODEC.encodeStart(ops, canonical).getOrThrow());
+		mixed.put("components", mixedComponents);
+		ItemStack mixedStack = ItemStack.parse(registries, mixed).orElseThrow();
+		ClipboardContent mixedContent = mixedStack.get(AllDataComponents.CLIPBOARD_CONTENT);
+		helper.assertTrue(mixedContent != null && mixedContent.type() == ClipboardType.EDITING
+			&& mixedContent.pages().get(0).get(0).text.getString().equals("canonical")
+			&& !mixedStack.has(AllDataComponents.CLIPBOARD_PAGES),
+			"Canonical clipboard content was overwritten by legacy components");
+
+		saved.putString("id", "minecraft:apple");
+		ItemStack untouched = ItemStack.parse(registries, saved).orElseThrow();
+		helper.assertTrue(untouched.has(AllDataComponents.CLIPBOARD_PAGES)
+			&& !untouched.has(AllDataComponents.CLIPBOARD_CONTENT), "Non-clipboard legacy components were migrated");
+		helper.succeed();
+	}
+
+	@GameTest(template = "depot_comparator_output")
+	public static void clipboardPacketAndNbtSanitizers(CreateGameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+		RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+		try {
+			ClipboardContent plain = ClipboardContent.EMPTY.setPages(List.of(List.of(new ClipboardEntry(false, Component.literal("ok")))));
+			ClipboardEditPacket packet = new ClipboardEditPacket(0, plain, null);
+			ClipboardEditPacket.STREAM_CODEC.encode(buffer, packet);
+			ClipboardEditPacket decoded = ClipboardEditPacket.STREAM_CODEC.decode(buffer);
+			helper.assertTrue(decoded.targetedBlock() == null && decoded.clipboardContent().pages().equals(plain.pages()) && !buffer.isReadable(),
+				"Clipboard packet nullable target did not round-trip");
+			ClipboardContent unsafe = plain.setPages(List.of(List.of(new ClipboardEntry(false, Component.literal("bad").withStyle(style -> style
+				.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/say bad")))))));
+			helper.assertTrue(ClipboardEditPacket.clipboardProcessor(unsafe) == null,
+				"Clipboard packet sanitizer accepted a click event");
+			helper.assertTrue(ClipboardEditPacket.clipboardProcessor(plain) != null,
+				"Clipboard packet sanitizer rejected plain text");
+
+			CompoundTag nbt = new CompoundTag();
+			CompoundTag item = new CompoundTag();
+			item.putString("id", "create:clipboard");
+			item.putInt("count", 1);
+			item.put("components", ClipboardContent.CODEC.encodeStart(ops, plain).map(value -> {
+				CompoundTag components = new CompoundTag();
+				components.put("create:clipboard_content", value);
+				return components;
+			}).getOrThrow());
+			nbt.put("Item", item);
+			helper.assertTrue(CreateNBTProcessors.clipboardProcessor(nbt) != null, "Plain clipboard NBT was rejected");
+		} finally {
+			buffer.release();
+		}
 		helper.succeed();
 	}
 
