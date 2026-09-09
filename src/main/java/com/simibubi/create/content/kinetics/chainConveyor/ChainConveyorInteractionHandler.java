@@ -147,7 +147,7 @@ public class ChainConveyorInteractionHandler {
 
 		if (PackageItem.isPackage(mainHandItem)) {
 			CatnipServices.NETWORK.sendToServer(new ChainPackageInteractionPacket(selectedLift, selectedConnection, selectedChainPosition,
-				mainHandItem));
+				false));
 			return true;
 		}
 

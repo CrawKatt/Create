@@ -3,13 +3,14 @@ package com.simibubi.create.content.kinetics.chainConveyor;
 import java.util.List;
 
 import com.simibubi.create.AllPackets;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.networking.BlockEntityConfigurationPacket;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
 import net.createmod.catnip.math.AngleHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,24 +18,23 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
 public class ChainPackageInteractionPacket extends BlockEntityConfigurationPacket<ChainConveyorBlockEntity> {
-	public static final StreamCodec<RegistryFriendlyByteBuf, ChainPackageInteractionPacket> STREAM_CODEC = StreamCodec.composite(
+	public static final StreamCodec<FriendlyByteBuf, ChainPackageInteractionPacket> STREAM_CODEC = StreamCodec.composite(
 	    BlockPos.STREAM_CODEC, packet -> packet.pos,
 		CatnipStreamCodecBuilders.nullable(BlockPos.STREAM_CODEC), packet -> packet.selectedConnection,
 		ByteBufCodecs.FLOAT, packet -> packet.chainPosition,
-		ItemStack.OPTIONAL_STREAM_CODEC, packet -> packet.insertedPackage,
+		ByteBufCodecs.BOOL, packet -> packet.removingPackage,
 	    ChainPackageInteractionPacket::new
 	);
 
 	private final BlockPos selectedConnection;
 	private final float chainPosition;
-	private final ItemStack insertedPackage;
+	private final boolean removingPackage;
 
-	public ChainPackageInteractionPacket(BlockPos pos, BlockPos selectedConnection, float chainPosition,
-		ItemStack insertedPackage) {
+	public ChainPackageInteractionPacket(BlockPos pos, BlockPos selectedConnection, float chainPosition, boolean removingPackage) {
 		super(pos);
 		this.selectedConnection = selectedConnection == null ? BlockPos.ZERO : selectedConnection;
 		this.chainPosition = chainPosition;
-		this.insertedPackage = insertedPackage == null ? ItemStack.EMPTY : insertedPackage;
+		this.removingPackage = removingPackage;
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class ChainPackageInteractionPacket extends BlockEntityConfigurationPacke
 
 	@Override
 	protected void applySettings(ServerPlayer player, ChainConveyorBlockEntity be) {
-		if (insertedPackage.isEmpty()) {
+		if (removingPackage) {
 
 			float bestDiff = Float.POSITIVE_INFINITY;
 			ChainConveyorPackage best = null;
@@ -85,7 +85,10 @@ public class ChainPackageInteractionPacket extends BlockEntityConfigurationPacke
 			return;
 		}
 
-		ChainConveyorPackage chainConveyorPackage = new ChainConveyorPackage(chainPosition, insertedPackage);
+		if (!PackageItem.isPackage(player.getMainHandItem()))
+			return;
+
+		ChainConveyorPackage chainConveyorPackage = new ChainConveyorPackage(chainPosition, player.getMainHandItem().copy());
 		if (!be.canAcceptPackagesFor(selectedConnection))
 			return;
 
