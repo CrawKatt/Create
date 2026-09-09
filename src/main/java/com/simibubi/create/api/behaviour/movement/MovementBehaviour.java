@@ -69,7 +69,15 @@ public interface MovementBehaviour {
 		return false;
 	}
 
+	/**
+	 * @deprecated since 6.0.9 - use {@link #collectOrDropItem(MovementContext, ItemStack)} instead.
+	 */
+	@Deprecated(since = "6.0.9", forRemoval = true)
 	default void dropItem(MovementContext context, ItemStack stack) {
+		collectOrDropItem(context, stack);
+	}
+
+	default void collectOrDropItem(MovementContext context, ItemStack stack) {
 		ItemStack remainder;
 		if (AllConfigs.server().kinetics.moveItemsToStorage.get()) {
 			try (Transaction t = Transaction.openOuter()) {

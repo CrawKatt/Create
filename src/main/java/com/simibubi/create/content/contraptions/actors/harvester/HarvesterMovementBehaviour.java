@@ -90,7 +90,7 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 				seedSubtracted.setTrue();
 			}
 			if (!stack.isEmpty()) // fabric: guard shrinking above
-				dropItem(context, stack);
+				collectOrDropItem(context, stack);
 		});
 
 		BlockState cutCrop = cutCrop(world, pos, stateVisited);

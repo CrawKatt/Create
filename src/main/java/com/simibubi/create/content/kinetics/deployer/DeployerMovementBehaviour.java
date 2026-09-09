@@ -266,7 +266,7 @@ public class DeployerMovementBehaviour implements MovementBehaviour {
 				if (list == inv.items && i == inv.selected && filter.test(context.world, itemstack))
 					continue;
 
-				dropItem(context, itemstack);
+				collectOrDropItem(context, itemstack);
 				list.set(i, ItemStack.EMPTY);
 			}
 		}
