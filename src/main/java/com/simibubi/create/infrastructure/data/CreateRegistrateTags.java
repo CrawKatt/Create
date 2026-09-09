@@ -142,6 +142,12 @@ public class CreateRegistrateTags {
 			.add(Blocks.HOPPER, Blocks.DISPENSER, Blocks.DROPPER, Blocks.CHISELED_BOOKSHELF, Blocks.JUKEBOX)
 			.addTag(ConventionalBlockTags.BARRELS);
 
+		prov.tag(AllBlockTags.PLOUGH_WHITELIST.tag)
+			.add(Blocks.SNOW);
+
+		prov.tag(AllBlockTags.PLOUGH_BLACKLIST.tag)
+			.addTag(BlockTags.PORTALS);
+
 		prov.tag(AllBlockTags.ROOTS.tag)
 			.add(Blocks.MANGROVE_ROOTS);
 
