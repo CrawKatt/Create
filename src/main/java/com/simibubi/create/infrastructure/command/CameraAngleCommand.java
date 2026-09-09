@@ -1,90 +1,64 @@
 package com.simibubi.create.infrastructure.command;
 
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.simibubi.create.foundation.utility.CameraAngleAnimationService;
+import com.simibubi.create.foundation.utility.CameraAngleAnimationService.Mode;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.server.level.ServerPlayer;
 
+import io.github.fabricators_of_create.porting_lib.command.EnumArgument;
+
+@Environment(EnvType.CLIENT)
 public class CameraAngleCommand {
+	public static ArgumentBuilder<FabricClientCommandSource, ?> register() {
+		return ClientCommandManager.literal("angle")
+			.requires(cs -> cs.getPlayer().hasPermissions(2))
+			.then(ClientCommandManager.argument("players", EntityArgument.players())
+				.then(ClientCommandManager.literal("yaw")
+					.then(ClientCommandManager.argument("degrees", FloatArgumentType.floatArg())
+						.executes(ctx -> {
+							float angleTarget = FloatArgumentType.getFloat(ctx, "degrees");
+							CameraAngleAnimationService.setYawTarget(angleTarget);
 
-	public static ArgumentBuilder<CommandSourceStack, ?> register() {
-		return Commands.literal("angle")
-				.requires(cs -> cs.hasPermission(2))
-				.then(Commands.argument("players", EntityArgument.players())
-						.then(Commands.literal("yaw")
-								.then(Commands.argument("degrees", FloatArgumentType.floatArg())
-										.executes(context -> updateCameraAngle(context, true))
-								)
-						).then(Commands.literal("pitch")
-								.then(Commands.argument("degrees", FloatArgumentType.floatArg())
-										.executes(context -> updateCameraAngle(context, false))
-								)
-						).then(Commands.literal("mode")
-								.then(Commands.literal("linear")
-										.executes(context -> updateCameraAnimationMode(context, CameraAngleAnimationService.Mode.LINEAR.name()))
-										.then(Commands.argument("speed", FloatArgumentType.floatArg(0))
-												.executes(context -> updateCameraAnimationMode(context, CameraAngleAnimationService.Mode.LINEAR.name(), FloatArgumentType.getFloat(context, "speed")))
-										)
-								).then(Commands.literal("exponential")
-										.executes(context -> updateCameraAnimationMode(context, CameraAngleAnimationService.Mode.EXPONENTIAL.name()))
-										.then(Commands.argument("speed", FloatArgumentType.floatArg(0))
-												.executes(context -> updateCameraAnimationMode(context, CameraAngleAnimationService.Mode.EXPONENTIAL.name(), FloatArgumentType.getFloat(context, "speed")))
-										)
-								)
-						)
-				);
-	}
+							return Command.SINGLE_SUCCESS;
+						})
+					)
+				).then(ClientCommandManager.literal("pitch")
+					.then(ClientCommandManager.argument("degrees", FloatArgumentType.floatArg())
+						.executes(ctx -> {
+							float angleTarget = FloatArgumentType.getFloat(ctx, "degrees");
+							CameraAngleAnimationService.setPitchTarget(angleTarget);
 
-	private static int updateCameraAngle(CommandContext<CommandSourceStack> ctx, boolean yaw) throws CommandSyntaxException {
-		AtomicInteger targets = new AtomicInteger(0);
+							return Command.SINGLE_SUCCESS;
+						})
+					)
+				).then(ClientCommandManager.literal("mode")
+					.then(ClientCommandManager.argument("mode", EnumArgument.enumArgument(Mode.class))
+						.executes(ctx -> {
+							Mode mode = ctx.getArgument("mode", Mode.class);
 
-		float angleTarget = FloatArgumentType.getFloat(ctx, "degrees");
-		String optionName = yaw ? "camAngleYawTarget" : "camAnglePitchTarget";
+							CameraAngleAnimationService.setAnimationMode(mode);
 
-		getPlayersFromContext(ctx).forEach(player -> {
-			CatnipServices.NETWORK.simpleActionToClient(player, optionName, String.valueOf(angleTarget));
+							return Command.SINGLE_SUCCESS;
+						})
+						.then(ClientCommandManager.argument("speed", FloatArgumentType.floatArg(0))
+							.executes(ctx -> {
+								Mode mode = ctx.getArgument("mode", Mode.class);
+								float speed = FloatArgumentType.getFloat(ctx, "speed");
 
-			targets.incrementAndGet();
-		});
+								CameraAngleAnimationService.setAnimationMode(mode);
+								CameraAngleAnimationService.setAnimationSpeed(speed);
 
-		return targets.get();
-	}
-
-	private static int updateCameraAnimationMode(CommandContext<CommandSourceStack> ctx, String value) throws CommandSyntaxException {
-		AtomicInteger targets = new AtomicInteger(0);
-
-		getPlayersFromContext(ctx).forEach(player -> {
-			CatnipServices.NETWORK.simpleActionToClient(player, "camAngleFunction", value);
-
-			targets.incrementAndGet();
-		});
-
-		return targets.get();
-	}
-
-	private static int updateCameraAnimationMode(CommandContext<CommandSourceStack> ctx, String value, float speed) throws CommandSyntaxException {
-		AtomicInteger targets = new AtomicInteger(0);
-
-		getPlayersFromContext(ctx).forEach(player -> {
-			CatnipServices.NETWORK.simpleActionToClient(player, "camAngleFunction", value + ":" + speed);
-
-			targets.incrementAndGet();
-		});
-
-		return targets.get();
-	}
-
-	private static Collection<ServerPlayer> getPlayersFromContext(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-		return EntityArgument.getPlayers(ctx, "players");
+								return Command.SINGLE_SUCCESS;
+							})
+						))
+				)
+			);
 	}
 }

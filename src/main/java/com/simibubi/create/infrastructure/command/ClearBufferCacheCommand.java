@@ -1,34 +1,26 @@
 package com.simibubi.create.infrastructure.command;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.simibubi.create.CreateClient;
-import com.tterrag.registrate.fabric.EnvExecutor;
 
-import net.createmod.catnip.platform.CatnipServices;
 import net.createmod.ponder.PonderClient;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
-
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.minecraft.network.chat.Component;
 
+@Environment(EnvType.CLIENT)
 public class ClearBufferCacheCommand {
-
-	static ArgumentBuilder<CommandSourceStack, ?> register() {
-		return Commands.literal("clearRenderBuffers")
-			.requires(cs -> cs.hasPermission(0))
+	static ArgumentBuilder<FabricClientCommandSource, ?> register() {
+		return ClientCommandManager.literal("clearRenderBuffers")
 			.executes(ctx -> {
-				CatnipServices.PLATFORM.executeOnClientOnly(() -> ClearBufferCacheCommand::execute);
-				ctx.getSource()
-					.sendSuccess(() -> Component.literal("Cleared rendering buffers."),true);
-				return 1;
-			});
-	}
+				PonderClient.invalidateRenderers();
+				CreateClient.invalidateRenderers();
 
-	@Environment(EnvType.CLIENT)
-	private static void execute() {
-		PonderClient.invalidateRenderers();
-		CreateClient.invalidateRenderers();
+				ctx.getSource().sendFeedback(Component.literal("Cleared rendering buffers."));
+				return Command.SINGLE_SUCCESS;
+			});
 	}
 }

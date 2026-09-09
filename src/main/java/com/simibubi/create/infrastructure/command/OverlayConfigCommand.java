@@ -2,38 +2,33 @@ package com.simibubi.create.infrastructure.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.simibubi.create.content.equipment.goggles.GoggleConfigScreen;
+import com.simibubi.create.infrastructure.config.AllConfigs;
 
-import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import net.createmod.catnip.gui.ScreenOpener;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 
+@Environment(EnvType.CLIENT)
 public class OverlayConfigCommand {
-
-	public static ArgumentBuilder<CommandSourceStack, ?> register() {
-		return Commands.literal("overlay")
-				.requires(cs -> cs.hasPermission(0))
-				.then(Commands.literal("reset")
-					.executes(ctx -> {
-						ServerPlayer player = ctx.getSource().getPlayerOrException();
-
-						CatnipServices.NETWORK.simpleActionToClient(player, "overlayReset", "");
-
-						ctx.getSource().sendSuccess(() -> {
-                            return Component.literal("Create Goggle Overlay has been reset to default position");
-                        }, true);
-
-						return Command.SINGLE_SUCCESS;
-					})
-				)
+	public static ArgumentBuilder<FabricClientCommandSource, ?> register() {
+		return ClientCommandManager.literal("overlay")
+			.then(ClientCommandManager.literal("reset")
 				.executes(ctx -> {
-					ServerPlayer player = ctx.getSource().getPlayerOrException();
+					AllConfigs.client().overlayOffsetX.set(0);
+					AllConfigs.client().overlayOffsetY.set(0);
 
-					CatnipServices.NETWORK.simpleActionToClient(player, "overlayScreen", "");
-
+					ctx.getSource().sendFeedback(Component.literal("Create Goggle Overlay has been reset to default position"));
 					return Command.SINGLE_SUCCESS;
-				});
+				})
+			)
+			.executes(ctx -> {
+				ScreenOpener.open(new GoggleConfigScreen());
+				return Command.SINGLE_SUCCESS;
+			});
 
 	}
 }

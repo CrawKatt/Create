@@ -1,13 +1,19 @@
 package com.simibubi.create.infrastructure.command;
 
+import java.util.Collections;
 import java.util.function.Predicate;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import net.createmod.catnip.command.CatnipCommands;
 import net.createmod.catnip.platform.CatnipServices;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.world.entity.player.Player;
@@ -23,9 +29,6 @@ public class AllCommands {
 		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("create")
 				.requires(cs -> cs.hasPermission(0))
 				// general purpose
-				.then(new ToggleDebugCommand().register())
-				.then(FabulousWarningCommand.register())
-				.then(OverlayConfigCommand.register())
 				.then(DumpRailwaysCommand.register())
 				//.then(FixLightingCommand.register()) fabric: Forge only command
 				.then(DebugInfoCommand.register())
@@ -55,12 +58,47 @@ public class AllCommands {
 
 		return Commands.literal("util")
 				.then(ReplaceInCommandBlocksCommand.register())
-				.then(ClearBufferCacheCommand.register())
-				.then(CameraDistanceCommand.register())
-				.then(CameraAngleCommand.register())
 				//.then(DebugValueCommand.register())
 				//.then(KillTPSCommand.register())
 				.build();
 
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void registerClient(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+		LiteralCommandNode<FabricClientCommandSource> util = buildClientUtilityCommands();
+		LiteralArgumentBuilder<FabricClientCommandSource> root = ClientCommandManager.literal("create")
+			.then(ToggleDebugCommand.register())
+			.then(FabulousWarningCommand.register())
+			.then(OverlayConfigCommand.register())
+			.then(util);
+		LiteralCommandNode<FabricClientCommandSource> createRoot = dispatcher.register(root);
+		createRoot.addChild(buildClientRedirect("u", util));
+		CommandNode<FabricClientCommandSource> shortcut = dispatcher.findNode(Collections.singleton("c"));
+		if (shortcut != null)
+			for (CommandNode<FabricClientCommandSource> child : createRoot.getChildren())
+				shortcut.addChild(child);
+		else
+			dispatcher.getRoot().addChild(buildClientRedirect("c", createRoot));
+	}
+
+	@Environment(EnvType.CLIENT)
+	private static LiteralCommandNode<FabricClientCommandSource> buildClientRedirect(String alias, LiteralCommandNode<FabricClientCommandSource> destination) {
+		LiteralArgumentBuilder<FabricClientCommandSource> builder = LiteralArgumentBuilder.<FabricClientCommandSource>literal(alias)
+			.requires(destination.getRequirement())
+			.forward(destination.getRedirect(), destination.getRedirectModifier(), destination.isFork())
+			.executes(destination.getCommand());
+		for (CommandNode<FabricClientCommandSource> child : destination.getChildren())
+			builder.then(child);
+		return builder.build();
+	}
+
+	@Environment(EnvType.CLIENT)
+	private static LiteralCommandNode<FabricClientCommandSource> buildClientUtilityCommands() {
+		return ClientCommandManager.literal("util")
+			.then(ClearBufferCacheCommand.register())
+			.then(CameraDistanceCommand.register())
+			.then(CameraAngleCommand.register())
+			.build();
 	}
 }

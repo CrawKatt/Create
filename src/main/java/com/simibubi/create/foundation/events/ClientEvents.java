@@ -127,6 +127,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
@@ -452,6 +453,7 @@ public class ClientEvents {
 	public static void register() {
 //		ModBusEvents.registerClientReloadListeners();
 		registerItemDecorations();
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> com.simibubi.create.infrastructure.command.AllCommands.registerClient(dispatcher));
 
 		ClientTickEvents.END_CLIENT_TICK.register(ClientEvents::onTick);
 		ClientTickEvents.START_CLIENT_TICK.register(ClientEvents::onTickStart);
