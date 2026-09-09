@@ -4,6 +4,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.render.CachedBuffers;
@@ -27,8 +28,9 @@ public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 
 	public int inUse;
 	public boolean backwards;
+	/** Rotation angle in degrees. */
 	public float independentAngle;
-	public float chasingVelocity;
+	public float chasingAngularVelocity;
 
 	public HandCrankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -47,7 +49,7 @@ public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 	}
 
 	public float getIndependentAngle(float partialTicks) {
-		return (independentAngle + partialTicks * chasingVelocity) / 360;
+		return independentAngle + partialTicks * chasingAngularVelocity;
 	}
 
 	@Override
@@ -81,9 +83,9 @@ public class HandCrankBlockEntity extends GeneratingKineticBlockEntity {
 	public void tick() {
 		super.tick();
 
-		float actualSpeed = getSpeed();
-		chasingVelocity += ((actualSpeed * 10 / 3f) - chasingVelocity) * .25f;
-		independentAngle += chasingVelocity;
+		float actualAngularSpeed = KineticBlockEntity.convertToAngular(getSpeed());
+		chasingAngularVelocity += (actualAngularSpeed - chasingAngularVelocity) / 4f;
+		independentAngle += chasingAngularVelocity;
 
 		if (inUse > 0) {
 			inUse--;

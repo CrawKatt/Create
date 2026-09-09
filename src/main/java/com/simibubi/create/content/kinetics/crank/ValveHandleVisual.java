@@ -2,6 +2,7 @@ package com.simibubi.create.content.kinetics.crank;
 
 import java.util.function.Consumer;
 
+import net.createmod.catnip.math.AngleHelper;
 import org.joml.Quaternionf;
 
 import com.simibubi.create.AllPartialModels;
@@ -45,7 +46,7 @@ public class ValveHandleVisual extends KineticBlockEntityVisual<HandCrankBlockEn
 
 	private void rotateCrank(float pt) {
 		var facing = blockState.getValue(BlockStateProperties.FACING);
-		float angle = blockEntity.getIndependentAngle(pt);
+		float angle = AngleHelper.rad(blockEntity.getIndependentAngle(pt));
 
 		crank.setIdentityTransform()
 			.translate(getVisualPosition())
