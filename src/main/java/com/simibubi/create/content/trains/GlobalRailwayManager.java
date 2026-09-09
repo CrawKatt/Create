@@ -28,6 +28,7 @@ import com.simibubi.create.content.trains.graph.TrackGraph;
 import com.simibubi.create.content.trains.graph.TrackGraphSync;
 import com.simibubi.create.content.trains.graph.TrackGraphVisualizer;
 import com.simibubi.create.content.trains.graph.TrackNodeLocation;
+import com.simibubi.create.content.trains.signal.EdgeGroupColor;
 import com.simibubi.create.content.trains.signal.SignalEdgeGroup;
 import net.createmod.catnip.platform.CatnipServices;
 import com.simibubi.create.foundation.utility.DistExecutor;
@@ -67,14 +68,13 @@ public class GlobalRailwayManager {
 			loadTrackData(serverPlayer.getServer());
 			trackNetworks.values()
 				.forEach(g -> sync.sendFullGraphTo(g, serverPlayer));
-			ArrayList<SignalEdgeGroup> asList = new ArrayList<>(signalEdgeGroups.values());
-			sync.sendEdgeGroups(asList.stream()
-				.map(g -> g.id)
-				.toList(),
-				asList.stream()
-					.map(g -> g.color)
-					.toList(),
-				serverPlayer);
+			List<UUID> ids = new ArrayList<>(signalEdgeGroups.size());
+			List<EdgeGroupColor> colors = new ArrayList<>(signalEdgeGroups.size());
+			for (SignalEdgeGroup group : signalEdgeGroups.values()) {
+				ids.add(group.id);
+				colors.add(group.color);
+			}
+			sync.sendEdgeGroups(ids, colors, serverPlayer);
 			for (Train train : trains.values())
 				CatnipServices.NETWORK.sendToClient(serverPlayer, new AddTrainPacket(train));
 		}
