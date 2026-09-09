@@ -9,9 +9,11 @@ import com.mojang.authlib.GameProfile;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
+import com.simibubi.create.content.logistics.tableCloth.TableClothBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlockEntity;
 import com.simibubi.create.content.schematics.SchematicExport;
@@ -24,6 +26,7 @@ import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -39,7 +42,9 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedstoneLampBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.Vec3;
 
 @GameTestGroup(path = "misc")
@@ -84,6 +89,16 @@ public class TestMisc {
 		behaviour.write(roundTrip, helper.getLevel().registryAccess(), false);
 		helper.assertTrue(configured >= 5 && roundTrip.getCompound("top_left").getInt("Timer") == configured,
 			"Factory gauge timer did not use the configured interval or clamp legacy state");
+		helper.succeed();
+	}
+
+	@GameTest(template = "smart_observer_blocks")
+	public static void tableClothRotatesInsideContraption(CreateGameTestHelper helper) {
+		BlockPos pos = new BlockPos(1, 1, 1);
+		helper.setBlock(pos, AllBlocks.ANDESITE_TABLE_CLOTH.getDefaultState());
+		TableClothBlockEntity cloth = helper.getBlockEntity(AllBlockEntityTypes.TABLE_CLOTH.get(), pos);
+		cloth.transform(cloth, new StructureTransform(BlockPos.ZERO, Direction.Axis.Y, Rotation.CLOCKWISE_90, Mirror.NONE));
+		helper.assertTrue(cloth.facing == Direction.WEST, "Table cloth did not rotate its facing with the contraption");
 		helper.succeed();
 	}
 

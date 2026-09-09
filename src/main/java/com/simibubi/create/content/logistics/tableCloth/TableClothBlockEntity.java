@@ -9,6 +9,8 @@ import javax.annotation.Nullable;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.AllTags.AllBlockTags;
+import com.simibubi.create.api.contraption.transformable.TransformableBlockEntity;
+import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.redstoneRequester.AutoRequestData;
@@ -41,13 +43,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-public class TableClothBlockEntity extends SmartBlockEntity {
+public class TableClothBlockEntity extends SmartBlockEntity implements TransformableBlockEntity {
 
 	public AutoRequestData requestData;
 	public List<ItemStack> manuallyAddedItems;
@@ -327,6 +330,14 @@ public class TableClothBlockEntity extends SmartBlockEntity {
 	public int getPaymentAmount() {
 		return priceTag.getFilter()
 			.isEmpty() ? 1 : priceTag.count;
+	}
+
+	@Override
+	public void transform(BlockEntity blockEntity, StructureTransform transform) {
+		facing = transform.mirrorFacing(facing);
+		if (transform.rotationAxis == Direction.Axis.Y)
+			facing = transform.rotateFacing(facing);
+		notifyUpdate();
 	}
 
 }
