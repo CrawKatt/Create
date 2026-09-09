@@ -23,7 +23,7 @@ import com.simibubi.create.content.logistics.box.PackageItem.PackageOrderData;
 import com.simibubi.create.content.logistics.filter.AttributeFilterWhitelistMode;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute.ItemAttributeEntry;
 import com.simibubi.create.content.logistics.redstoneRequester.AutoRequestData;
-import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem.ShoppingList;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe.SequencedAssembly;
 import com.simibubi.create.content.redstone.displayLink.ClickToLinkBlockItem.ClickToLinkData;
@@ -355,9 +355,9 @@ public class AllDataComponents {
 		builder -> builder.persistent(PackageOrderData.CODEC).networkSynchronized(PackageOrderData.STREAM_CODEC)
 	);
 
-	public static final DataComponentType<PackageOrder> PACKAGE_ORDER_CONTEXT = register(
+	public static final DataComponentType<PackageOrderWithCrafts> PACKAGE_ORDER_CONTEXT = register(
 		"package_order_context",
-		builder -> builder.persistent(PackageOrder.CODEC).networkSynchronized(PackageOrder.STREAM_CODEC)
+		builder -> builder.persistent(PackageOrderWithCrafts.CODEC).networkSynchronized(PackageOrderWithCrafts.STREAM_CODEC)
 	);
 
 	public static final DataComponentType<ClickToLinkData> CLICK_TO_LINK_DATA = register(

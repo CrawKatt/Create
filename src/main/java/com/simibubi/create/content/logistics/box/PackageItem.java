@@ -14,6 +14,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.logistics.box.PackageStyles.PackageStyle;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
+import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
@@ -121,9 +122,15 @@ public class PackageItem extends Item implements ItemExt {
 	}
 
 	public static void setOrder(ItemStack box, int orderId, int linkIndex, boolean isFinalLink, int fragmentIndex,
-								boolean isFinal, @Nullable PackageOrder orderContext) {
+								boolean isFinal, @Nullable PackageOrderWithCrafts orderContext) {
 		PackageOrderData order = new PackageOrderData(orderId, linkIndex, isFinalLink, fragmentIndex, isFinal, orderContext);
 		box.set(AllDataComponents.PACKAGE_ORDER_DATA, order);
+	}
+
+	public static void setOrder(ItemStack box, int orderId, int linkIndex, boolean isFinalLink, int fragmentIndex,
+								boolean isFinal, @Nullable PackageOrder orderContext) {
+		setOrder(box, orderId, linkIndex, isFinalLink, fragmentIndex, isFinal,
+			orderContext == null ? null : PackageOrderWithCrafts.simple(orderContext.stacks()));
 	}
 
 	public static int getOrderId(ItemStack box) {
@@ -139,7 +146,7 @@ public class PackageItem extends Item implements ItemExt {
 		return getOrderId(box.getItem() instanceof PackageItem ? box.toStack() : ItemStack.EMPTY);
 	}
 
-	public static PackageOrder getOrderContext(ItemStack box) {
+	public static PackageOrderWithCrafts getOrderContext(ItemStack box) {
 		if (box.has(AllDataComponents.PACKAGE_ORDER_DATA)) {
 			PackageOrderData data = box.get(AllDataComponents.PACKAGE_ORDER_DATA);
 			return data.orderContext();
@@ -150,8 +157,12 @@ public class PackageItem extends Item implements ItemExt {
 		}
 	}
 
-	public static void addOrderContext(ItemStack box, PackageOrder orderContext) {
+	public static void addOrderContext(ItemStack box, PackageOrderWithCrafts orderContext) {
 		box.set(AllDataComponents.PACKAGE_ORDER_CONTEXT, orderContext);
+	}
+
+	public static void addOrderContext(ItemStack box, PackageOrder orderContext) {
+		addOrderContext(box, PackageOrderWithCrafts.simple(orderContext.stacks()));
 	}
 
 	public static boolean matchAddress(ItemStack box, String address) {
@@ -404,9 +415,9 @@ public class PackageItem extends Item implements ItemExt {
 	}
 
 	public record PackageOrderData(int orderId, int linkIndex, boolean isFinalLink, int fragmentIndex,
-								   boolean isFinal, @Nullable PackageOrder orderContext) {
+								   boolean isFinal, @Nullable PackageOrderWithCrafts orderContext) {
 		public PackageOrderData(int orderId, int linkIndex, boolean isFinalLink, int fragmentIndex,
-								boolean isFinal, Optional<PackageOrder> orderContext) {
+								boolean isFinal, Optional<PackageOrderWithCrafts> orderContext) {
 			this(orderId, linkIndex, isFinalLink, fragmentIndex, isFinal, orderContext.orElse(null));
 		}
 
@@ -416,7 +427,7 @@ public class PackageItem extends Item implements ItemExt {
 			Codec.BOOL.fieldOf("is_final_link").forGetter(PackageOrderData::isFinalLink),
 			Codec.INT.fieldOf("fragment_index").forGetter(PackageOrderData::fragmentIndex),
 			Codec.BOOL.fieldOf("is_final").forGetter(PackageOrderData::isFinal),
-			PackageOrder.CODEC.optionalFieldOf("order_context").forGetter(i -> Optional.ofNullable(i.orderContext))
+			PackageOrderWithCrafts.CODEC.optionalFieldOf("order_context").forGetter(i -> Optional.ofNullable(i.orderContext))
 		).apply(instance, PackageOrderData::new));
 
 		public static final StreamCodec<RegistryFriendlyByteBuf, PackageOrderData> STREAM_CODEC = StreamCodec.composite(
@@ -425,7 +436,7 @@ public class PackageItem extends Item implements ItemExt {
 			ByteBufCodecs.BOOL, PackageOrderData::isFinalLink,
 			ByteBufCodecs.INT, PackageOrderData::fragmentIndex,
 			ByteBufCodecs.BOOL, PackageOrderData::isFinal,
-			CatnipStreamCodecBuilders.nullable(PackageOrder.STREAM_CODEC), PackageOrderData::orderContext,
+			CatnipStreamCodecBuilders.nullable(PackageOrderWithCrafts.STREAM_CODEC), PackageOrderData::orderContext,
 		    PackageOrderData::new
 		);
 	}
