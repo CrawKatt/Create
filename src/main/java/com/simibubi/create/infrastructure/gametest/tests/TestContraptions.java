@@ -7,6 +7,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.content.contraptions.Contraption;
+import com.simibubi.create.content.contraptions.actors.plough.PloughMovementBehaviour;
 import com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
 import com.simibubi.create.content.contraptions.elevator.ElevatorPulleyBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
 
 import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
 
@@ -84,6 +86,28 @@ public class TestContraptions {
 			helper.powerLever(lever); // disassemble contraption
 			helper.assertTankEmpty(tank); // verify nothing left
 		});
+	}
+
+	@GameTest(template = "ploughing")
+	public static void ploughBlockTags(CreateGameTestHelper helper) {
+		BlockPos ground = new BlockPos(4, 2, 1);
+		helper.setBlock(ground, Blocks.DIRT);
+		BlockPos target = helper.absolutePos(ground.above());
+		PloughMovementBehaviour plough = new PloughMovementBehaviour();
+		var snow = Blocks.SNOW.defaultBlockState().setValue(SnowLayerBlock.LAYERS, 8);
+		helper.assertTrue(!snow.getCollisionShape(helper.getLevel(), target).isEmpty(),
+			"Snow fixture must have collision to exercise the whitelist");
+		helper.assertTrue(plough.canBreak(helper.getLevel(), target, snow),
+			"Plough rejected whitelisted snow with collision");
+		for (var portal : List.of(Blocks.NETHER_PORTAL, Blocks.END_PORTAL, Blocks.END_GATEWAY))
+			helper.assertTrue(!plough.canBreak(helper.getLevel(), target, portal.defaultBlockState()),
+				"Plough accepted a blacklisted portal: " + portal);
+		helper.assertTrue(!plough.canBreak(helper.getLevel(), target, Blocks.STONE.defaultBlockState()),
+			"Plough accepted an unlisted solid block");
+		helper.setBlock(ground, Blocks.FARMLAND);
+		helper.assertTrue(!plough.canBreak(helper.getLevel(), target, snow),
+			"Whitelist bypassed farmland protection");
+		helper.succeed();
 	}
 
 	@GameTest(template = "ploughing")
