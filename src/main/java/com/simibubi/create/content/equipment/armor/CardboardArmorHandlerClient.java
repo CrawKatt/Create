@@ -13,10 +13,12 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.PlayerTickEvent;
 
@@ -44,7 +46,8 @@ public class CardboardArmorHandlerClient {
 			return true;
 
 		ms.pushPose();
-		ms.translate(0, 2 / 16f, 0);
+		Vec3 renderOffset = renderer.getRenderOffset((AbstractClientPlayer) player, partialTick);
+		ms.translate(0, -renderOffset.y, 0);
 
 		float movement = (float) player.position()
 			.subtract(player.xo, player.yo, player.zo)
@@ -52,10 +55,12 @@ public class CardboardArmorHandlerClient {
 
 		if (player.onGround())
 			ms.translate(0,
-				Math.min(Math.abs(Mth.cos((AnimationTickHolder.getRenderTime() % 256) / 2.0f)) * 2 / 16f, movement * 5),
+				Math.min(Math.abs(Mth.cos((AnimationTickHolder.getRenderTime() % 256) / 2.0f)) * -renderOffset.y, movement * 5),
 				0);
 
 		float interpolatedYaw = Mth.lerp(partialTick, player.yRotO, player.getYRot());
+		float scale = player.getScale();
+		ms.scale(scale, scale, scale);
 
 		try {
 			PartialModel model = AllPartialModels.PACKAGES_TO_HIDE_AS.get(getCurrentBoxIndex(player));
