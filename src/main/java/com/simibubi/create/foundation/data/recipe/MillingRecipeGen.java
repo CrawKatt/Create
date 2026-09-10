@@ -341,8 +341,8 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_BLACK_ROSE = bygFlower("black_rose", List.of(1f,.1f),
 				List.of(Items.BLACK_DYE, Items.BLACK_DYE), List.of(2,1)),
 
-		BYG_BLUE_SAGE = bygFlower("blue_sage", List.of(1f,.1f,.1f),
-				List.of(Items.BLUE_DYE, Items.CYAN_DYE, Items.GREEN_DYE), List.of(2,2,1)),
+		BYG_BLUE_SAGE = bygFlower("blue_sage", List.of(1f,.1f),
+				List.of(Items.BLUE_DYE, Items.CYAN_DYE), List.of(2,1)),
 
 		BYG_CALIFORNIA_POPPY = bygFlower("california_poppy", List.of(1f,.05f),
 				List.of(Items.ORANGE_DYE, Items.GREEN_DYE), List.of(2,1)),
@@ -351,7 +351,7 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 				List.of(Items.PURPLE_DYE, Items.BLUE_DYE, Items.GREEN_DYE), List.of(2,2,1)),
 
 		BYG_CYAN_AMARANTH = bygFlower("cyan_amaranth", List.of(1f,.05f,.25f),
-				List.of(Items.RED_DYE, Items.GREEN_DYE, Items.RED_DYE), List.of(3,2,2)),
+				List.of(Items.CYAN_DYE, Items.GREEN_DYE, Items.CYAN_DYE), List.of(3,2,2)),
 
 		BYG_CYAN_ROSE = bygFlower("cyan_rose", List.of(1f,.1f),
 				List.of(Items.CYAN_DYE, Items.GREEN_DYE), List.of(2,1)),
@@ -389,8 +389,11 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_IRIS = bygFlower("iris", List.of(1f,.05f),
 				List.of(Items.PURPLE_DYE, Items.GREEN_DYE), List.of(2,1)),
 
-		BYG_ORCHID = bygFlower("orchid", List.of(1f,.05f),
+		BYG_ORCHID = bygFlower("japanese_orchid", List.of(1f,.05f),
 				List.of(Items.PINK_DYE, Items.WHITE_DYE), List.of(2,1)),
+
+		BYG_PURPLE_SAGE = bygFlower("purple_sage", List.of(1f,.1f),
+				List.of(Items.PURPLE_DYE, Items.MAGENTA_DYE), List.of(2,1)),
 
 		BYG_KOVAN = bygFlower("kovan_flower", List.of(1f,.2f,.05f),
 				List.of(Items.RED_DYE, Items.LIME_DYE, Items.GREEN_DYE), List.of(2,1,1)),
@@ -398,7 +401,7 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_LAZARUS_BELLFLOWER = bygFlower("lazarus_bellflower", List.of(1f,.1f),
 				List.of(Items.MAGENTA_DYE, Items.GREEN_DYE), List.of(2,1)),
 
-		BYG_LOLIPOP = bygFlower("lolipop_flower", List.of(1f,.25f,.05f),
+		BYG_LOLLIPOP = bygFlower("lollipop_flower", List.of(1f,.25f,.05f),
 				List.of(Items.YELLOW_DYE, Items.YELLOW_DYE, Items.GREEN_DYE), List.of(2,1,1)),
 
 		BYG_MAGENTA_AMARANTH = bygFlower("magenta_amaranth", List.of(1f,.05f,.25f),
@@ -408,13 +411,13 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 				List.of(Items.MAGENTA_DYE, Items.LIME_DYE), List.of(2,1)),
 
 		BYG_ORANGE_AMARANTH = bygFlower("orange_amaranth", List.of(1f,.05f,.25f),
-				List.of(Items.RED_DYE, Items.GREEN_DYE, Items.RED_DYE), List.of(3,2,2)),
+				List.of(Items.ORANGE_DYE, Items.GREEN_DYE, Items.ORANGE_DYE), List.of(3,2,2)),
 
 		BYG_DAISY = bygFlower("orange_daisy", List.of(1f,.2f,.05f),
 				List.of(Items.ORANGE_DYE, Items.YELLOW_DYE, Items.LIME_DYE), List.of(2,1,1)),
 
 		BYG_OSIRIA_ROSE = bygFlower("osiria_rose", List.of(1f,.1f),
-				List.of(Items.BLACK_DYE, Items.BLACK_DYE), List.of(2,1)),
+				List.of(Items.PINK_DYE, Items.GREEN_DYE), List.of(2,1)),
 
 		BYG_PEACH_LEATHER = bygFlower("peach_leather_flower", List.of(1f,.25f),
 				List.of(Items.PINK_DYE, Items.GREEN_DYE), List.of(2,1)),
@@ -437,9 +440,6 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_PURPLE_AMARANTH = bygFlower("purple_amaranth", List.of(1f,.05f,.25f),
 				List.of(Items.PURPLE_DYE, Items.GREEN_DYE, Items.PURPLE_DYE), List.of(3,2,2)),
 
-		BYG_PURPLE_SAGE = bygFlower("purple_rose", List.of(1f,.1f),
-				List.of(Items.PURPLE_DYE, Items.MAGENTA_DYE), List.of(2,1)),
-
 		BYG_PURPLE_TULIP = bygFlower("purple_tulip", List.of(1f,.1f),
 				List.of(Items.PURPLE_DYE, Items.LIME_DYE), List.of(2,1)),
 
@@ -461,9 +461,6 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_TALL_PINK_ALLIUM = bygFlower("tall_pink_allium", List.of(1f,.05f,.25f),
 				List.of(Items.PINK_DYE, Items.PINK_DYE, Items.MAGENTA_DYE), List.of(3,2,2)),
 
-		BYG_TORCH_GINGER = bygFlower("torch_ginger", List.of(1f,.1f),
-				List.of(Items.RED_DYE, Items.GREEN_DYE), List.of(2,1)),
-
 		BYG_VIOLET_LEATHER = bygFlower("violet_leather_flower", List.of(1f,.25f),
 				List.of(Items.BLUE_DYE, Items.GREEN_DYE), List.of(2,1)),
 
@@ -475,10 +472,10 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 				.output(.25f, Mods.BYG, "white_puffball_spores", 1)
 				.whenModLoaded(Mods.BYG.getId())),
 
-		BYG_WHITE_SAGE = bygFlower(Mods.BYG.recipeId("white_sage"), List.of(1f, .1f),
+		BYG_WHITE_SAGE = bygFlower("white_sage", List.of(1f, .1f),
 				List.of(Items.WHITE_DYE, Items.GRAY_DYE), List.of(2,1)),
 
-		BYG_WINTER_CYCLAMEN = bygFlower(Mods.BYG.recipeId("winter_cyclamen"), List.of(1f, .1f),
+		BYG_WINTER_CYCLAMEN = bygFlower("winter_cyclamen", List.of(1f, .1f),
 				List.of(Items.CYAN_DYE, Items.GREEN_DYE), List.of(2,1)),
 
 		BYG_WINTER_ROSE = bygFlower("winter_rose", List.of(1f,.1f),
@@ -492,6 +489,40 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 
 		BYG_YELLOW_TULIP = bygFlower("yellow_tulip", List.of(1f,.1f),
 				List.of(Items.YELLOW_DYE, Items.LIME_DYE), List.of(2,1)),
+
+		BYG_WHITE_ALLIUM = bygFlower("white_allium", List.of(1f, .1f, .1f),
+				List.of(Items.WHITE_DYE, Items.LIGHT_GRAY_DYE, Items.GRAY_DYE), List.of(2, 2, 1)),
+
+		BYG_TALL_WHITE_ALLIUM = bygFlower("tall_white_allium", List.of(1f, .05f, .25f),
+				List.of(Items.WHITE_DYE, Items.WHITE_DYE, Items.LIGHT_GRAY_DYE), List.of(3, 2, 2)),
+
+		BYG_WHITE_ALLIUM_BUSH = bygFlower("white_allium_flower_bush", List.of(1f, .05f, .25f),
+				List.of(Items.WHITE_DYE, Items.GREEN_DYE, Items.LIGHT_GRAY_DYE), List.of(3, 2, 2)),
+
+		BYG_BLUE_ROSE_BUSH = bygFlower("blue_rose_bush", List.of(1f, .05f, .25f),
+				List.of(Items.BLUE_DYE, Items.GREEN_DYE, Items.BLUE_DYE), List.of(3, 2, 2)),
+
+		BYG_HORSEWEED = bygFlower("horseweed", List.of(1f, 0.25f),
+				List.of(Items.GREEN_DYE, Items.BROWN_DYE), List.of(2, 1)),
+
+		BYG_WINTER_SUCCULENT = bygFlower("winter_succulent", List.of(1f, 0.25f),
+				List.of(Items.GREEN_DYE, Items.GREEN_DYE), List.of(2, 1)),
+
+		BYG_MINI_CACTUS = bygFlower("mini_cactus", List.of(1f),
+				List.of(Items.GREEN_DYE), List.of(2)),
+
+		BYG_PRICKLY_PEAR_CACTUS = bygFlower("prickly_pear_cactus", List.of(1f, 0.25f),
+				List.of(Items.GREEN_DYE, Items.GREEN_DYE), List.of(2, 1)),
+
+		BYG_GOLDEN_SPINED_CACTUS = bygFlower("golden_spined_cactus", List.of(1f, 0.25f),
+				List.of(Items.GREEN_DYE, Items.YELLOW_DYE), List.of(2, 1)),
+
+		BYG_SAND_1 = moddedSandstone(Mods.BYG, "black"),
+		BYG_SAND_2 = moddedSandstone(Mods.BYG, "white"),
+		BYG_SAND_3 = moddedSandstone(Mods.BYG, "blue"),
+		BYG_SAND_4 = moddedSandstone(Mods.BYG, "purple"),
+		BYG_SAND_5 = moddedSandstone(Mods.BYG, "pink"),
+		BYG_SAND_6 = moddedSandstone(Mods.BYG, "windswept"),
 
 		// Environmental
 
@@ -783,6 +814,14 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		} else {
 			return null;
 		}
+	}
+
+	protected GeneratedRecipe moddedSandstone(Mods mod, String name) {
+		String sandstone = name + "_sandstone";
+		return create(mod.recipeId(sandstone), b -> b.duration(150)
+				.require(mod, sandstone)
+				.output(mod, name + "_sand")
+				.whenModLoaded(mod.getId()));
 	}
 
 	protected GeneratedRecipe envFlower(String input, List<Float> chances,

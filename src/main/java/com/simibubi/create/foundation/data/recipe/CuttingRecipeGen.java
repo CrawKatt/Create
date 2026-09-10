@@ -50,7 +50,11 @@ public class CuttingRecipeGen extends ProcessingRecipeGen {
 		ENDERGETIC_2 = stripAndMakePlanks(Mods.ENDER, "glowing_poise_wood", "stripped_poise_wood", null),
 
 		// IE
-		IE_WIRES = ieWires("copper", "electrum", "aluminum", "steel", "lead")
+		IE_WIRES = ieWires("copper", "electrum", "aluminum", "steel", "lead"),
+
+		// Oh The Biomes We've Gone
+		BYG_1 = stripAndMakePlanksDiffPlanksModId(Mods.BYG, null, "stripped_palo_verde_log", Mods.MC, "birch_planks"),
+		BYG_2 = stripAndMakePlanksDiffPlanksModId(Mods.BYG, null, "stripped_palo_verde_wood", Mods.MC, "birch_planks")
 		;
 
 	GeneratedRecipe stripAndMakePlanks(Block wood, Block stripped, Block planks) {

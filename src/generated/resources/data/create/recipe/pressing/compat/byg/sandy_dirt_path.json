@@ -1,0 +1,22 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "byg"
+      ]
+    }
+  ],
+  "type": "create:pressing",
+  "ingredients": [
+    {
+      "fabric:type": "create:simple_datagen",
+      "item": "byg:sandy_dirt"
+    }
+  ],
+  "results": [
+    {
+      "id": "byg:sandy_dirt_path"
+    }
+  ]
+}

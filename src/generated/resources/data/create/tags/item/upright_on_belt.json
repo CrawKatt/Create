@@ -14,6 +14,54 @@
     "minecraft:mushroom_stew",
     "minecraft:suspicious_stew",
     {
+      "id": "byg:blue_glow_bottle",
+      "required": false
+    },
+    {
+      "id": "byg:green_glow_bottle",
+      "required": false
+    },
+    {
+      "id": "byg:red_glow_bottle",
+      "required": false
+    },
+    {
+      "id": "byg:yellow_glow_bottle",
+      "required": false
+    },
+    {
+      "id": "byg:allium_oddion_soup",
+      "required": false
+    },
+    {
+      "id": "byg:white_puffball_stew",
+      "required": false
+    },
+    {
+      "id": "byg:aloe_vera_juice",
+      "required": false
+    },
+    {
+      "id": "silentgems:cup_of_coffee",
+      "required": false
+    },
+    {
+      "id": "silentgems:uncooked_meaty_stew",
+      "required": false
+    },
+    {
+      "id": "silentgems:meaty_stew",
+      "required": false
+    },
+    {
+      "id": "silentgems:uncooked_fishy_stew",
+      "required": false
+    },
+    {
+      "id": "silentgems:fishy_stew",
+      "required": false
+    },
+    {
       "id": "autumnity:foul_soup",
       "required": false
     },

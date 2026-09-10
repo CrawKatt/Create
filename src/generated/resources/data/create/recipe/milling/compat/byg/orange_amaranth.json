@@ -18,7 +18,7 @@
   "results": [
     {
       "count": 3,
-      "id": "minecraft:red_dye"
+      "id": "minecraft:orange_dye"
     },
     {
       "chance": 0.05,
@@ -28,7 +28,7 @@
     {
       "chance": 0.25,
       "count": 2,
-      "id": "minecraft:red_dye"
+      "id": "minecraft:orange_dye"
     }
   ]
 }

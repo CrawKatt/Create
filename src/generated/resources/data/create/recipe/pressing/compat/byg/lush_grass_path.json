@@ -11,12 +11,12 @@
   "ingredients": [
     {
       "fabric:type": "create:simple_datagen",
-      "item": "byg:lush_grass"
+      "item": "byg:lush_grass_block"
     }
   ],
   "results": [
     {
-      "id": "byg:lush_grass_path"
+      "id": "byg:lush_dirt_path"
     }
   ]
 }

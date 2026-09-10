@@ -30,7 +30,7 @@
     },
     {
       "chance": 0.12,
-      "id": "minecraft:end_stone"
+      "id": "minecraft:cobblestone"
     }
   ]
 }

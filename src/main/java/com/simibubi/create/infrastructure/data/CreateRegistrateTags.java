@@ -237,11 +237,18 @@ public class CreateRegistrateTags {
 		TagGen.addOptional(prov.tag(AllItemTags.AMETHYST.tag), Mods.GS, gsPalette("amethyst"));
 
 		TagGen.addOptional(prov.tag(AllItemTags.UA_CORAL.tag), Mods.UA, List.of("acan_coral",
-			"finger_coral", "star_coral", "moss_coral", "petal_coral", "branch_coral",
-			"rock_coral", "pillow_coral", "chrome_coral", "silk_coral"));
+				"finger_coral", "star_coral", "moss_coral", "petal_coral", "branch_coral",
+				"rock_coral", "pillow_coral", "chrome_coral", "silk_coral"));
+
+		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.BYG, List.of(
+				"blue_glow_bottle", "green_glow_bottle", "red_glow_bottle", "yellow_glow_bottle",
+				"allium_oddion_soup", "white_puffball_stew", "aloe_vera_juice"));
+
+		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.SILENT_GEMS, List.of(
+				"cup_of_coffee", "uncooked_meaty_stew", "meaty_stew", "uncooked_fishy_stew", "fishy_stew"));
 
 		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.AUTUM, List.of("foul_soup",
-			"syrup_bottle", "sap_bottle"));
+				"syrup_bottle", "sap_bottle"));
 
 		// VALIDATE
 

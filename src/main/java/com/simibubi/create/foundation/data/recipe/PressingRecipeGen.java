@@ -64,7 +64,11 @@ public class PressingRecipeGen extends ProcessingRecipeGen {
 
 		// Oh The Biomes You'll Go
 
-		BYG = moddedPaths(Mods.BYG, "lush_grass"),
+		BYG = moddedPaths(Mods.BYG, "lush_dirt", "sandy_dirt"),
+
+		BYG_GRASS_PATH = create(Mods.BYG.recipeId("lush_grass_path"), b -> b.require(Mods.BYG, "lush_grass_block")
+				.output(Mods.BYG, "lush_dirt_path")
+				.whenModLoaded(Mods.BYG.getId())),
 
 		//Infernal Expansion
 		IX_CRIMSON_PATH = create(Mods.IX.recipeId("crimson_nylium_path"), b -> b.require(Blocks.CRIMSON_NYLIUM)
