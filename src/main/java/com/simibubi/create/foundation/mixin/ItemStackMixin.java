@@ -2,6 +2,7 @@ package com.simibubi.create.foundation.mixin;
 
 import java.util.function.BiFunction;
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+@ScheduledForRemoval(inVersion = "1.21.1+ Port")
 @Deprecated(since = "6.0.7", forRemoval = true)
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
@@ -29,7 +31,6 @@ public class ItemStackMixin {
 		if (!BuiltInRegistries.ITEM.getKey(item.asItem()).equals(create$CLIPBOARD_ID))
 			return;
 
-		ClipboardContent existingContent = components.get(AllDataComponents.CLIPBOARD_CONTENT);
 		ClipboardContent content = ClipboardContent.EMPTY;
 
 		content = create$migrateComponent(content, components, AllDataComponents.CLIPBOARD_PAGES, ClipboardContent::setPages);
@@ -39,8 +40,7 @@ public class ItemStackMixin {
 		content = create$migrateComponent(content, components, AllDataComponents.CLIPBOARD_PREVIOUSLY_OPENED_PAGE, ClipboardContent::setPreviouslyOpenedPage);
 
 		if (content != ClipboardContent.EMPTY) {
-			// Keep canonical content when a saved stack also contains stale legacy components.
-			components.set(AllDataComponents.CLIPBOARD_CONTENT, existingContent == null ? content : existingContent);
+			components.set(AllDataComponents.CLIPBOARD_CONTENT, content);
 		}
 	}
 
