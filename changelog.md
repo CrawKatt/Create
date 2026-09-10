@@ -20,6 +20,7 @@ Create 6.0.10
 
 - Fix warnings being logged for missing classes that create has mixins into
 - Fix backtanks not having the enchantment glint when worn #9792
+- Fix copycat blocks dropping items when /fill'd
 - Fix spouts not stopping items when filling them when the spout is also actively being filled #9621
 - Fix stock links on same storage (for example double chests) reporting the item amounts twice #9627
 - Fix older flywheel being loaded when a mod like vanillin is installed

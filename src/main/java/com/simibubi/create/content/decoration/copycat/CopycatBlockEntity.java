@@ -23,6 +23,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,15 +37,13 @@ import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 
 public class CopycatBlockEntity extends SmartBlockEntity
-	implements SpecialBlockEntityItemRequirement, TransformableBlockEntity, PartialSafeNBT, RenderDataBlockEntity {
+	implements SpecialBlockEntityItemRequirement, TransformableBlockEntity, PartialSafeNBT, RenderDataBlockEntity, Clearable {
 
-	private BlockState material;
-	private ItemStack consumedItem;
+	private BlockState material = AllBlocks.COPYCAT_BASE.getDefaultState();
+	private ItemStack consumedItem = ItemStack.EMPTY;
 
 	public CopycatBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		material = AllBlocks.COPYCAT_BASE.getDefaultState();
-		consumedItem = ItemStack.EMPTY;
 	}
 
 	public BlockState getMaterial() {
@@ -64,7 +63,7 @@ public class CopycatBlockEntity extends SmartBlockEntity
 				BlockState neighbourState = level.getBlockState(neighbour);
 				if (neighbourState != wrapperState)
 					continue;
-				if (!(level.getBlockEntity(neighbour)instanceof CopycatBlockEntity cbe))
+				if (!(level.getBlockEntity(neighbour) instanceof CopycatBlockEntity cbe))
 					continue;
 				BlockState otherMaterial = cbe.getMaterial();
 				if (!otherMaterial.is(blockState.getBlock()))
@@ -125,7 +124,8 @@ public class CopycatBlockEntity extends SmartBlockEntity
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
+	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	}
 
 	@Override
 	public ItemRequirement getRequiredItems(BlockState state) {
@@ -195,6 +195,12 @@ public class CopycatBlockEntity extends SmartBlockEntity
 	@Override
 	public BlockState getRenderData() {
 		return material;
+	}
+
+	@Override
+	public void clearContent() {
+		material = AllBlocks.COPYCAT_BASE.getDefaultState();
+		consumedItem = ItemStack.EMPTY;
 	}
 
 }
