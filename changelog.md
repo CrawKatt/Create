@@ -55,7 +55,7 @@ Create 6.0.10
 - Fix placed clipboards causing a crash when you are too far away from the block #10185
 - Fix multiple create blocks and entities not respecting block and entity reach attributes
 
-# API Changes
+#### API Changes
 
 - Add seats tags #9907
 - Add Plough blacklist and whitelist tags #7162
