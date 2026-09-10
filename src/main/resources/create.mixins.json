@@ -24,7 +24,6 @@
     "PackRepositoryMixin",
     "ShulkerBoxBlockMixin",
     "SmithingMenuMixin",
-    "SmithingTrimRecipeMixin",
     "WaterWheelFluidSpreadMixin",
     "accessor.AbstractRegistrateAccessor",
     "accessor.BlockBehaviourAccessor",
