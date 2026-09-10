@@ -12,6 +12,18 @@
     "minecraft:cake",
     "minecraft:bowl",
     "minecraft:mushroom_stew",
-    "minecraft:suspicious_stew"
+    "minecraft:suspicious_stew",
+    {
+      "id": "autumnity:foul_soup",
+      "required": false
+    },
+    {
+      "id": "autumnity:syrup_bottle",
+      "required": false
+    },
+    {
+      "id": "autumnity:sap_bottle",
+      "required": false
+    }
   ]
 }

@@ -240,6 +240,9 @@ public class CreateRegistrateTags {
 			"finger_coral", "star_coral", "moss_coral", "petal_coral", "branch_coral",
 			"rock_coral", "pillow_coral", "chrome_coral", "silk_coral"));
 
+		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.AUTUM, List.of("foul_soup",
+			"syrup_bottle", "sap_bottle"));
+
 		// VALIDATE
 
 		for (AllItemTags tag : AllItemTags.values()) {

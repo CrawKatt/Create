@@ -20,7 +20,12 @@ public class PressingRecipeGen extends ProcessingRecipeGen {
 
 	SUGAR_CANE = create(() -> Items.SUGAR_CANE, b -> b.output(Items.PAPER)),
 
-		PATH = create("path", b -> b.require(Ingredient.of(Items.GRASS_BLOCK, Items.DIRT, Items.COARSE_DIRT, Items.ROOTED_DIRT))
+		PATH = create("path", b -> b.require(Ingredient.of(Items.DIRT, Items.COARSE_DIRT, Items.ROOTED_DIRT,
+				Items.MYCELIUM, Items.PODZOL))
+			.output(Items.DIRT_PATH)
+			.whenModMissing(Mods.ENV.getId())),
+
+		GRASS_PATH = create("path_from_grass", b -> b.require(Items.GRASS_BLOCK)
 			.output(Items.DIRT_PATH)),
 
 		IRON = create("iron_ingot", b -> b.require(I.iron())
@@ -50,6 +55,11 @@ public class PressingRecipeGen extends ProcessingRecipeGen {
 
 		ENV_PODZOL = create("compat/environmental/podzol_path", b -> b.require(Blocks.PODZOL)
 				.output(Mods.ENV, "podzol_path")
+				.whenModLoaded(Mods.ENV.getId())),
+
+		ENV_DIRT = create("compat/environmental/dirt_path", b -> b.require(Ingredient.of(
+			Items.DIRT, Items.COARSE_DIRT, Items.ROOTED_DIRT))
+				.output(Mods.ENV, "dirt_path")
 				.whenModLoaded(Mods.ENV.getId())),
 
 		// Oh The Biomes You'll Go

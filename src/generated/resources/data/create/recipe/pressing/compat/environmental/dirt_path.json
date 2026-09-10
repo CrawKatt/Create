@@ -1,13 +1,10 @@
 {
   "fabric:load_conditions": [
     {
-      "condition": "fabric:not",
-      "value": {
-        "condition": "fabric:all_mods_loaded",
-        "values": [
-          "environmental"
-        ]
-      }
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "environmental"
+      ]
     }
   ],
   "type": "create:pressing",
@@ -21,18 +18,12 @@
       },
       {
         "item": "minecraft:rooted_dirt"
-      },
-      {
-        "item": "minecraft:mycelium"
-      },
-      {
-        "item": "minecraft:podzol"
       }
     ]
   ],
   "results": [
     {
-      "id": "minecraft:dirt_path"
+      "id": "environmental:dirt_path"
     }
   ]
 }

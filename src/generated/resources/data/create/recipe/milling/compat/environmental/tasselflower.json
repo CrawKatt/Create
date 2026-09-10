@@ -11,18 +11,18 @@
   "ingredients": [
     {
       "fabric:type": "create:simple_datagen",
-      "item": "environmental:dianthus"
+      "item": "environmental:tasselflower"
     }
   ],
   "processing_time": 50,
   "results": [
     {
       "count": 2,
-      "id": "minecraft:lime_dye"
+      "id": "minecraft:orange_dye"
     },
     {
       "chance": 0.1,
-      "id": "minecraft:lime_dye"
+      "id": "minecraft:green_dye"
     }
   ]
 }
