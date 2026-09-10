@@ -16,11 +16,16 @@ import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
 import com.simibubi.create.content.contraptions.elevator.ElevatorPulleyBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock;
+import com.simibubi.create.content.logistics.box.PackageItem;
+import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.CarriageBogey;
 import com.simibubi.create.content.trains.entity.CarriageContraption;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
 import com.simibubi.create.content.trains.entity.Train;
+import com.simibubi.create.content.trains.station.GlobalStation;
+import com.simibubi.create.content.trains.station.GlobalStation.GlobalPackagePort;
+import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -32,6 +37,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -238,6 +244,49 @@ public class TestContraptions {
 		helper.succeed();
 	}
 
+	@GameTest(template = "train_observer")
+	public static void railwayMailTransferHandlesFullCarriage(CreateGameTestHelper helper) {
+		BlockPos postboxPos = new BlockPos(1, 2, 1);
+		helper.setBlock(postboxPos, AllBlocks.PACKAGE_POSTBOXES.get(DyeColor.WHITE).get());
+		var postbox = helper.getBlockEntity(AllBlockEntityTypes.PACKAGE_POSTBOX.get(), postboxPos);
+		GlobalStation station = new GlobalStation();
+		station.setId(UUID.randomUUID());
+		station.blockEntityDimension = helper.getLevel().dimension();
+		station.blockEntityPos = helper.absolutePos(new BlockPos(2, 2, 1));
+		GlobalPackagePort port = new GlobalPackagePort();
+		port.address = "Depot";
+		station.connectedPorts.put(helper.absolutePos(postboxPos), port);
+
+		MailCarriage carriage = new MailCarriage();
+		MailTrain train = new MailTrain(station, carriage);
+		station.reserveFor(train);
+		station.runMailTransfer(); // empty postbox is a no-op
+		helper.assertTrue(postbox.inventory.isEmpty(), "Empty postbox changed during mail transfer");
+
+		ItemStack outbound = PackageStyles.getDefaultBox();
+		PackageItem.addAddress(outbound, "Depot");
+		carriage.mailInventory.setStackInSlot(0, outbound);
+		station.runMailTransfer();
+		helper.assertTrue(carriage.mailInventory.getStackInSlot(0).isEmpty(), "Outbound package stayed in the carriage");
+		helper.assertTrue(PackageItem.isPackage(postbox.inventory.getStackInSlot(0)), "Outbound package did not reach the postbox");
+
+		ItemStack inbound = PackageStyles.getDefaultBox();
+		PackageItem.addAddress(inbound, "Other");
+		postbox.inventory.setStackInSlot(0, inbound);
+		station.runMailTransfer();
+		helper.assertTrue(postbox.inventory.getStackInSlot(0).isEmpty(), "Inbound package was not removed from the postbox");
+		helper.assertTrue(PackageItem.isPackage(carriage.mailInventory.getStackInSlot(0)), "Inbound package did not reach the carriage");
+
+		carriage.mailInventory.setStackInSlot(0, ItemStack.EMPTY);
+		for (int slot = 0; slot < carriage.mailInventory.getSlotCount(); slot++)
+			carriage.mailInventory.setStackInSlot(slot, new ItemStack(Items.STONE, 64));
+		postbox.inventory.setStackInSlot(0, inbound.copy());
+		station.runMailTransfer();
+		helper.assertTrue(PackageItem.isPackage(postbox.inventory.getStackInSlot(0)),
+			"Full carriage consumed an undelivered package");
+		helper.succeed();
+	}
+
 	private static void addControlActor(CreateGameTestHelper helper, CarriageContraption contraption) {
 		CompoundTag data = new CompoundTag();
 		data.put("Filter", AllBlocks.TRAIN_DOOR.asStack().saveOptional(helper.getLevel().registryAccess()));
@@ -264,6 +313,30 @@ public class TestContraptions {
 		@Override
 		public CarriageContraptionEntity anyAvailableEntity() {
 			return entity;
+		}
+	}
+
+	private static class MailCarriage extends Carriage {
+		private final ItemStackHandler mailInventory = new ItemStackHandler(9);
+
+		private MailCarriage() {
+			super(new CarriageBogey(AllBlocks.SMALL_BOGEY.get(), false, new CompoundTag()), null, 0);
+			storage.initialize();
+			storage.attachExternal(mailInventory);
+		}
+	}
+
+	private static class MailTrain extends Train {
+		private final GlobalStation station;
+
+		private MailTrain(GlobalStation station, Carriage carriage) {
+			super(UUID.randomUUID(), null, null, List.of(carriage), List.of(), false, 0);
+			this.station = station;
+		}
+
+		@Override
+		public GlobalStation getCurrentStation() {
+			return station;
 		}
 	}
 
