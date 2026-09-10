@@ -33,9 +33,8 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 			.require(ItemTags.WOOL)
 			.output(Items.STRING)),
 
-		CLAY = create(() -> Blocks.CLAY, b -> b.duration(50)
-			.output(Items.CLAY_BALL, 3)
-			.output(.5f, Items.CLAY_BALL)),
+	CLAY = create(() -> Blocks.CLAY, b -> b.duration(50)
+		.output(Items.CLAY_BALL, 4)),
 
 		CALCITE = create(() -> Items.CALCITE, b -> b.duration(250)
 			.output(.75f, Items.BONE_MEAL, 1)),
