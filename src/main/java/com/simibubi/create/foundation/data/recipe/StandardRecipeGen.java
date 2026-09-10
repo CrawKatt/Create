@@ -1594,7 +1594,8 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 				if (unlockedBy != null)
 					b.unlockedBy("has_item", InventoryChangeTrigger.TriggerInstance.hasItems(unlockedBy.get()));
 
-				b.save(recipeOutput, createLocation("crafting"));
+				b.save(ConditionalRecipeOutput.withConditions(recipeOutput, recipeConditions),
+					createLocation("crafting"));
 			});
 		}
 
