@@ -49,7 +49,7 @@ val trinketsVersion = "3.10.0"
 // for Trinkets - https://modrinth.com/mod/cardinal-components-api/versions
 val ccaVersion = "6.1.2"
 // https://modrinth.com/mod/journeymap
-val jmVersion = "1.21.1-6.0.0-beta.39+fabric"
+val jmVersion = "1.21.1-6.0.0-beta.54+fabric"
 // matches the journeymap-api JiJed inside the journeymap jar
 val jmApiVersion = "2.0.0-1.21.1-SNAPSHOT"
 
