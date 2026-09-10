@@ -167,7 +167,7 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 		BOUND_CARDBOARD_BLOCK = create(AllBlocks.BOUND_CARDBOARD_BLOCK).returns(1)
 			.unlockedBy(I::cardboard)
 			.viaShapeless(b -> b.requires(AllBlocks.CARDBOARD_BLOCK.get())
-				.requires(Items.STRING)),
+				.requires(Tags.Items.STRINGS)),
 
 		CARDBOARD_FROM_BLOCK = create(AllItems.CARDBOARD).withSuffix("_from_block")
 			.returns(4)
