@@ -23,7 +23,6 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.logistics.packagePort.frogport.FrogportBlockEntity;
-import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlock;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlockEntity;
@@ -617,12 +616,33 @@ public class PackagerBlockEntity extends SmartBlockEntity implements SidedStorag
 		return animationTicks >= CYCLE / 2 ? ItemStack.EMPTY : heldBox;
 	}
 
-	// fabric: forge's approach is not viable. Introduced InventoryIdentifier. Will upstream soon
-	public boolean isTargetingSameInventory(@Nullable InventoryIdentifier identifier) {
-		if (identifier == null || !this.targetInventory.hasInventory())
+	public boolean isTargetingSameInventory(@Nullable IdentifiedInventory inventory) {
+		if (inventory == null)
 			return false;
-		BlockFace target = this.targetInventory.getTarget().getOpposite();
-		return identifier.contains(target);
+
+		Storage<ItemVariant> targetHandler = this.targetInventory.getInventory();
+		if (targetHandler == null)
+			return false;
+
+		if (inventory.identifier() != null) {
+			BlockFace face = this.targetInventory.getTarget().getOpposite();
+			return inventory.identifier().contains(face);
+		}
+
+		return isSameInventoryFallback(targetHandler, inventory.handler());
+	}
+
+	private static boolean isSameInventoryFallback(Storage<ItemVariant> first, Storage<ItemVariant> second) {
+		if (first == second)
+			return true;
+
+		for (StorageView<ItemVariant> secondView : second.nonEmptyViews()) {
+			for (StorageView<ItemVariant> firstView : first.nonEmptyViews())
+				if (firstView == secondView || firstView.getUnderlyingView() == secondView.getUnderlyingView())
+					return true;
+			break;
+		}
+		return false;
 	}
 
 }

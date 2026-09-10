@@ -11,10 +11,10 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.equipment.bell.BasicParticleData.WiFiData;
+import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
-import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packager.repackager.RepackagerBlockEntity;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
@@ -48,7 +48,7 @@ public class PackagerLinkBlockEntity extends LinkWithBulbBlockEntity {
 		placedBy = null;
 	}
 
-	public InventorySummary fetchSummaryFromPackager(@Nullable InventoryIdentifier identifier) {
+	public InventorySummary fetchSummaryFromPackager(@Nullable IdentifiedInventory identifier) {
 		PackagerBlockEntity packager = getPackager();
 		if (packager == null)
 			return InventorySummary.EMPTY;
@@ -82,7 +82,7 @@ public class PackagerLinkBlockEntity extends LinkWithBulbBlockEntity {
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
 		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrderWithCrafts orderContext,
-		@Nullable InventoryIdentifier identifier) {
+		@Nullable IdentifiedInventory identifier) {
 		PackagerBlockEntity packager = getPackager();
 		if (packager == null)
 			return null;
@@ -100,7 +100,7 @@ public class PackagerLinkBlockEntity extends LinkWithBulbBlockEntity {
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
 		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrder orderContext,
-		@Nullable InventoryIdentifier identifier) {
+		@Nullable IdentifiedInventory identifier) {
 		return processRequest(stack, amount, address, linkIndex, finalLink, orderId,
 			orderContext == null ? null : PackageOrderWithCrafts.simple(orderContext.stacks()), identifier);
 	}

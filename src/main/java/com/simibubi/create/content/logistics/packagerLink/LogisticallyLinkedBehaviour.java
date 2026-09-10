@@ -15,10 +15,10 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.google.common.cache.Cache;
 import com.simibubi.create.Create;
+import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
-import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -179,7 +179,7 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
 		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrderWithCrafts orderContext,
-		@Nullable InventoryIdentifier identifier) {
+		@Nullable IdentifiedInventory identifier) {
 
 		if (blockEntity instanceof PackagerLinkBlockEntity plbe)
 			return plbe.processRequest(stack, amount, address, linkIndex, finalLink, orderId, orderContext,
@@ -190,12 +190,12 @@ public class LogisticallyLinkedBehaviour extends BlockEntityBehaviour {
 
 	public Pair<PackagerBlockEntity, PackagingRequest> processRequest(ItemStack stack, int amount, String address,
 		int linkIndex, MutableBoolean finalLink, int orderId, @Nullable PackageOrder orderContext,
-		@Nullable InventoryIdentifier identifier) {
+		@Nullable IdentifiedInventory identifier) {
 		return processRequest(stack, amount, address, linkIndex, finalLink, orderId,
 			orderContext == null ? null : PackageOrderWithCrafts.simple(orderContext.stacks()), identifier);
 	}
 
-	public InventorySummary getSummary(@Nullable InventoryIdentifier identifier) {
+	public InventorySummary getSummary(@Nullable IdentifiedInventory identifier) {
 		if (blockEntity instanceof PackagerLinkBlockEntity plbe)
 			return plbe.fetchSummaryFromPackager(identifier);
 		return InventorySummary.EMPTY;

@@ -2,7 +2,6 @@ package com.simibubi.create.foundation.blockEntity.behaviour.inventory;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
@@ -99,14 +98,6 @@ public abstract class CapManipulationBehaviourBase<T, S extends CapManipulationB
 			return null;
 		Storage<T> storage = targetStorageProvider.get(side);
 		return this.filter.test(storage, this.targetStorageProvider) ? storage : null;
-	}
-
-	@Nullable
-	public InventoryIdentifier getIdentifier() {
-		if (!this.hasInventory())
-			return null;
-		BlockFace target = getTarget().getOpposite();
-		return InventoryIdentifier.get(getWorld(), target.getPos(), target.getFace());
 	}
 
 	protected boolean onHandlerInvalidated() {

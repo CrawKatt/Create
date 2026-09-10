@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
-import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.packagerLink.LogisticsManager;
@@ -38,17 +38,17 @@ public abstract class StockCheckingBlockEntity extends SmartBlockEntity {
 		return LogisticsManager.getSummaryOfNetwork(behaviour.freqId, true);
 	}
 
-	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, InventoryIdentifier identifier,
+	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, @Nullable IdentifiedInventory identifier,
 		String address) {
 		return broadcastPackageRequest(type, PackageOrderWithCrafts.simple(order.stacks()), identifier, address);
 	}
 
-	public boolean broadcastPackageRequest(RequestType type, PackageOrderWithCrafts order, InventoryIdentifier identifier,
+	public boolean broadcastPackageRequest(RequestType type, PackageOrderWithCrafts order, @Nullable IdentifiedInventory identifier,
 		String address) {
 		return LogisticsManager.broadcastPackageRequest(behaviour.freqId, type, order, identifier, address);
 	}
 
-	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, InventoryIdentifier identifier,
+	public boolean broadcastPackageRequest(RequestType type, PackageOrder order, @Nullable IdentifiedInventory identifier,
 		String address, @Nullable PackageOrder orderContext) {
 		List<PackageOrderWithCrafts.CraftingEntry> crafts = orderContext == null || orderContext.isEmpty() ? List.of()
 			: List.of(new PackageOrderWithCrafts.CraftingEntry(orderContext, 1));

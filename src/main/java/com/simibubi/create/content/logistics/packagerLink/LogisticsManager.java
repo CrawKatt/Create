@@ -17,10 +17,10 @@ import com.google.common.cache.Cache;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.simibubi.create.content.logistics.BigItemStack;
+import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.PackagingRequest;
-import com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour.RequestType;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
@@ -55,7 +55,7 @@ public class LogisticsManager {
 		return InventorySummary.EMPTY;
 	}
 
-	public static int getStockOf(UUID freqId, ItemStack stack, @Nullable InventoryIdentifier identifier) {
+	public static int getStockOf(UUID freqId, ItemStack stack, @Nullable IdentifiedInventory identifier) {
 		int sum = 0;
 		for (LogisticallyLinkedBehaviour link : LogisticallyLinkedBehaviour.getAllPresent(freqId, false))
 			sum += link.getSummary(identifier)
@@ -64,7 +64,7 @@ public class LogisticsManager {
 	}
 
 	public static boolean broadcastPackageRequest(UUID freqId, RequestType type, PackageOrderWithCrafts order,
-		InventoryIdentifier identifier, String address) {
+		@Nullable IdentifiedInventory identifier, String address) {
 		if (order.isEmpty())
 			return false;
 
@@ -82,14 +82,14 @@ public class LogisticsManager {
 	}
 
 	public static boolean broadcastPackageRequest(UUID freqId, RequestType type, PackageOrder order,
-		InventoryIdentifier identifier, String address, @Nullable PackageOrder orderContext) {
+		@Nullable IdentifiedInventory identifier, String address, @Nullable PackageOrder orderContext) {
 		List<PackageOrderWithCrafts.CraftingEntry> crafts = orderContext == null || orderContext.isEmpty() ? List.of()
 			: List.of(new PackageOrderWithCrafts.CraftingEntry(orderContext, 1));
 		return broadcastPackageRequest(freqId, type, new PackageOrderWithCrafts(order, crafts), identifier, address);
 	}
 
 	public static Multimap<PackagerBlockEntity, PackagingRequest> findPackagersForRequest(UUID freqId,
-		PackageOrderWithCrafts order, @Nullable InventoryIdentifier identifier, String address) {
+		PackageOrderWithCrafts order, @Nullable IdentifiedInventory identifier, String address) {
 		List<BigItemStack> stacks = new ArrayList<>();
 		for (BigItemStack stack : order.stacks())
 			if (!stack.stack.isEmpty() && stack.count > 0)
@@ -148,7 +148,7 @@ public class LogisticsManager {
 	}
 
 	public static Multimap<PackagerBlockEntity, PackagingRequest> findPackagersForRequest(UUID freqId,
-		PackageOrder order, @Nullable PackageOrder customContext, @Nullable InventoryIdentifier identifier,
+		PackageOrder order, @Nullable PackageOrder customContext, @Nullable IdentifiedInventory identifier,
 		String address) {
 		List<PackageOrderWithCrafts.CraftingEntry> crafts = customContext == null || customContext.isEmpty() ? List.of()
 			: List.of(new PackageOrderWithCrafts.CraftingEntry(customContext, 1));

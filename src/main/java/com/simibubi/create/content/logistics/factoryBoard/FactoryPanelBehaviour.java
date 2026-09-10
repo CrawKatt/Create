@@ -489,7 +489,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		if (packager == null || !packager.targetInventory.hasInventory())
 			return;
 
-		int availableOnNetwork = LogisticsManager.getStockOf(network, item, packager.targetInventory.getIdentifier());
+		int availableOnNetwork = LogisticsManager.getStockOf(network, item, packager.targetInventory.getIdentifiedInventory());
 		if (availableOnNetwork == 0) {
 			sendEffect(getPanelPosition(), false);
 			return;
@@ -507,7 +507,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		sendEffect(getPanelPosition(), true);
 
 		if (!LogisticsManager.broadcastPackageRequest(network, RequestType.RESTOCK, order,
-			packager.targetInventory.getIdentifier(), recipeAddress, null))
+			packager.targetInventory.getIdentifiedInventory(), recipeAddress, null))
 			return;
 
 		restockerPromises.add(new RequestPromise(orderedItem));

@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class AllInventoryIdentifiers {
 	public static void registerDefaults() {
@@ -54,24 +53,8 @@ public class AllInventoryIdentifiers {
 		// connect vaults
 		InventoryIdentifier.REGISTRY.register(AllBlocks.ITEM_VAULT.get(), (level, state, face) -> {
 			BlockEntity be = level.getBlockEntity(face.getPos());
-			return be instanceof ItemVaultBlockEntity vault ? adapt(vault.getInvId()) : null;
+			return be instanceof ItemVaultBlockEntity vault ? vault.getInvId() : null;
 		});
-	}
-
-	@Nullable
-	private static InventoryIdentifier adapt(com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier legacy) {
-		if (legacy == null)
-			return null;
-		if (legacy instanceof com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier.SingleBlock single)
-			return new InventoryIdentifier.Single(single.pos());
-		if (legacy instanceof com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier.SingleFace single)
-			return new InventoryIdentifier.MultiFace(single.face().getPos(), Set.of(single.face().getFace()));
-		if (legacy instanceof com.simibubi.create.content.logistics.packager.fabric.InventoryIdentifier.MultiBlock multi) {
-			return BoundingBox.encapsulatingPositions(multi.positions().stream().toList())
-				.map(InventoryIdentifier.Bounds::new)
-				.orElse(null);
-		}
-		return face -> legacy.contains(face);
 	}
 
 	private static InventoryIdentifier single(Level level, BlockState state, BlockFace face) {
