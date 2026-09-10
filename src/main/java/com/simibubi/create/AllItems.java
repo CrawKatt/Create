@@ -117,7 +117,7 @@ public class AllItems {
 		TRANSMITTER = ingredient("transmitter"), PULP = ingredient("pulp");
 
 	public static final ItemEntry<CombustibleItem> CARDBOARD = REGISTRATE.item("cardboard", CombustibleItem::new)
-		.tag(commonItemTag("plates/cardboard"))
+		.tag(commonItemTag("plates/cardboard"), PLATES.tag)
 		.onRegister(i -> i.setBurnTime(1000))
 		.register();
 
