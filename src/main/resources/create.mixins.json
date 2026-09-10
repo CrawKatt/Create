@@ -37,6 +37,7 @@
     "accessor.ItemModelGeneratorsAccessor",
     "accessor.ItemStackLinkedSetAccessor",
     "accessor.LivingEntityAccessor",
+    "accessor.BlockLootSubProviderAccessor",
     "accessor.LootTableProviderAccessor",
     "accessor.MappedRegistryAccessor",
     "accessor.MinecartFurnaceAccessor",
