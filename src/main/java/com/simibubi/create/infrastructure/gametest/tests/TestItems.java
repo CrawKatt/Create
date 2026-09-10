@@ -552,11 +552,9 @@ public class TestItems {
 		mixedComponents.put("create:clipboard_content", ClipboardContent.CODEC.encodeStart(ops, canonical).getOrThrow());
 		mixed.put("components", mixedComponents);
 		ItemStack mixedStack = ItemStack.parse(registries, mixed).orElseThrow();
-		ClipboardContent mixedContent = mixedStack.get(AllDataComponents.CLIPBOARD_CONTENT);
-		helper.assertTrue(mixedContent != null && mixedContent.type() == ClipboardType.EDITING
-			&& mixedContent.pages().get(0).get(0).text.getString().equals("canonical")
-			&& !mixedStack.has(AllDataComponents.CLIPBOARD_PAGES),
-			"Canonical clipboard content was overwritten by legacy components");
+		// NeoForge migrates legacy components over existing clipboard content.
+		helper.assertTrue(mixedStack.save(registries).equals(migrated.save(registries)),
+			"Mixed clipboard components did not follow upstream legacy migration precedence");
 
 		saved.putString("id", "minecraft:apple");
 		ItemStack untouched = ItemStack.parse(registries, saved).orElseThrow();
