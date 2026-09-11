@@ -30,8 +30,8 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 		.output(Fluids.LAVA, FluidConstants.BUCKET / 20)
 		.requiresHeat(HeatCondition.SUPERHEATED)),
 
-		TEA = create("tea", b -> b.require(Fluids.WATER, FluidConstants.BOTTLE)
-			.require(Tags.Fluids.MILK, FluidConstants.BOTTLE)
+		TEA = create("tea", b -> b.require(Fluids.WATER, FluidConstants.BUCKET / 4)
+			.require(Tags.Fluids.MILK, FluidConstants.BUCKET / 4)
 			.require(ItemTags.LEAVES)
 			.output(AllFluids.TEA.get(), FluidConstants.BUCKET / 2)
 			.requiresHeat(HeatCondition.HEATED)),
@@ -77,7 +77,7 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 			.require(AllItemTags.PULPIFIABLE.tag)
 			.require(AllItemTags.PULPIFIABLE.tag)
 			.require(AllItemTags.PULPIFIABLE.tag)
-			.require(Fluids.WATER, 250)
+			.require(Fluids.WATER, FluidConstants.BUCKET / 4)
 			.output(AllItems.PULP, 1)),
 
 		// AE2
