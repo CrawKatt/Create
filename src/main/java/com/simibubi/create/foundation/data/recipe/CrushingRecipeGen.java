@@ -200,6 +200,13 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 				.output(1f, Items.RED_SAND, 1)
 				.whenModLoaded(Mods.BWG.getId())),
 
+		// Biomes O' Plenty
+		BOP_ROSE_QUARTZ = create(Mods.BOP.recipeId("rose_quartz"), b -> b.duration(150)
+				.require(Mods.BOP, "rose_quartz_cluster")
+				.output(1, Mods.BOP, "rose_quartz_chunk", 7)
+				.output(.5f, Mods.BOP, "rose_quartz_chunk", 1)
+				.whenModLoaded(Mods.BOP.getId())),
+
 		// Druidcraft
 
 		DC_AMBER_ORE = create(Mods.DRUIDCRAFT.recipeId("amber_ore"), b -> b.duration(300)
