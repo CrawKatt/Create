@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "type": "fluid_stack",
-      "amount": 27000,
+      "amount": 20250,
       "fluid": "create:chocolate"
     }
   ],

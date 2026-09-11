@@ -41,7 +41,7 @@ public class CompactingRecipeGen extends ProcessingRecipeGen {
 			.require(Items.GRAVEL)
 			.output(Blocks.ANDESITE, 1)),
 
-		CHOCOLATE = create("chocolate", b -> b.require(AllFluids.CHOCOLATE.get(), FluidConstants.BOTTLE)
+		CHOCOLATE = create("chocolate", b -> b.require(AllFluids.CHOCOLATE.get(), FluidConstants.BUCKET / 4)
 			.output(AllItems.BAR_OF_CHOCOLATE.get(), 1)),
 
 		BLAZE_CAKE = create("blaze_cake", b -> b.require(Tags.Items.EGGS)

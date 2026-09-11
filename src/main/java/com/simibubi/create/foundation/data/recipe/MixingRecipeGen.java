@@ -36,14 +36,14 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 			.output(AllFluids.TEA.get(), FluidConstants.BUCKET / 2)
 			.requiresHeat(HeatCondition.HEATED)),
 
-		CHOCOLATE = create("chocolate", b -> b.require(Tags.Fluids.MILK, FluidConstants.BOTTLE)
+		CHOCOLATE = create("chocolate", b -> b.require(Tags.Fluids.MILK, FluidConstants.BUCKET / 4)
 			.require(Items.SUGAR)
 			.require(Items.COCOA_BEANS)
-			.output(AllFluids.CHOCOLATE.get(), FluidConstants.BOTTLE)
+			.output(AllFluids.CHOCOLATE.get(), FluidConstants.BUCKET / 4)
 			.requiresHeat(HeatCondition.HEATED)),
 
 		CHOCOLATE_MELTING = create("chocolate_melting", b -> b.require(AllItems.BAR_OF_CHOCOLATE.get())
-			.output(AllFluids.CHOCOLATE.get(), FluidConstants.BOTTLE)
+			.output(AllFluids.CHOCOLATE.get(), FluidConstants.BUCKET / 4)
 			.requiresHeat(HeatCondition.HEATED)),
 
 		HONEY = create("honey", b -> b.require(Items.HONEY_BLOCK)
@@ -69,7 +69,7 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 
 		MUD = create("mud_by_mixing", b -> b.require(Ingredient.of(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.PODZOL,
 			Blocks.COARSE_DIRT, Blocks.MYCELIUM, Blocks.ROOTED_DIRT, Blocks.MOSS_BLOCK))
-			.require(Fluids.WATER, FluidConstants.BOTTLE)
+			.require(Fluids.WATER, FluidConstants.BUCKET / 4)
 			.output(Blocks.MUD, 1)),
 
 		PULP = create("cardboard_pulp", b -> b
@@ -83,7 +83,7 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 		// AE2
 
 		AE2_FLUIX = create(Mods.AE2.recipeId("fluix_crystal"), b -> b.require(Tags.Items.DUSTS_REDSTONE)
-				.require(Fluids.WATER, FluidConstants.BOTTLE)
+				.require(Fluids.WATER, FluidConstants.BUCKET / 4)
 				.require(Mods.AE2, "charged_certus_quartz_crystal")
 				.require(Tags.Items.GEMS_QUARTZ)
 				.output(1f, Mods.AE2, "fluix_crystal", 2)
@@ -98,7 +98,7 @@ public class MixingRecipeGen extends ProcessingRecipeGen {
 
 	public GeneratedRecipe moddedMud(Mods mod, String name) {
 		String mud = name + "_mud";
-		return create(mod.recipeId(mud), b -> b.require(Fluids.WATER, FluidConstants.BOTTLE)
+		return create(mod.recipeId(mud), b -> b.require(Fluids.WATER, FluidConstants.BUCKET / 4)
 				.require(mod, name + "_dirt")
 				.output(mod, mud)
 				.whenModLoaded(mod.getId()));
