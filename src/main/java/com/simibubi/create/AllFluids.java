@@ -124,6 +124,7 @@ public class AllFluids {
 								.flowSpeed(3)
 								.blastResistance(100f))
 						.fluidAttributes(() -> new CreateAttributeHandler("block.create.chocolate", 1500, 1400))
+						.source(SimpleFlowableFluid.Source::new) // TODO: remove when Registrate fixes FluidBuilder
 						.bucket()
 						.tag(AllTags.commonItemTag("buckets"), AllItemTags.CHOCOLATE_BUCKETS.tag)
 						.build()
