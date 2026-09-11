@@ -467,7 +467,7 @@ public class ClientEvents {
 	}
 
 	public static void register() {
-//		ModBusEvents.registerClientReloadListeners();
+		ModBusEvents.registerClientReloadListeners();
 		registerItemDecorations();
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> AllCommands.registerClient(dispatcher));
 
