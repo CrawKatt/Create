@@ -121,7 +121,7 @@ dependencies {
     modCompileOnly("net.fabricmc.fabric-api:fabric-rendering-data-attachment-v1:0.3.48+73761d2e19")
 
     for (module in portLibModules) {
-        modImplementation("io.github.fabricators_of_create.Porting-Lib:$module:$portLibVersion")
+        modImplementation(include("io.github.fabricators_of_create.Porting-Lib:$module:$portLibVersion")!!)
     }
 
     modApi(include("com.tterrag.registrate_fabric:Registrate:$registrateVersion")!!)

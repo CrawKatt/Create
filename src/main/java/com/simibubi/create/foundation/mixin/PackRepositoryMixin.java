@@ -13,18 +13,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.simibubi.create.foundation.events.CommonEvents;
 
+import io.github.fabricators_of_create.porting_lib.extensions.PackRepositoryExtension;
+
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.RepositorySource;
 
 // vanilla 1.21.1 no longer supports adding repository sources after construction,
 // so inject Create's dynamic data pack here instead
 @Mixin(PackRepository.class)
-public abstract class PackRepositoryMixin {
+public abstract class PackRepositoryMixin implements PackRepositoryExtension {
 
 	@Mutable
 	@Final
 	@Shadow
 	private Set<RepositorySource> sources;
+
+	@Override
+	public synchronized void pl$addPackFinder(RepositorySource packFinder) {
+		Set<RepositorySource> copy = new LinkedHashSet<>(sources);
+		copy.add(packFinder);
+		this.sources = copy;
+	}
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void create$addDynamicData(RepositorySource[] vanillaSources, CallbackInfo ci) {
