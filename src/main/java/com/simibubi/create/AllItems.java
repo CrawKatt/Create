@@ -107,17 +107,17 @@ public class AllItems {
 	}
 
 	public static final ItemEntry<Item>
-		WHEAT_FLOUR = taggedIngredient("wheat_flour", commonItemTag("flours"), commonItemTag("flours/wheat")),
+		WHEAT_FLOUR = taggedIngredient("wheat_flour", AllItemTags.FLOURS.tag, AllItemTags.WHEAT_FLOURS.tag),
 		DOUGH = taggedIngredient("dough", commonItemTag("foods/dough"), AllItemTags.FOODS_DOUGH_WHEAT.tag),
 		CINDER_FLOUR = ingredient("cinder_flour"), ROSE_QUARTZ = ingredient("rose_quartz"),
 		POLISHED_ROSE_QUARTZ = ingredient("polished_rose_quartz"), POWDERED_OBSIDIAN = ingredient("powdered_obsidian"),
-		STURDY_SHEET = taggedIngredient("sturdy_sheet", commonItemTag("plates/obsidian"), PLATES.tag),
+		STURDY_SHEET = taggedIngredient("sturdy_sheet", AllItemTags.OBSIDIAN_PLATES.tag, PLATES.tag),
 		PROPELLER = ingredient("propeller"), WHISK = ingredient("whisk"), BRASS_HAND = ingredient("brass_hand"),
 		CRAFTER_SLOT_COVER = ingredient("crafter_slot_cover"), ELECTRON_TUBE = ingredient("electron_tube"),
 		TRANSMITTER = ingredient("transmitter"), PULP = ingredient("pulp");
 
 	public static final ItemEntry<CombustibleItem> CARDBOARD = REGISTRATE.item("cardboard", CombustibleItem::new)
-		.tag(commonItemTag("plates/cardboard"), PLATES.tag)
+		.tag(AllItemTags.CARDBOARD_PLATES.tag, PLATES.tag)
 		.onRegister(i -> i.setBurnTime(1000))
 		.register();
 
@@ -146,6 +146,7 @@ public class AllItems {
 			.register();
 
 	public static final ItemEntry<Item> BAR_OF_CHOCOLATE = REGISTRATE.item("bar_of_chocolate", Item::new)
+		.tag(commonItemTag("foods"), AllItemTags.FOODS_CHOCOLATE.tag)
 		.properties(p -> p.food(new FoodProperties.Builder().nutrition(6)
 			.saturationModifier(0.3F)
 			.build()))
@@ -153,25 +154,28 @@ public class AllItems {
 		.register();
 
 	public static final ItemEntry<Item> SWEET_ROLL = REGISTRATE.item("sweet_roll", Item::new)
+		.tag(commonItemTag("foods"))
 		.properties(p -> p.food(new FoodProperties.Builder().nutrition(6)
 			.saturationModifier(0.8F)
 			.build()))
 		.register();
 
 	public static final ItemEntry<Item> CHOCOLATE_BERRIES = REGISTRATE.item("chocolate_glazed_berries", Item::new)
+		.tag(commonItemTag("foods"), commonItemTag("foods/berry"))
 		.properties(p -> p.food(new FoodProperties.Builder().nutrition(7)
 			.saturationModifier(0.8F)
 			.build()))
 		.register();
 
 	public static final ItemEntry<Item> HONEYED_APPLE = REGISTRATE.item("honeyed_apple", Item::new)
+		.tag(commonItemTag("foods"), commonItemTag("foods/fruit"))
 		.properties(p -> p.food(new FoodProperties.Builder().nutrition(8)
 			.saturationModifier(0.8F)
 			.build()))
 		.register();
 
 	public static final ItemEntry<BuildersTeaItem> BUILDERS_TEA = REGISTRATE.item("builders_tea", BuildersTeaItem::new)
-		.tag(AllItemTags.UPRIGHT_ON_BELT.tag)
+		.tag(AllItemTags.UPRIGHT_ON_BELT.tag, commonItemTag("foods"), commonItemTag("drinks"), AllItemTags.DRINKS_TEA.tag)
 		.properties(p -> p
 			.stacksTo(16)
 			.food(new FoodProperties.Builder()

@@ -9,6 +9,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.AllTags.AllFluidTags;
+import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.content.decoration.palettes.AllPaletteStoneTypes;
 import com.simibubi.create.content.fluids.VirtualFluid;
 import com.simibubi.create.content.fluids.potion.PotionFluid;
@@ -76,7 +78,7 @@ public class AllFluids {
 
 	public static final FluidEntry<VirtualFluid> TEA = REGISTRATE.virtualFluid("tea")
 			.lang("Builder's Tea")
-		.tag(AllTags.commonFluidTag("teas"))
+		.tag(AllFluidTags.TEA.tag)
 			.fluidAttributes(() -> new CreateAttributeHandler("fluid.create.tea"))
 			.onRegisterAfter(Registries.ITEM, tea -> {
 				Fluid still = tea.getSource();
@@ -98,7 +100,7 @@ public class AllFluids {
 					.tag(Tags.Fluids.HONEY, FluidTags.WATER) // fabric: water tag controls physics
 					.source(SimpleFlowableFluid.Source::new) // TODO: remove when Registrate fixes FluidBuilder
 					.bucket()
-					.tag(AllTags.commonItemTag("buckets/honey"))
+					.tag(AllTags.commonItemTag("buckets"), AllItemTags.HONEY_BUCKETS.tag)
 					.build()
 					.onRegisterAfter(Registries.ITEM, honey -> {
 						Fluid source = honey.getSource();
@@ -113,16 +115,19 @@ public class AllFluids {
 					})
 					.register();
 
-	public static final FluidEntry<SimpleFlowableFluid.Flowing> CHOCOLATE =
-			REGISTRATE.standardFluid("chocolate")
-					.lang("Chocolate")
-					.tag(AllTags.commonFluidTag("chocolates"), FluidTags.WATER) // fabric: water tag controls physics
+		public static final FluidEntry<SimpleFlowableFluid.Flowing> CHOCOLATE =
+				REGISTRATE.standardFluid("chocolate")
+						.lang("Chocolate")
+						.tag(AllFluidTags.CHOCOLATE.tag, FluidTags.WATER) // fabric: water tag controls physics
 					.fluidProperties(p -> p.levelDecreasePerBlock(2)
-							.tickRate(25)
-							.flowSpeed(3)
-							.blastResistance(100f))
-					.fluidAttributes(() -> new CreateAttributeHandler("block.create.chocolate", 1500, 1400))
-					.onRegisterAfter(Registries.ITEM, chocolate -> {
+								.tickRate(25)
+								.flowSpeed(3)
+								.blastResistance(100f))
+						.fluidAttributes(() -> new CreateAttributeHandler("block.create.chocolate", 1500, 1400))
+						.bucket()
+						.tag(AllTags.commonItemTag("buckets"), AllItemTags.CHOCOLATE_BUCKETS.tag)
+						.build()
+						.onRegisterAfter(Registries.ITEM, chocolate -> {
 						Fluid source = chocolate.getSource();
 						// transfer values
 						FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
@@ -130,7 +135,7 @@ public class AllFluids {
 						FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
 								new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
 					})
-					.register();
+						.register();
 
 	// fabric: replaces the abandoned milk-lib dependency
 	public static final TagKey<Fluid> MILK_FLUID_TAG = AllTags.commonFluidTag("milk");

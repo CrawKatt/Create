@@ -111,6 +111,8 @@ public class AllTags {
 		SINGLE_BLOCK_INVENTORIES,
 		PLOUGH_WHITELIST,
 		PLOUGH_BLACKLIST,
+		CARDBOARD_STORAGE_BLOCKS(COMMON, "storage_blocks/cardboard"),
+		ANDESITE_ALLOY_STORAGE_BLOCKS(COMMON, "storage_blocks/andesite_alloy"),
 
 		HAS_REDUCED_DESTROY_EFFECTS,
 
@@ -197,6 +199,21 @@ public class AllTags {
 
 		PLATES(COMMON),
 		OBSIDIAN_DUST(COMMON, "dusts/obsidian"),
+		OBSIDIAN_PLATES(COMMON, "plates/obsidian"),
+		CARDBOARD_PLATES(COMMON, "plates/cardboard"),
+		CERTUS_QUARTZ(COMMON, "gems/certus_quartz"),
+		AMETRINE_ORES(COMMON, "ores/ametrine"),
+		ANTHRACITE_ORES(COMMON, "ores/anthracite"),
+		EMERALDITE_ORES(COMMON, "ores/emeraldite"),
+		LIGNITE_ORES(COMMON, "ores/lignite"),
+		CARDBOARD_STORAGE_BLOCKS(COMMON, "storage_blocks/cardboard"),
+		ANDESITE_ALLOY_STORAGE_BLOCKS(COMMON, "storage_blocks/andesite_alloy"),
+		CHOCOLATE_BUCKETS(COMMON, "buckets/chocolate"),
+		HONEY_BUCKETS(COMMON, "buckets/honey"),
+		FOODS_CHOCOLATE(COMMON, "foods/chocolate"),
+		DRINKS_TEA(COMMON, "drinks/tea"),
+		FLOURS(COMMON),
+		WHEAT_FLOURS(COMMON, "flours/wheat"),
 		FOODS_DOUGH_WHEAT(COMMON, "foods/dough/wheat"),
 		WRENCH(COMMON, "tools/wrench"),
 
@@ -260,6 +277,9 @@ public class AllTags {
 		FAN_PROCESSING_CATALYSTS_HAUNTING(MOD, "fan_processing_catalysts/haunting"),
 		FAN_PROCESSING_CATALYSTS_SMOKING(MOD, "fan_processing_catalysts/smoking"),
 		FAN_PROCESSING_CATALYSTS_SPLASHING(MOD, "fan_processing_catalysts/splashing"),
+		TEA(COMMON),
+		CHOCOLATE(COMMON),
+		CREOSOTE(COMMON),
 
 		;
 

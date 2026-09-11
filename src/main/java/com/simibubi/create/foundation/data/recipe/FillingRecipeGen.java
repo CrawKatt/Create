@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllRecipeTypes;
-import com.simibubi.create.AllTags;
+import com.simibubi.create.AllTags.AllFluidTags;
 import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
 
 import net.minecraft.core.HolderLookup;
@@ -100,7 +100,7 @@ public class FillingRecipeGen extends ProcessingRecipeGen {
 		// IE
 
 		IE_TREATED_WOOD = create(Mods.IE.recipeId("treated_wood_in_spout"),
-			b -> b.require(AllTags.commonFluidTag("creosote"), 125)
+			b -> b.require(AllFluidTags.CREOSOTE.tag, 125)
 				.require(I.planks())
 				.output(Mods.IE, "treated_wood_horizontal")
 				.whenModLoaded(Mods.IE.getId()));
