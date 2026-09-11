@@ -188,6 +188,15 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		PINK_TULIP = create(() -> Blocks.PINK_TULIP, b -> b.duration(50)
 			.output(Items.PINK_DYE, 2)
 			.output(.1f, Items.LIME_DYE)),
+		PINK_PETALS = create(() -> Blocks.PINK_PETALS, b -> b.duration(50)
+			.output(Items.PINK_DYE, 2)
+			.output(.1f, Items.LIME_DYE)),
+		PITCHER_PLANT = create(() -> Blocks.PITCHER_PLANT, b -> b.duration(50)
+			.output(Items.CYAN_DYE, 4)
+			.output(.1f, Items.PURPLE_DYE)),
+		TORCHFLOWER = create(() -> Blocks.TORCHFLOWER, b -> b.duration(50)
+			.output(Items.ORANGE_DYE, 2)
+			.output(.1f, Items.GREEN_DYE)),
 
 		TALL_GRASS = create(() -> Blocks.TALL_GRASS, b -> b.duration(100)
 			.output(.5f, Items.WHEAT_SEEDS)),
