@@ -34,6 +34,7 @@ import net.minecraft.world.entity.EntityType.EntityFactory;
 import net.minecraft.world.entity.MobCategory;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalEntityTypeTags;
 
 public class AllEntityTypes {
 
@@ -82,8 +83,9 @@ public class AllEntityTypes {
 	private static <T extends Entity> CreateEntityBuilder<T, ?> contraption(String name, EntityFactory<T> factory,
 																			NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer, int range,
 																			int updateFrequency, boolean sendVelocity) {
-		return register(name, factory, renderer, MobCategory.MISC, range, updateFrequency, sendVelocity, true,
-			AbstractContraptionEntity::build);
+		return (CreateEntityBuilder<T, ?>) register(name, factory, renderer, MobCategory.MISC, range, updateFrequency, sendVelocity, true,
+			AbstractContraptionEntity::build)
+			.tag(ConventionalEntityTypeTags.TELEPORTING_NOT_SUPPORTED);
 	}
 
 	private static <T extends Entity> CreateEntityBuilder<T, ?> register(String name, EntityFactory<T> factory,
