@@ -54,6 +54,14 @@
     },
     {
       "type": "single",
+      "resource": "create:fluid/milk_flow"
+    },
+    {
+      "type": "single",
+      "resource": "create:fluid/milk_still"
+    },
+    {
+      "type": "single",
       "resource": "create:fluid/potion_flow"
     },
     {
