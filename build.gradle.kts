@@ -67,8 +67,9 @@ val buildNum = providers.environmentVariable("GITHUB_RUN_NUMBER")
     .map { "-build.$it" }
     .orElse("-local")
     .getOrElse("")
+val modVersion = providers.gradleProperty("mod_version").get()
 
-version = "6.0.2.0+mc$minecraftVersion$buildNum"
+version = "$modVersion+mc$minecraftVersion$buildNum"
 
 group = "com.simibubi.create"
 base.archivesName = "create-fabric"
