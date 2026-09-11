@@ -21,7 +21,7 @@ public class PackagePortAutomationInventoryWrapper extends ItemHandlerWrapper {
 		if (!PackageItem.isPackage(resource))
 			return 0;
 		String filterString = ppbe.getFilterString();
-		if (filterString == null || PackageItem.matchAddress(resource, filterString))
+		if (filterString == null || !PackageItem.matchAddress(resource, filterString))
 			return 0;
 
 		return super.extract(resource, maxAmount, transaction);
