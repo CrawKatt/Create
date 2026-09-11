@@ -6,7 +6,7 @@
         "condition": "fabric:tags_populated",
         "registry": "minecraft:item",
         "values": [
-          "c:raw_silver"
+          "c:raw_materials/silver"
         ]
       }
     }
@@ -14,7 +14,7 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "tag": "c:raw_silver"
+      "tag": "c:raw_materials/silver"
     }
   ],
   "processing_time": 400,

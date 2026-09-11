@@ -6,7 +6,7 @@
         "condition": "fabric:tags_populated",
         "registry": "minecraft:item",
         "values": [
-          "c:raw_aluminum_blocks"
+          "c:storage_blocks/raw_aluminum"
         ]
       }
     }
@@ -14,7 +14,7 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "tag": "c:raw_aluminum_blocks"
+      "tag": "c:storage_blocks/raw_aluminum"
     }
   ],
   "processing_time": 400,

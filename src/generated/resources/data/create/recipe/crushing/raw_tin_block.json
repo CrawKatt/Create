@@ -6,7 +6,7 @@
         "condition": "fabric:tags_populated",
         "registry": "minecraft:item",
         "values": [
-          "c:raw_tin_blocks"
+          "c:storage_blocks/raw_tin"
         ]
       }
     }
@@ -14,7 +14,7 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "tag": "c:raw_tin_blocks"
+      "tag": "c:storage_blocks/raw_tin"
     }
   ],
   "processing_time": 400,

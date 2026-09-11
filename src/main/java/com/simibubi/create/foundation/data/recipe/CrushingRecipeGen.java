@@ -437,7 +437,7 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 		String name = metal.getName();
 		return create("raw_" + name + (block ? "_block" : ""), b -> {
 			int amount = block ? 9 : 1;
-			String tagPath = block ? "raw_" + name + "_blocks" : "raw_" + name;
+			String tagPath = block ? "storage_blocks/raw_" + name : "raw_materials/" + name;
 			return b.duration(400)
 				.withCondition(notTagEmpty(tagPath))
 				.require(AllTags.commonItemTag(tagPath))

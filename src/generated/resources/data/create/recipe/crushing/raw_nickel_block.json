@@ -6,7 +6,7 @@
         "condition": "fabric:tags_populated",
         "registry": "minecraft:item",
         "values": [
-          "c:raw_nickel_blocks"
+          "c:storage_blocks/raw_nickel"
         ]
       }
     }
@@ -14,7 +14,7 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "tag": "c:raw_nickel_blocks"
+      "tag": "c:storage_blocks/raw_nickel"
     }
   ],
   "processing_time": 400,
