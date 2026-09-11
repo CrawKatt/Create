@@ -32,7 +32,7 @@ public enum AllKeys {
 	private final boolean conflictSafe;
 
 	AllKeys(int defaultKey) {
-		this("", defaultKey, "");
+		this("", defaultKey, "", true);
 	}
 
 	AllKeys(String description, int defaultKey, String translation) {
