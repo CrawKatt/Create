@@ -1,0 +1,28 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    }
+  ],
+  "type": "create:milling",
+  "ingredients": [
+    {
+      "fabric:type": "create:simple_datagen",
+      "item": "biomeswevegone:delphinium"
+    }
+  ],
+  "processing_time": 50,
+  "results": [
+    {
+      "count": 3,
+      "id": "minecraft:blue_dye"
+    },
+    {
+      "chance": 0.1,
+      "id": "minecraft:blue_dye"
+    }
+  ]
+}

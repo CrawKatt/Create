@@ -195,10 +195,10 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 		NICKEL_RAW_BLOCK = moddedRawOreBlock(NICKEL, AllItems.CRUSHED_NICKEL::get),
 
 		// Oh The Biomes We've Gone
-		BYG_RED_ROCK_ORE = create(Mods.BYG.recipeId("red_rock"), b -> b.duration(150)
-				.require(Mods.BYG, "red_rock")
+		BYG_RED_ROCK_ORE = create(Mods.BWG.recipeId("red_rock"), b -> b.duration(150)
+				.require(Mods.BWG, "red_rock")
 				.output(1f, Items.RED_SAND, 1)
-				.whenModLoaded(Mods.BYG.getId())),
+				.whenModLoaded(Mods.BWG.getId())),
 
 		// Druidcraft
 

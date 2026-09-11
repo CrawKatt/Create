@@ -208,7 +208,8 @@ public class CreateRegistrateTags {
 
 		prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag)
 			.add(Items.GLASS_BOTTLE, Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION,
-				Items.HONEY_BOTTLE, Items.CAKE, Items.BOWL, Items.MUSHROOM_STEW, Items.SUSPICIOUS_STEW);
+				Items.HONEY_BOTTLE, Items.CAKE, Items.BOWL, Items.MUSHROOM_STEW, Items.RABBIT_STEW,
+				Items.BEETROOT_SOUP, Items.SUSPICIOUS_STEW);
 
 		prov.tag(AllItemTags.CONTRAPTION_CONTROLLED.tag)
 			.add(Items.BELL, Items.CAMPFIRE, Items.SOUL_CAMPFIRE, Items.DISPENSER, Items.DROPPER);
@@ -240,7 +241,10 @@ public class CreateRegistrateTags {
 				"finger_coral", "star_coral", "moss_coral", "petal_coral", "branch_coral",
 				"rock_coral", "pillow_coral", "chrome_coral", "silk_coral"));
 
-		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.BYG, List.of(
+		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.ATM, List.of(
+			"orange_pudding", "orange_sorbet", "passion_fruit_sorbet", "aloe_gel_bottle"));
+
+		TagGen.addOptional(prov.tag(AllItemTags.UPRIGHT_ON_BELT.tag), Mods.BWG, List.of(
 				"blue_glow_bottle", "green_glow_bottle", "red_glow_bottle", "yellow_glow_bottle",
 				"allium_oddion_soup", "white_puffball_stew", "aloe_vera_juice"));
 

@@ -1,0 +1,28 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    }
+  ],
+  "type": "create:milling",
+  "ingredients": [
+    {
+      "fabric:type": "create:simple_datagen",
+      "item": "biomeswevegone:angelica"
+    }
+  ],
+  "processing_time": 50,
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:white_dye"
+    },
+    {
+      "chance": 0.1,
+      "id": "minecraft:green_dye"
+    }
+  ]
+}

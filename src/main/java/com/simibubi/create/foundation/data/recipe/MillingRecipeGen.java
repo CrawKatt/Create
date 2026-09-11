@@ -466,10 +466,10 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_WHITE_ANEMONE = bygFlower("white_anemone", List.of(1f,.1f),
 				List.of(Items.WHITE_DYE, Items.LIGHT_GRAY_DYE), List.of(2,2)),
 
-		BYG_PUFFBALL = create(Mods.BYG.recipeId("white_puffball_cap"), b -> b.duration(150)
-				.require(Mods.BYG, "white_puffball_cap")
-				.output(.25f, Mods.BYG, "white_puffball_spores", 1)
-				.whenModLoaded(Mods.BYG.getId())),
+		BYG_PUFFBALL = create(Mods.BWG.recipeId("white_puffball_cap"), b -> b.duration(150)
+				.require(Mods.BWG, "white_puffball_cap")
+				.output(.25f, Mods.BWG, "white_puffball_spores", 1)
+				.whenModLoaded(Mods.BWG.getId())),
 
 		BYG_WHITE_SAGE = bygFlower("white_sage", List.of(1f, .1f),
 				List.of(Items.WHITE_DYE, Items.GRAY_DYE), List.of(2,1)),
@@ -516,12 +516,12 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		BYG_GOLDEN_SPINED_CACTUS = bygFlower("golden_spined_cactus", List.of(1f, 0.25f),
 				List.of(Items.GREEN_DYE, Items.YELLOW_DYE), List.of(2, 1)),
 
-		BYG_SAND_1 = moddedSandstone(Mods.BYG, "black"),
-		BYG_SAND_2 = moddedSandstone(Mods.BYG, "white"),
-		BYG_SAND_3 = moddedSandstone(Mods.BYG, "blue"),
-		BYG_SAND_4 = moddedSandstone(Mods.BYG, "purple"),
-		BYG_SAND_5 = moddedSandstone(Mods.BYG, "pink"),
-		BYG_SAND_6 = moddedSandstone(Mods.BYG, "windswept"),
+		BYG_SAND_1 = moddedSandstone(Mods.BWG, "black"),
+		BYG_SAND_2 = moddedSandstone(Mods.BWG, "white"),
+		BYG_SAND_3 = moddedSandstone(Mods.BWG, "blue"),
+		BYG_SAND_4 = moddedSandstone(Mods.BWG, "purple"),
+		BYG_SAND_5 = moddedSandstone(Mods.BWG, "pink"),
+		BYG_SAND_6 = moddedSandstone(Mods.BWG, "windswept"),
 
 		// Environmental
 
@@ -793,23 +793,23 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 	protected GeneratedRecipe bygFlower(String input, List<Float> chances,
 										List<Item> dyes, List<Integer> amounts) {
 		if (chances.size() == 2) {
-			return create(Mods.BYG.recipeId(input), b -> b.duration(50)
-					.require(Mods.BYG, input)
+			return create(Mods.BWG.recipeId(input), b -> b.duration(50)
+					.require(Mods.BWG, input)
 					.output(chances.get(0), dyes.get(0), amounts.get(0))
 					.output(chances.get(1), dyes.get(1), amounts.get(1))
-					.whenModLoaded(Mods.BYG.getId()));
+					.whenModLoaded(Mods.BWG.getId()));
 		} else if (chances.size() == 3) {
-			return create(Mods.BYG.recipeId(input), b -> b.duration(50)
-					.require(Mods.BYG, input)
+			return create(Mods.BWG.recipeId(input), b -> b.duration(50)
+					.require(Mods.BWG, input)
 					.output(chances.get(0), dyes.get(0), amounts.get(0))
 					.output(chances.get(1), dyes.get(1), amounts.get(1))
 					.output(chances.get(2), dyes.get(2), amounts.get(2))
-					.whenModLoaded(Mods.BYG.getId()));
+					.whenModLoaded(Mods.BWG.getId()));
 		} else if (chances.size() == 1) {
-			return create(Mods.BYG.recipeId(input), b -> b.duration(50)
-					.require(Mods.BYG, input)
+			return create(Mods.BWG.recipeId(input), b -> b.duration(50)
+					.require(Mods.BWG, input)
 					.output(chances.get(0), dyes.get(0), amounts.get(0))
-					.whenModLoaded(Mods.BYG.getId()));
+					.whenModLoaded(Mods.BWG.getId()));
 		} else {
 			return null;
 		}
