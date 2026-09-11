@@ -11,7 +11,7 @@
   "ingredients": [
     {
       "fabric:type": "create:simple_datagen",
-      "item": "atmospheric:scalding_monkey_brush"
+      "item": "atmospheric:warm_monkey_brush"
     }
   ],
   "processing_time": 50,

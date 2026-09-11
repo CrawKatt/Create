@@ -249,7 +249,7 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 				.whenModLoaded(Mods.ATM.getId())),
 
 		ATMO_WARM_BRUSH = create(Mods.ATM.recipeId("warm_monkey_brush"), b -> b.duration(50)
-				.require(Mods.ATM, "scalding_monkey_brush")
+				.require(Mods.ATM, "warm_monkey_brush")
 				.output(Items.YELLOW_DYE, 2)
 				.output(.1f, Items.YELLOW_DYE, 2)
 				.output(.1f, Items.ORANGE_DYE)
@@ -373,13 +373,13 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 				.whenModLoaded(Mods.BB.getId())),
 
 		BB_PINK_CLOVER = create(Mods.BB.recipeId("pink_clover"), b -> b.duration(50)
-				.require(Mods.BB, "buttercup")
+				.require(Mods.BB, "pink_clover")
 				.output(Items.PINK_DYE, 2)
 				.output(.1f, Items.LIME_DYE)
 				.whenModLoaded(Mods.BB.getId())),
 
 		BB_WHITE_CLOVER = create(Mods.BB.recipeId("white_clover"), b -> b.duration(50)
-				.require(Mods.BB, "buttercup")
+				.require(Mods.BB, "white_clover")
 				.output(Items.WHITE_DYE, 2)
 				.output(.1f, Items.LIME_DYE)
 				.whenModLoaded(Mods.BB.getId())),
