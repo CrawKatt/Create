@@ -49,6 +49,12 @@ public class CuttingRecipeGen extends ProcessingRecipeGen {
 		ENDERGETIC_1 = stripAndMakePlanks(Mods.ENDER, "glowing_poise_stem", "stripped_poise_stem", null),
 		ENDERGETIC_2 = stripAndMakePlanks(Mods.ENDER, "glowing_poise_wood", "stripped_poise_wood", null),
 
+		// Atmospheric
+		ATM_1 = stripAndMakePlanks(Mods.ATM, "watchful_aspen_log", "aspen_log", null),
+		ATM_2 = stripAndMakePlanks(Mods.ATM, "watchful_aspen_wood", "aspen_wood", null),
+		ATM_3 = stripAndMakePlanks(Mods.ATM, "crustose_log", "aspen_log", null),
+		ATM_4 = stripAndMakePlanks(Mods.ATM, "crustose_wood", "aspen_wood", null),
+
 		// IE
 		IE_WIRES = ieWires("copper", "electrum", "aluminum", "steel", "lead"),
 

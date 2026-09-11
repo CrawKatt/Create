@@ -1,0 +1,23 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "atmospheric"
+      ]
+    }
+  ],
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "fabric:type": "create:simple_datagen",
+      "item": "atmospheric:watchful_aspen_log"
+    }
+  ],
+  "processing_time": 50,
+  "results": [
+    {
+      "id": "atmospheric:aspen_log"
+    }
+  ]
+}
