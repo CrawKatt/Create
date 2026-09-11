@@ -273,6 +273,8 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 		// Biomes O' Plenty
 		BOP_HYDRANGEA = bopFlower("blue_hydrangea", List.of(1f, .05f, .25f),
 				List.of(Items.LIGHT_BLUE_DYE, Items.GREEN_DYE, Items.LIGHT_BLUE_DYE), List.of(3,2,2)),
+		BOP_GOLDENROD = bopFlower("goldenrod", List.of(1f, .05f, .25f),
+				List.of(Items.YELLOW_DYE, Items.YELLOW_DYE, Items.GREEN_DYE), List.of(3, 2, 2)),
 
 		BOP_BLOSSOM = bopFlower("burning_blossom", List.of(1f,.1f),
 				List.of(Items.ORANGE_DYE, Items.LIME_DYE), List.of(2,1)),
@@ -282,6 +284,12 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 
 		BOP_LAVENDER = bopFlower("lavender", List.of(1f, .05f),
 				List.of(Items.PURPLE_DYE, Items.GREEN_DYE), List.of(2,1)),
+		BOP_TALL_LAVENDER = bopFlower("tall_lavender", List.of(1f, 0.25f, .05f),
+				List.of(Items.PURPLE_DYE, Items.PURPLE_DYE, Items.GREEN_DYE), List.of(3, 2, 2)),
+		BOP_WHITE_LAVENDER = bopFlower("white_lavender", List.of(1f, .05f),
+				List.of(Items.WHITE_DYE, Items.GREEN_DYE), List.of(2, 1)),
+		BOP_TALL_WHITE_LAVENDER = bopFlower("tall_white_lavender", List.of(1f, 0.25f, .05f),
+				List.of(Items.WHITE_DYE, Items.LIGHT_BLUE_DYE, Items.GREEN_DYE), List.of(3, 2, 2)),
 
 		BOP_COSMOS = bopFlower("orange_cosmos", List.of(1f, .1f),
 				List.of(Items.ORANGE_DYE, Items.LIME_DYE), List.of(2,1)),
@@ -299,8 +307,21 @@ public class MillingRecipeGen extends ProcessingRecipeGen {
 
 		BOP_WILDFLOWER = bopFlower("wildflower", List.of(1f, .1f),
 				List.of(Items.MAGENTA_DYE, Items.LIME_DYE), List.of(2,1)),
+		BOP_PETALS = bopFlower("white_petals", 1f, Items.WHITE_DYE, 2),
+		BOP_IRIS = bopFlower("icy_iris", List.of(1f, .05f, .25f),
+				List.of(Items.LIGHT_BLUE_DYE, Items.LIGHT_GRAY_DYE, Items.LIGHT_BLUE_DYE), List.of(3, 2, 2)),
 
 		BOP_LILY = bopFlower("wilted_lily", 1f, Items.GRAY_DYE,2),
+		BOP_ENDBLOOM = bopFlower("endbloom", 1f, Items.LIGHT_GRAY_DYE, 2),
+		BOP_WATERLILY = bopFlower("waterlily", List.of(1f, .05f),
+				List.of(Items.RED_DYE, Items.PINK_DYE), List.of(2, 1)),
+		BOP_CACTUS = bopFlower("tiny_cactus", List.of(1f, 0.1f),
+				List.of(Items.GREEN_DYE, Items.GREEN_DYE), List.of(2, 1)),
+		BOP_CATTAIL = bopFlower("cattail", List.of(1f, .05f, .25f),
+				List.of(Items.BROWN_DYE, Items.GREEN_DYE, Items.BROWN_DYE), List.of(3, 2, 2)),
+		BOP_SAND_1 = moddedSandstone(Mods.BOP, "white"),
+		BOP_SAND_2 = moddedSandstone(Mods.BOP, "orange"),
+		BOP_SAND_3 = moddedSandstone(Mods.BOP, "black"),
 
 		// Botania
 		BTN_PETALS = botaniaPetals("black", "blue", "brown", "cyan", "gray", "green", "light_blue",
