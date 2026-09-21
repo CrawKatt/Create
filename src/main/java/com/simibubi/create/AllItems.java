@@ -310,7 +310,6 @@ public class AllItems {
 			.item("copper_backtank",
 				p -> new BacktankItem(AllArmorMaterials.COPPER, p, Create.asResource("copper_diving"),
 					COPPER_BACKTANK_PLACEABLE))
-			.properties(p -> p.durability(-1)) // fabric: Item#canBeDepleted() isn't enough to disable durability, so we need to set its maxDamage to -1 as well
 			.model(AssetLookup.customGenericItemModel("_", "item"))
 			.tag(AllItemTags.PRESSURIZED_AIR_SOURCES.tag)
 			.tag(ItemTags.CHEST_ARMOR)
@@ -321,7 +320,7 @@ public class AllItems {
 				p -> new BacktankItem.Layered(ArmorMaterials.NETHERITE, p, Create.asResource("netherite_diving"),
 					NETHERITE_BACKTANK_PLACEABLE))
 			.model(AssetLookup.customGenericItemModel("_", "item"))
-			.properties(p -> p.fireResistant().durability(-1)) // fabric: Item#canBeDepleted() isn't enough to disable durability, so we need to set its maxDamage to -1 as well
+			.properties(p -> p.fireResistant())
 			.tag(AllItemTags.PRESSURIZED_AIR_SOURCES.tag)
 			.tag(ItemTags.CHEST_ARMOR)
 			.register();

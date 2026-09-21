@@ -9,6 +9,7 @@ import com.mojang.authlib.GameProfile;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
+import com.simibubi.create.AllItems;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
@@ -194,6 +195,25 @@ public class TestMisc {
 			helper.assertBlockProperty(leftLamp, RedstoneLampBlock.LIT, true);
 			helper.assertBlockProperty(rightLamp, RedstoneLampBlock.LIT, false);
 		});
+	}
+
+	@GameTest(template = "smart_observer_blocks")
+	public static void backtanksAreNotDamageable(CreateGameTestHelper helper) {
+		ArmorStand armorStand = helper.spawn(EntityType.ARMOR_STAND, new BlockPos(1, 1, 1));
+		for (ItemStack backtank : new ItemStack[] {
+			new ItemStack(AllItems.COPPER_BACKTANK.get()), new ItemStack(AllItems.NETHERITE_BACKTANK.get())
+		}) {
+			backtank.set(AllDataComponents.BACKTANK_AIR, 42);
+			helper.assertTrue(!backtank.isDamageableItem(), "Backtank must not be damageable");
+			backtank.hurtAndBreak(1, armorStand, EquipmentSlot.CHEST);
+			helper.assertTrue(backtank.getCount() == 1 && backtank.getOrDefault(AllDataComponents.BACKTANK_AIR, 0) == 42,
+				"Backtank or its air was lost when applying damage");
+		}
+		helper.assertTrue(new ItemStack(AllItems.COPPER_DIVING_HELMET.get()).isDamageableItem(),
+			"Diving helmet must remain damageable");
+		helper.assertTrue(new ItemStack(AllItems.COPPER_DIVING_BOOTS.get()).isDamageableItem(),
+			"Diving boots must remain damageable");
+		helper.succeed();
 	}
 
 	@GameTest(template = "threshold_switch_pulley")
