@@ -15,11 +15,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+
 public enum BasinUnpackingHandler implements UnpackingHandler {
 	INSTANCE;
 
 	@Override
-	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate) {
+	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, TransactionContext context) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (!(be instanceof BasinBlockEntity basin))
 			return false;
@@ -27,7 +29,7 @@ public enum BasinUnpackingHandler implements UnpackingHandler {
 		basin.inputInventory.packagerMode = true;
 
 		try {
-			return UnpackingHandler.DEFAULT.unpack(level, pos, state, side, items, orderContext, simulate);
+			return UnpackingHandler.DEFAULT.unpack(level, pos, state, side, items, orderContext, context);
 		} finally {
 			basin.inputInventory.packagerMode = false;
 		}

@@ -23,6 +23,8 @@ public class PackagerItemHandler implements SingleSlotStorage<ItemVariant> {
 	@Override
 	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+		if (maxAmount == 0)
+			return 0;
 		if (!blockEntity.heldBox.isEmpty() || !blockEntity.queuedExitingPackages.isEmpty())
 			return 0;
 		if (!PackageItem.isPackage(resource))

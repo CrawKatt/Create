@@ -10,6 +10,7 @@ import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity
 import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity.Inventory;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
+import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
@@ -27,9 +29,9 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 	INSTANCE;
 
 	@Override
-	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, boolean simulate) {
+	public boolean unpack(Level level, BlockPos pos, BlockState state, Direction side, List<ItemStack> items, @Nullable PackageOrderWithCrafts orderContext, TransactionContext context) {
 		if (!PackageOrderWithCrafts.hasCraftingInformation(orderContext)) {
-			return DEFAULT.unpack(level, pos, state, side, items, null, simulate);
+			return DEFAULT.unpack(level, pos, state, side, items, null, context);
 		}
 		List<BigItemStack> craftingContext = orderContext.getCraftingInformation();
 
@@ -42,7 +44,7 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 		if (inventories.isEmpty())
 			return false;
 
-		try (Transaction t = Transaction.openOuter()) {
+		try (Transaction t = context.openNested()) {
 			// insert in the order's defined ordering
 			int max = Math.min(inventories.size(), craftingContext.size());
 			outer: for (int i = 0; i < max; i++) {
@@ -67,17 +69,14 @@ public enum CrafterUnpackingHandler implements UnpackingHandler {
 					}
 				}
 			}
-		}
-
-		// if anything is still non-empty insertion failed
-		for (ItemStack item : items) {
-			if (!item.isEmpty()) {
-				return false;
+			// if anything is still non-empty insertion failed
+			for (ItemStack item : items) {
+				if (!item.isEmpty())
+					return false;
 			}
-		}
 
-		if (!simulate) {
-			crafter.checkCompletedRecipe(true);
+			TransactionSuccessCallback.register(t, () -> crafter.checkCompletedRecipe(true));
+			t.commit();
 		}
 
 		return true;

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.function.Supplier;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -21,6 +22,7 @@ import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.api.data.datamaps.BlazeBurnerFuel;
 import com.simibubi.create.api.packager.InventoryIdentifier;
+import com.simibubi.create.api.packager.unpacking.UnpackingHandler;
 import com.simibubi.create.api.registry.CreateDataMaps;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.equipment.clipboard.ClipboardContent;
@@ -40,7 +42,10 @@ import com.simibubi.create.content.kinetics.chainConveyor.ChainPackageInteractio
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
 import com.simibubi.create.content.contraptions.glue.SuperGlueSelectionHelper;
 import com.simibubi.create.content.logistics.box.PackageStyles;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.chute.ChuteBlockEntity;
+import com.simibubi.create.content.logistics.packager.PackagerBlock;
+import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.content.logistics.filter.FilterMenu;
@@ -105,6 +110,7 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
@@ -123,6 +129,72 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "items")
 public class TestItems {
+	@GameTest(template = "threshold_switch")
+	public static void unpackingTransactionAtomicity(CreateGameTestHelper helper) {
+		BlockPos packagerPos = new BlockPos(1, 1, 1);
+		Direction facing = Direction.NORTH;
+		BlockPos chestPos = packagerPos.relative(facing.getOpposite());
+		helper.setBlock(packagerPos, AllBlocks.PACKAGER.getDefaultState().setValue(PackagerBlock.FACING, facing));
+		helper.setBlock(chestPos, Blocks.CHEST.defaultBlockState());
+		PackagerBlockEntity packager = helper.getBlockEntity(AllBlockEntityTypes.PACKAGER.get(), packagerPos);
+		ChestBlockEntity chest = helper.getBlockEntity(chestPos);
+
+		ItemStack payload = new ItemStack(Items.DIAMOND, 2);
+		payload.set(DataComponents.CUSTOM_NAME, Component.literal("packaged identity"));
+		Supplier<ItemStack> box = () -> {
+			ItemStackHandler contents = new ItemStackHandler(PackageItem.SLOTS);
+			contents.setStackInSlot(0, payload.copy());
+			return PackageItem.containing(contents);
+		};
+
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(packager.inventory.insert(ItemVariant.of(box.get()), 0, transaction) == 0
+				&& packager.animationTicks == 0, "Zero-amount insert changed packager state");
+			transaction.commit();
+		}
+		helper.assertTrue(chest.isEmpty(), "Zero-amount insert unpacked items");
+		helper.setBlock(chestPos, Blocks.AIR);
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(packager.inventory.insert(ItemVariant.of(box.get()), 1, transaction) == 0,
+				"Packager accepted a box without a destination");
+			transaction.commit();
+		}
+
+		helper.setBlock(chestPos, Blocks.CHEST.defaultBlockState());
+		chest = helper.getBlockEntity(chestPos);
+		for (int slot = 0; slot < chest.getContainerSize() - 1; slot++)
+			chest.setItem(slot, new ItemStack(Items.STONE, 64));
+		ItemStackHandler partialContents = new ItemStackHandler(PackageItem.SLOTS);
+		partialContents.setStackInSlot(0, payload.copy());
+		partialContents.setStackInSlot(1, new ItemStack(Items.GOLD_INGOT));
+		ItemStack partialBox = PackageItem.containing(partialContents);
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(packager.inventory.insert(ItemVariant.of(partialBox), 1, transaction) == 0,
+				"Partial unpack unexpectedly succeeded");
+			transaction.commit();
+		}
+		helper.assertTrue(chest.getItem(chest.getContainerSize() - 1).isEmpty(),
+			"Partial unpack was not rolled back on caller commit");
+
+		for (int slot = 0; slot < chest.getContainerSize(); slot++)
+			chest.setItem(slot, ItemStack.EMPTY);
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(packager.inventory.insert(ItemVariant.of(box.get()), 1, transaction) == 1,
+				"Successful unpack failed");
+		}
+		helper.assertTrue(chest.getItem(0).isEmpty() && packager.animationTicks == 0,
+			"Successful unpack survived an aborted caller transaction");
+		try (Transaction transaction = Transaction.openOuter()) {
+			helper.assertTrue(packager.inventory.insert(ItemVariant.of(box.get()), 1, transaction) == 1,
+				"Committed unpack failed");
+			transaction.commit();
+		}
+		helper.assertTrue(chest.getItem(0).getCount() == 2
+			&& ItemStack.matches(chest.getItem(0), payload) && packager.animationTicks > 0,
+			"Committed unpack did not deliver the exact payload once or animate");
+		helper.succeed();
+	}
+
 	@GameTest(template = "threshold_switch")
 	public static void filterItemApi(CreateGameTestHelper helper) {
 		ItemStack listFilter = AllItems.FILTER.asStack();
