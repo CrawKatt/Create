@@ -86,6 +86,7 @@
     "client.HumanoidModelMixin",
     "client.LevelRendererMixin",
     "client.MinecraftMixin",
+    "compat.ModernKeyBindingMixin",
     "client.PlayerRendererMixin",
     "compat.ftbchunks.LargeMapScreenAccessor",
     "compat.ftbchunks.RegionMapPanelAccessor",

@@ -93,6 +93,7 @@ repositories {
     maven("https://maven.ladysnake.org/releases") // CCA, for Trinkets
     maven("https://maven.ftb.dev/releases") // FTB
     maven("https://maven.ftb.dev/snapshots") { content { includeGroup("dev.ftb.mods") } }
+    maven("https://jitpack.io") { content { includeModule("com.github.Nova-Committee", "ModernKeyBinding") } }
     maven("https://maven.architectury.dev") // Architectury API
     maven("https://jm.gserv.me/repository/maven-public/") // Journey map
 }
@@ -157,6 +158,7 @@ dependencies {
     modCompileOnly("dev.ftb.mods:ftb-chunks-fabric:2001.3.1")
     modCompileOnly("dev.ftb.mods:ftb-teams-fabric:2001.3.0")
     modCompileOnly("dev.ftb.mods:ftb-library-fabric:2001.2.4")
+    modCompileOnly("com.github.Nova-Committee:ModernKeyBinding:17bf4f794ae3ce31aee90e0df67e2757c3533d10") { isTransitive = false }
 
     modCompileOnly("maven.modrinth:journeymap:$jmVersion")
     modCompileOnly(files(journeyMapApiJar))
@@ -269,6 +271,12 @@ java {
 tasks.named<JavaCompile>("compileJava") {
     options.compilerArgs.add("-Xmaxerrs")
     options.compilerArgs.add("10000")
+}
+
+tasks.register<JavaExec>("verifyKeybindingCompat") {
+    dependsOn(tasks.named("testClasses"))
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("com.simibubi.create.foundation.mixin.compat.ModernKeyBindingCompatTest")
 }
 
 publishing {

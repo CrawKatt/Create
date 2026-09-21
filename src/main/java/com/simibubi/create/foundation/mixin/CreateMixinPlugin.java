@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import com.simibubi.create.compat.Mods;
 
+import net.fabricmc.loader.api.FabricLoader;
+
 public class CreateMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
@@ -21,6 +23,9 @@ public class CreateMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if (mixinClassName.equals("com.simibubi.create.foundation.mixin.compat.ModernKeyBindingMixin"))
+			return FabricLoader.getInstance().isModLoaded("mkb") && FabricLoader.getInstance().isModLoaded("aether");
+
 		if (mixinClassName.contains("ftbchunks")) {
 			return Mods.FTBCHUNKS.isLoaded();
 		}
