@@ -117,6 +117,7 @@ dependencies {
 
     // dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
+    modImplementation(include("dev.engine-room.flywheel:flywheel-fabric-$minecraftVersion:$flywheelVersion")!!)
 
     // deprecated module still provides RenderAttachedBlockView used by our block models
     modCompileOnly("net.fabricmc.fabric-api:fabric-rendering-data-attachment-v1:0.3.48+73761d2e19")
@@ -130,7 +131,7 @@ dependencies {
     modApi(include("com.electronwill.night-config:core:$nightConfigVersion")!!)
     modApi(include("com.electronwill.night-config:toml:$nightConfigVersion")!!)
     modApi(include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$configApiVersion")!!)
-    modApi(include("dev.engine-room.flywheel:flywheel-fabric-$minecraftVersion:$flywheelVersion")!!)
+    modApi(include("dev.engine-room.flywheel:flywheel-fabric-api-$minecraftVersion:$flywheelVersion")!!)
     api(include("com.google.code.findbugs:jsr305:$jsr305Version")!!)
 
     if (ponder.exists()) {
