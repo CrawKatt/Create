@@ -18,6 +18,8 @@ import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedRecipe;
 import com.simibubi.create.foundation.item.ItemHelper;
+import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
+import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 import com.simibubi.create.infrastructure.gametest.CreateGameTestHelper;
 import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
@@ -38,11 +40,31 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
 import io.netty.buffer.Unpooled;
 
 @GameTestGroup(path = "processing")
 public class TestProcessing {
+	@GameTest(template = "water_filling_bottle")
+	public static void mixingTransactionsJoinTheirCaller(CreateGameTestHelper helper) {
+		ItemStackHandler inventory = new ItemStackHandler(1);
+		try (Transaction transaction = TransferUtil.getTransaction()) {
+			inventory.insert(ItemVariant.of(Items.NETHER_WART), 1, transaction);
+			transaction.commit();
+		}
+		try (Transaction outer = Transaction.openOuter()) {
+			try (Transaction nested = TransferUtil.getTransaction()) {
+				inventory.extract(ItemVariant.of(Items.NETHER_WART), 1, nested);
+				nested.commit();
+			}
+			helper.assertTrue(inventory.getStackInSlot(0).isEmpty(), "Nested recipe transaction did not run");
+		}
+		helper.assertTrue(inventory.getStackInSlot(0).is(Items.NETHER_WART),
+			"Aborted recipe transaction consumed its ingredient");
+		helper.succeed();
+	}
+
 	@GameTest(template = "water_filling_bottle")
 	public static void processingOutputCodecs(CreateGameTestHelper helper) {
 		ItemStack expected = new ItemStack(Items.DIAMOND, 7);

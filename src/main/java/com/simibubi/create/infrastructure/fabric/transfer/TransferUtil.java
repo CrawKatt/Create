@@ -97,6 +97,11 @@ public class TransferUtil {
 		return resourceExtracting != null ? new ResourceAmount<>(resourceExtracting, extracted) : null;
 	}
 
+	@SuppressWarnings("deprecation")
+	public static Transaction getTransaction() {
+		return Transaction.openNested(Transaction.getCurrentUnsafe());
+	}
+
 	@Nullable
 	public static Storage<ItemVariant> getItemStorage(BlockEntity be) {
 		return ItemStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, null);

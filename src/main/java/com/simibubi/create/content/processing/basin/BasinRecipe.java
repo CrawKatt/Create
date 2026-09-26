@@ -20,6 +20,8 @@ import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import com.simibubi.create.infrastructure.fabric.transfer.TransactionSuccessCallback;
 
+import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
@@ -91,7 +93,7 @@ public class BasinRecipe extends StandardProcessingRecipe<RecipeInput> {
 
 		NonNullList<ItemStack> consumedItems = NonNullList.create();
 
-		try (Transaction t = Transaction.openOuter()) {
+		try (Transaction t = TransferUtil.getTransaction()) {
 			Ingredients:
 			for (Ingredient ingredient : ingredients) {
 				for (StorageView<ItemVariant> view : availableItems.nonEmptyViews()) {
