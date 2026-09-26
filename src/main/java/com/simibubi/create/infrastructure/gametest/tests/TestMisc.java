@@ -31,6 +31,9 @@ import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -43,11 +46,15 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
@@ -58,6 +65,8 @@ import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.phys.Vec3;
 
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
+
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
 
 @GameTestGroup(path = "misc")
 public class TestMisc {
@@ -256,6 +265,8 @@ public class TestMisc {
 				entity.removeEffect(effect);
 			}
 			for (int y = 0; y < 3; y++)
+				helper.setBlock(pos.above(y), Blocks.AIR);
+			for (int y = 0; y < 3; y++)
 				helper.setBlock(pos.above(y), Blocks.LAVA);
 			entity.baseTick();
 			helper.assertTrue(entity.isInLava(), "Test player must be in lava");
@@ -270,6 +281,40 @@ public class TestMisc {
 				&& entity.getAirSupply() == 20, "Water breathing must not bypass the tank's lava protection cost");
 			helper.succeed();
 		});
+	}
+
+	@GameTest(template = "smart_observer_blocks")
+	public static void divingHelmetAquaAffinityAttribute(CreateGameTestHelper helper) {
+		var player = helper.makeMockPlayer(GameType.SURVIVAL);
+		double baseline = player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
+		Holder<Enchantment> aqua = helper.getLevel().registryAccess()
+			.lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.AQUA_AFFINITY);
+		ItemStack vanilla = new ItemStack(Items.IRON_HELMET);
+		ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+		enchantments.set(aqua, 1);
+		vanilla.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+		player.setItemSlot(EquipmentSlot.HEAD, vanilla);
+		player.tick();
+		double expected = player.getAttribute(Attributes.SUBMERGED_MINING_SPEED).getValue();
+		helper.assertTrue(expected > baseline, "Vanilla Aqua Affinity must increase underwater mining speed");
+
+		for (ItemStack helmet : new ItemStack[] { AllItems.COPPER_DIVING_HELMET.asStack(), AllItems.NETHERITE_DIVING_HELMET.asStack() }) {
+			var components = helmet.getComponents();
+			player.setItemSlot(EquipmentSlot.HEAD, helmet);
+			player.tick();
+			helper.assertTrue(player.getAttribute(Attributes.SUBMERGED_MINING_SPEED).getValue() == expected,
+				"Diving helmet Aqua Affinity modifier differs from vanilla");
+			helper.assertTrue(!helmet.isEnchanted() && !helmet.hasFoil() && helmet.getComponents().equals(components),
+				"Diving helmet gained persistent enchantment data");
+			helper.assertTrue(!helmet.getItem().canBeEnchantedWith(helmet, aqua, EnchantingContext.ACCEPTABLE),
+				"Diving helmet must reject redundant Aqua Affinity enchantments");
+		}
+
+		player.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+		player.tick();
+		helper.assertTrue(player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED) == baseline,
+			"Diving helmet modifier was not removed");
+		helper.succeed();
 	}
 
 	@GameTest(template = "threshold_switch_pulley")

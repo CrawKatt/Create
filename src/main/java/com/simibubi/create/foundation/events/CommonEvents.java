@@ -337,6 +337,7 @@ public class CommonEvents {
 		EntityTickEvent.Pre.EVENT.register(ExtendoGripItem::holdingExtendoGripIncreasesRange);
 		EntityTickEvent.Pre.EVENT.register(DivingBootsItem::accelerateDescentUnderwater);
 		EntityTickEvent.Pre.EVENT.register(DivingHelmetItem::breatheUnderwater);
+		EquipmentAttributeModifierCallback.EVENT.register(DivingHelmetItem::addEnchantmentModifiers);
 		LivingDropsEvent.EVENT.register(CrushingWheelBlockEntity::handleCrushedMobDrops);
 		LivingDropsEvent.EVENT.register(DeployerFakePlayer::deployerCollectsDropsFromKilledEntities);
 		ServerEntityEvents.EQUIPMENT_CHANGE.register(NetheriteDivingHandler::onLivingEquipmentChange);

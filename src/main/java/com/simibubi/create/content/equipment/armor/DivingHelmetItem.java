@@ -1,38 +1,39 @@
 package com.simibubi.create.content.equipment.armor;
 
 import java.util.List;
-import java.util.Map;
+import java.util.function.BiConsumer;
 
 import com.simibubi.create.AllTags.AllFluidTags;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
-import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentLevelItem;
-import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentsItem;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.RegistryLookup;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
-public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantmentLevelItem, CustomEnchantmentsItem {
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
+
+public class DivingHelmetItem extends BaseArmorItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.HEAD;
 	public static final ArmorItem.Type TYPE = ArmorItem.Type.HELMET;
 
@@ -40,30 +41,22 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantment
 		super(material, TYPE, properties, textureLoc);
 	}
 
+	public static void addEnchantmentModifiers(LivingEntity entity, ItemStack stack, EquipmentSlot slot,
+		BiConsumer<Holder<Attribute>, AttributeModifier> consumer) {
+		if (slot != SLOT || !(stack.getItem() instanceof DivingHelmetItem))
+			return;
+		RegistryLookup<Enchantment> enchantments = entity.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+		Holder<Enchantment> aquaAffinity = enchantments.getOrThrow(Enchantments.AQUA_AFFINITY);
+		if (stack.getEnchantments().getLevel(aquaAffinity) > 0 || !aquaAffinity.value().matchingSlot(slot))
+			return;
+		for (var effect : aquaAffinity.value().getEffects(EnchantmentEffectComponents.ATTRIBUTES))
+			consumer.accept(effect.attribute(), effect.getModifier(1, slot));
+	}
+
 	@Override
-	public int modifyEnchantmentLevel(ItemStack stack, Enchantment enchantment, int level) {
-		if (enchantment == aquaAffinity())
-			return Math.max(1, level);
-		return level;
-	}
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Enchantment aquaAffinity() {
-		Registry registry = BuiltInRegistries.REGISTRY;
-		return (Enchantment) registry.get(Registries.ENCHANTMENT);
-	}
-
-	@Override
-	public void modifyEnchantments(Map<Enchantment, Integer> enchantments, ItemStack stack) {
-		Enchantment aquaAffinity = enchantmentRegistry().get(Enchantments.AQUA_AFFINITY);
-		if (aquaAffinity != null)
-			enchantments.put(aquaAffinity, 1);
-	}
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static Registry<Enchantment> enchantmentRegistry() {
-		Registry registry = BuiltInRegistries.REGISTRY;
-		return (Registry<Enchantment>) registry.get(Registries.ENCHANTMENT);
+	public boolean canBeEnchantedWith(ItemStack stack, Holder<Enchantment> enchantment, EnchantingContext context) {
+		return !enchantment.is(Enchantments.AQUA_AFFINITY)
+			&& super.canBeEnchantedWith(stack, enchantment, context);
 	}
 
 	public static boolean isWornBy(Entity entity) {
