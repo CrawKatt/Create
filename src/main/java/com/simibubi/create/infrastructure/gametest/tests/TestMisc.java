@@ -10,7 +10,9 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.AllTags.AllFluidTags;
 import com.simibubi.create.content.contraptions.StructureTransform;
+import com.simibubi.create.content.equipment.armor.DivingHelmetItem;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock.PanelSlot;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntity;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
@@ -37,6 +39,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Sheep;
@@ -44,6 +48,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedstoneLampBlock;
@@ -51,6 +56,8 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.phys.Vec3;
+
+import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
 
 @GameTestGroup(path = "misc")
 public class TestMisc {
@@ -214,6 +221,55 @@ public class TestMisc {
 		helper.assertTrue(new ItemStack(AllItems.COPPER_DIVING_BOOTS.get()).isDamageableItem(),
 			"Diving boots must remain damageable");
 		helper.succeed();
+	}
+
+	@GameTest(template = "smart_observer_blocks")
+	public static void divingHelmetRespectsWaterBreathing(CreateGameTestHelper helper) {
+		helper.onEachTick(() -> {
+			if (helper.getLevel().getGameTime() % 20 != 0)
+				return;
+			BlockPos pos = new BlockPos(1, 1, 1);
+			for (int y = 0; y < 3; y++)
+				helper.setBlock(pos.above(y), Blocks.WATER);
+			var entity = helper.makeMockPlayer(GameType.SURVIVAL);
+			BlockPos absolute = helper.absolutePos(pos);
+			entity.moveTo(absolute.getX() + .5, absolute.getY(), absolute.getZ() + .5);
+			entity.baseTick();
+			helper.assertTrue(entity.isEyeInFluid(AllFluidTags.DIVING_FLUIDS.tag), "Test player must be underwater");
+			ItemStack tank = AllItems.COPPER_BACKTANK.asStack();
+			entity.setItemSlot(EquipmentSlot.HEAD, AllItems.COPPER_DIVING_HELMET.asStack());
+			entity.setItemSlot(EquipmentSlot.CHEST, tank);
+			tank.set(AllDataComponents.BACKTANK_AIR, 42);
+			entity.setAirSupply(20);
+			DivingHelmetItem.breatheUnderwater(new EntityTickEvent.Pre(entity));
+			helper.assertTrue(entity.getAirSupply() == entity.getMaxAirSupply()
+				&& tank.getOrDefault(AllDataComponents.BACKTANK_AIR, 0) == 41
+				&& !entity.hasEffect(MobEffects.WATER_BREATHING), "Helmet must refill air without a synthetic potion");
+			for (var effect : java.util.List.of(MobEffects.WATER_BREATHING, MobEffects.CONDUIT_POWER)) {
+				tank.set(AllDataComponents.BACKTANK_AIR, 42);
+				entity.setAirSupply(20);
+				entity.addEffect(new MobEffectInstance(effect, 100));
+				DivingHelmetItem.breatheUnderwater(new EntityTickEvent.Pre(entity));
+				helper.assertTrue(entity.getAirSupply() == 20
+					&& tank.getOrDefault(AllDataComponents.BACKTANK_AIR, 0) == 42
+					&& entity.getEffect(effect).getDuration() == 100, "Natural breathing must preserve the tank and effect");
+				entity.removeEffect(effect);
+			}
+			for (int y = 0; y < 3; y++)
+				helper.setBlock(pos.above(y), Blocks.LAVA);
+			entity.baseTick();
+			helper.assertTrue(entity.isInLava(), "Test player must be in lava");
+			entity.setItemSlot(EquipmentSlot.HEAD, AllItems.NETHERITE_DIVING_HELMET.asStack());
+			ItemStack netheriteTank = AllItems.NETHERITE_BACKTANK.asStack();
+			netheriteTank.set(AllDataComponents.BACKTANK_AIR, 42);
+			entity.setItemSlot(EquipmentSlot.CHEST, netheriteTank);
+			entity.setAirSupply(20);
+			entity.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 100));
+			DivingHelmetItem.breatheUnderwater(new EntityTickEvent.Pre(entity));
+			helper.assertTrue(netheriteTank.getOrDefault(AllDataComponents.BACKTANK_AIR, 0) == 41
+				&& entity.getAirSupply() == 20, "Water breathing must not bypass the tank's lava protection cost");
+			helper.succeed();
+		});
 	}
 
 	@GameTest(template = "threshold_switch_pulley")

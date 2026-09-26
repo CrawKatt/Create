@@ -10,6 +10,7 @@ import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTick
 import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentLevelItem;
 import io.github.fabricators_of_create.porting_lib.item.CustomEnchantmentsItem;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.core.Registry;
@@ -18,8 +19,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 
 public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantmentLevelItem, CustomEnchantmentsItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.HEAD;
@@ -85,7 +86,6 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantment
 			return;
 		Level world = entity.level();
 		boolean second = world.getGameTime() % 20 == 0;
-		boolean drowning = entity.getAirSupply() == 0;
 
 		if (world.isClientSide)
 			entity.getCustomData()
@@ -99,6 +99,11 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantment
 		if (!helmet.has(DataComponents.FIRE_RESISTANT) && lavaDiving)
 			return;
 		if (!entity.isEyeInFluid(AllFluidTags.DIVING_FLUIDS.tag) && !lavaDiving)
+			return;
+		if (!lavaDiving && (entity.canBreatheUnderwater() || MobEffectUtil.hasWaterBreathing(entity)
+			|| entity instanceof Player player && player.getAbilities().invulnerable
+			|| world.getBlockState(BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ()))
+				.is(Blocks.BUBBLE_COLUMN)))
 			return;
 		if (entity instanceof Player && ((Player) entity).isCreative())
 			return;
@@ -115,8 +120,8 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantment
 				return;
 		}
 
-		if (drowning)
-			entity.setAirSupply(10);
+		if (!lavaDiving)
+			entity.setAirSupply(entity.getMaxAirSupply());
 
 		if (world.isClientSide)
 			entity.getCustomData()
@@ -134,8 +139,5 @@ public class DivingHelmetItem extends BaseArmorItem implements CustomEnchantment
 
 		if (entity instanceof ServerPlayer sp)
 			AllAdvancements.DIVING_SUIT.awardTo(sp);
-
-		entity.setAirSupply(Math.min(entity.getMaxAirSupply(), entity.getAirSupply() + 10));
-		entity.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 30, 0, true, false, true));
 	}
 }
