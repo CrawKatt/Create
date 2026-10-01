@@ -94,6 +94,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 
@@ -316,7 +317,7 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 				.pattern(" B ")),
 
 		SUPER_GLUE = create(AllItems.SUPER_GLUE).unlockedByTag(I::ironSheet)
-			.viaShaped(b -> b.define('A', Tags.Items.SLIMEBALLS)
+			.viaShaped(b -> b.define('A', ConventionalItemTags.SLIME_BALLS)
 				.define('S', I.ironSheet())
 				.define('N', Tags.Items.NUGGETS_IRON)
 				.pattern("AS")
@@ -385,7 +386,7 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 				.pattern("I")),
 
 		STICKY_MECHANICAL_PISTON = create(AllBlocks.STICKY_MECHANICAL_PISTON).unlockedBy(I::andesiteAlloy)
-			.viaShaped(b -> b.define('S', Tags.Items.SLIMEBALLS)
+			.viaShaped(b -> b.define('S', ConventionalItemTags.SLIME_BALLS)
 				.define('P', AllBlocks.MECHANICAL_PISTON.get())
 				.pattern("S")
 				.pattern("P")),
@@ -862,7 +863,7 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 			.viaShaped(b -> b.define('I', I.andesiteAlloy())
 				.define('C', Tags.Items.COBBLESTONES)
 				.define('R', I.redstone())
-				.define('S', Tags.Items.SLIMEBALLS)
+				.define('S', ConventionalItemTags.SLIME_BALLS)
 				.pattern("ISI")
 				.pattern("CRC")),
 
@@ -1116,7 +1117,7 @@ public class StandardRecipeGen extends CreateRecipeProvider {
 
 		PACKAGE_FROGPORT = create(AllBlocks.PACKAGE_FROGPORT).unlockedBy(I::cardboard)
 			.viaShaped(b -> b.define('C', I.andesiteAlloy())
-				.define('B', Tags.Items.SLIMEBALLS)
+				.define('B', ConventionalItemTags.SLIME_BALLS)
 				.define('A', I.vault())
 				.pattern("B")
 				.pattern("A")
