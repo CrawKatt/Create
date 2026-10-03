@@ -81,8 +81,9 @@ dependencies.registerTransform(RegistratePortingLibTransform) {
     to.attribute(artifactType, ArtifactTypeDefinition.JAR_TYPE)
     to.attribute(migratedRegistrate, true)
 }
-// Loom's nesting view forces artifactType=jar but retains this separate attribute.
-configurations.named('include') {
+// Loom nests includeInternal: dependencies come from include, but attributes do not.
+// Its nesting view forces artifactType=jar but retains this separate attribute.
+configurations.named('includeInternal') {
     attributes.attribute(migratedRegistrate, true)
 }
 ext.registrateForCurrentPortingLib = { String version ->
