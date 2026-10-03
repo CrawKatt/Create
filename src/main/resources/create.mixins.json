@@ -96,6 +96,7 @@
     "fabric.CompositeModelMixin",
     "fabric.IModelBuilderMixin",
     "fabric.ModelBuilderFaceDataMixin",
+    "fabric.MeshBakedModelMixin",
     "fabric.ObjModelMixin",
     "fabric.ClientTextTooltipAccessor",
     "fabric.GuiAccessor",
