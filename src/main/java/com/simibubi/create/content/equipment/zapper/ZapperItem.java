@@ -18,8 +18,8 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.tterrag.registrate.fabric.EnvExecutor;
 
-import io.github.fabricators_of_create.porting_lib.item.EntitySwingListenerItem;
-import io.github.fabricators_of_create.porting_lib.item.ReequipAnimationItem;
+import io.github.fabricators_of_create.porting_lib.item.extensions.EntitySwingListenerItem;
+import io.github.fabricators_of_create.porting_lib.item.extensions.ReequipAnimationItem;
 
 import net.createmod.catnip.nbt.NBTProcessors;
 import net.createmod.catnip.platform.CatnipServices;

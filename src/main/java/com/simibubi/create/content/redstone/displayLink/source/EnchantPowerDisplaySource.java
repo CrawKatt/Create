@@ -3,7 +3,7 @@ package com.simibubi.create.content.redstone.displayLink.source;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
 
-import io.github.fabricators_of_create.porting_lib.enchant.EnchantmentBonusBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.EnchantmentBonusBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import io.github.fabricators_of_create.porting_lib.enchant.EnchantmentBonusBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.EnchantmentBonusBlock;
 
 public class EnchantPowerDisplaySource extends NumericSingleLineDisplaySource {
 

@@ -35,9 +35,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
-import io.github.fabricators_of_create.porting_lib.block.LightEmissiveBlock;
-import io.github.fabricators_of_create.porting_lib.item.EntityTickListenerItem;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.BeaconBlockEntityAccessor;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.LightEmissiveBlock;
+import io.github.fabricators_of_create.porting_lib.item.extensions.EntityTickListenerItem;
 
 public class ChromaticCompoundItem extends Item implements EntityTickListenerItem {
 

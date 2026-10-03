@@ -18,9 +18,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import io.github.fabricators_of_create.porting_lib.block.CustomScaffoldingBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomScaffoldingBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.FaceHidingBlock;
 
-public class MetalScaffoldingBlock extends ScaffoldingBlock implements IWrenchable, CustomScaffoldingBlock {
+public class MetalScaffoldingBlock extends ScaffoldingBlock implements IWrenchable, CustomScaffoldingBlock, FaceHidingBlock {
 
 	public MetalScaffoldingBlock(Properties pProperties) {
 		super(pProperties);

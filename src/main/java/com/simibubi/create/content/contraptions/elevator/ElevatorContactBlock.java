@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import io.github.fabricators_of_create.porting_lib.block.ConnectableRedstoneBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.ConnectableRedstoneBlock;
 import com.simibubi.create.infrastructure.fabric.block.WeakPowerCheckingBlock;
 
 import net.fabricmc.api.EnvType;
@@ -59,7 +59,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.block.ConnectableRedstoneBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.ConnectableRedstoneBlock;
 import com.simibubi.create.infrastructure.fabric.block.WeakPowerCheckingBlock;
 import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
 

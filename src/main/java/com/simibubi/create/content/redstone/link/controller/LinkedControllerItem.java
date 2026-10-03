@@ -37,7 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.item.UseFirstBehaviorItem;
+import io.github.fabricators_of_create.porting_lib.item.extensions.UseFirstBehaviorItem;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 public class LinkedControllerItem extends Item implements MenuProvider, UseFirstBehaviorItem {

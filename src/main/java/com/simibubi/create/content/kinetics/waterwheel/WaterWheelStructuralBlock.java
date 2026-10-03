@@ -43,8 +43,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 public class WaterWheelStructuralBlock extends DirectionalBlock implements IWrenchable, IProxyHoveringInformation, MultiPosDestructionHandler,
-	io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock, io.github.fabricators_of_create.porting_lib.block.CustomDestroyEffectsBlock,
-	io.github.fabricators_of_create.porting_lib.block.CustomHitEffectsBlock {
+	io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomLandingEffectsBlock, io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomDestroyEffectsBlock,
+	io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomHitEffectsBlock {
 
 	public static final MapCodec<WaterWheelStructuralBlock> CODEC = simpleCodec(WaterWheelStructuralBlock::new);
 

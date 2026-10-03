@@ -7,7 +7,7 @@ import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
 import com.simibubi.create.foundation.utility.AdventureUtil;
 
-import io.github.fabricators_of_create.porting_lib.block.ConnectableRedstoneBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.ConnectableRedstoneBlock;
 
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;

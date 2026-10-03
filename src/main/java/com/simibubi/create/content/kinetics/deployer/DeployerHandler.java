@@ -75,8 +75,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
-import io.github.fabricators_of_create.porting_lib.item.UseFirstBehaviorItem;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.BucketItemAccessor;
+import io.github.fabricators_of_create.porting_lib.item.extensions.UseFirstBehaviorItem;
 
 public class DeployerHandler {
 
@@ -117,7 +116,7 @@ public class DeployerHandler {
 				return false;
 
 		if (held.getItem() instanceof BucketItem bucketItem) {
-			Fluid fluid = ((BucketItemAccessor) bucketItem).port_lib$getContent();
+			Fluid fluid = bucketItem.content;
 			if (fluid != Fluids.EMPTY && world.getFluidState(targetPos)
 				.getType() == fluid)
 				return false;

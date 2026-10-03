@@ -3,15 +3,16 @@ package com.simibubi.create.content.decoration.copycat;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.github.fabricators_of_create.porting_lib.block.CustomFrictionBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomFrictionBlock;
 
-import io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock;
-import io.github.fabricators_of_create.porting_lib.block.CustomRunningEffectsBlock;
-import io.github.fabricators_of_create.porting_lib.block.EntityDestroyBlock;
-import io.github.fabricators_of_create.porting_lib.block.ExplosionResistanceBlock;
-import io.github.fabricators_of_create.porting_lib.block.LightEmissiveBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomLandingEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomRunningEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.EntityDestroyBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.ExplosionResistanceBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.LightEmissiveBlock;
 
-import io.github.fabricators_of_create.porting_lib.enchant.EnchantmentBonusBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.EnchantmentBonusBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.FaceHidingBlock;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -72,19 +73,18 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 
-import io.github.fabricators_of_create.porting_lib.block.CustomFrictionBlock;
-import io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock;
-import io.github.fabricators_of_create.porting_lib.block.CustomRunningEffectsBlock;
-import io.github.fabricators_of_create.porting_lib.block.CustomSoundTypeBlock;
-import io.github.fabricators_of_create.porting_lib.block.ExplosionResistanceBlock;
-import io.github.fabricators_of_create.porting_lib.block.LightEmissiveBlock;
-import io.github.fabricators_of_create.porting_lib.block.ValidSpawnBlock;
-import io.github.fabricators_of_create.porting_lib.enchant.EnchantmentBonusBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomFrictionBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomLandingEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomRunningEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomSoundTypeBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.ExplosionResistanceBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.LightEmissiveBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.EnchantmentBonusBlock;
 
 public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEntity>, IWrenchable,
 		CustomFrictionBlock, CustomSoundTypeBlock, LightEmissiveBlock, ExplosionResistanceBlock,
 			BlockPickInteractionAware, CustomLandingEffectsBlock, CustomRunningEffectsBlock, EnchantmentBonusBlock,
-			ValidSpawnBlock, EntityDestroyBlock {
+			EntityDestroyBlock, FaceHidingBlock {
 
 	public CopycatBlock(Properties pProperties) {
 		super(pProperties);
@@ -380,7 +380,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 	}
 
 	@Override
-	public float getEnchantPowerBonus(BlockState state, LevelReader level, BlockPos pos) {
+	public int getEnchantPowerBonus(BlockState state, LevelReader level, BlockPos pos) {
 		return maybeMaterialAs(
 				level, pos, EnchantmentBonusBlock.class,
 				(material, block) -> block.getEnchantPowerBonus(material, level, pos),
@@ -390,7 +390,7 @@ public abstract class CopycatBlock extends Block implements IBE<CopycatBlockEnti
 
 	@Override
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
-		return getMaterial(level, pos).canEntityDestroy(level, pos, entity);
+		return getMaterial(level, pos).port_lib$canEntityDestroy(level, pos, entity);
 	}
 
 	@Override

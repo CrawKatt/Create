@@ -28,8 +28,8 @@ import net.fabricmc.fabric.api.registry.LandPathNodeTypesRegistry;
 
 import net.minecraft.world.level.pathfinder.PathType;
 
-import io.github.fabricators_of_create.porting_lib.block.CustomLandingEffectsBlock;
-import io.github.fabricators_of_create.porting_lib.block.CustomRunningEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomLandingEffectsBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.CustomRunningEffectsBlock;
 
 public class FakeTrackBlock extends Block implements EntityBlock, ProperWaterloggedBlock, CustomLandingEffectsBlock, CustomRunningEffectsBlock {
 

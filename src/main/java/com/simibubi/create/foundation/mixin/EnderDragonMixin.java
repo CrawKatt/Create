@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
-import io.github.fabricators_of_create.porting_lib.block.EntityDestroyBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.EntityDestroyBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,6 +27,6 @@ public class EnderDragonMixin {
 		if (!(state.getBlock() instanceof EntityDestroyBlock))
 			return dragonImmune;
 		EnderDragon dragon = (EnderDragon) (Object) this;
-		return dragonImmune || !state.canEntityDestroy(dragon.level(), pos, dragon);
+		return dragonImmune || !state.port_lib$canEntityDestroy(dragon.level(), pos, dragon);
 	}
 }

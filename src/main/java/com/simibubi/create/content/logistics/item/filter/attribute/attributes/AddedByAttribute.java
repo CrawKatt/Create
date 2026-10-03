@@ -22,6 +22,9 @@ import net.minecraft.world.level.Level;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 
+import io.github.fabricators_of_create.porting_lib.item.ItemHooks;
+import io.github.fabricators_of_create.porting_lib.item.extensions.CreatorModIdItem;
+
 public record AddedByAttribute(String modId) implements ItemAttribute {
 	public static final MapCodec<AddedByAttribute> CODEC = Codec.STRING
 			.xmap(AddedByAttribute::new, AddedByAttribute::modId)
@@ -32,8 +35,12 @@ public record AddedByAttribute(String modId) implements ItemAttribute {
 
 	@Override
 	public boolean appliesTo(ItemStack stack, Level world) {
-		return modId.equals(stack.getItem()
-			.getCreatorModId(stack));
+		return modId.equals(getCreatorModId(stack));
+	}
+
+	private static String getCreatorModId(ItemStack stack) {
+		return stack.getItem() instanceof CreatorModIdItem item
+			? item.getCreatorModId(stack) : ItemHooks.getDefaultCreatorModId(stack);
 	}
 
 	@Override
@@ -61,8 +68,7 @@ public record AddedByAttribute(String modId) implements ItemAttribute {
 
 		@Override
 		public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
-			String id = stack.getItem()
-				.getCreatorModId(stack);
+			String id = getCreatorModId(stack);
 			return id == null ? Collections.emptyList() : List.of(new AddedByAttribute(id));
 		}
 

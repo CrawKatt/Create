@@ -52,7 +52,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 
-import io.github.fabricators_of_create.porting_lib.block.ConnectableRedstoneBlock;
+import io.github.fabricators_of_create.porting_lib.blocks.extensions.ConnectableRedstoneBlock;
 import io.github.fabricators_of_create.porting_lib.util.TagUtil;
 
 public class NixieTubeBlock extends DoubleFaceAttachedBlock

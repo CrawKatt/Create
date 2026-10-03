@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-import io.github.fabricators_of_create.porting_lib.item.BlockUseBypassingItem;
+import io.github.fabricators_of_create.porting_lib.item.extensions.BlockUseBypassingItem;
 
 public class FunnelItem extends BlockItem implements BlockUseBypassingItem {
 
