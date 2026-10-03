@@ -11,6 +11,11 @@
             "amplifier": 1,
             "duration": 1200,
             "id": "minecraft:poison",
+            "porting_lib:cures": [
+              "milk",
+              "honey",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         },
@@ -19,6 +24,10 @@
             "amplifier": 2,
             "duration": 300,
             "id": "minecraft:hunger",
+            "porting_lib:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         },
@@ -26,6 +35,10 @@
           "effect": {
             "duration": 300,
             "id": "minecraft:nausea",
+            "porting_lib:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         }

@@ -11,6 +11,10 @@
             "amplifier": 1,
             "duration": 400,
             "id": "minecraft:regeneration",
+            "porting_lib:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         },
@@ -18,6 +22,10 @@
           "effect": {
             "duration": 6000,
             "id": "minecraft:resistance",
+            "porting_lib:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         },
@@ -25,6 +33,10 @@
           "effect": {
             "duration": 6000,
             "id": "minecraft:fire_resistance",
+            "porting_lib:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         },
@@ -33,6 +45,10 @@
             "amplifier": 3,
             "duration": 2400,
             "id": "minecraft:absorption",
+            "porting_lib:cures": [
+              "milk",
+              "protected_by_totem"
+            ],
             "show_icon": true
           }
         }

@@ -30,7 +30,7 @@ buildscript {
 @CacheableTransform
 abstract class RegistratePortingLibTransform implements TransformAction<TransformParameters.None> {
     @InputArtifact
-    @PathSensitive(PathSensitivity.NONE)
+    @PathSensitive(PathSensitivity.NAME_ONLY)
     abstract Provider<FileSystemLocation> getInputArtifact()
 
     @Override
