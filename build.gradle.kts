@@ -10,19 +10,17 @@ val fapiVersion = "0.116.1+1.21.1"
 val flywheelVersion = "1.0.6-44"
 val ponderVersion = "1.0.82"
 val registrateVersion = "1.3.77-MC1.21.1"
-// last 3.x version that still publishes all modules this project uses
-// (accessors, lazy_registration, extensions and asm were removed in later betas)
-val portLibVersion = "3.1.0-beta.54+1.21.1"
+val portLibVersion = "3.1.0-beta.91+1.21.1"
 val portLibModules = listOf(
-	"accessors", "asm", "attributes", "base", "blocks", "brewing", "client_events", "common",
-	"conditions", "config", "core", "data", "entity", "extensions", "fluids",
-	"gui_utils", "item_abilities", "lazy_registration", "level_events",
-	"mixin_extensions", "model_loader", "models", "obj_loader", "render_types", "tags", "transfer"
+	"attributes", "base", "blocks", "brewing", "client_events", "client_extensions", "common",
+	"config", "core", "data", "entity", "fluids", "gametest", "gui_utils",
+	"item_abilities", "items", "level_events", "loot", "mixin_extensions", "model_data",
+	"model_loader", "models", "obj_loader", "registry", "render_types", "resources", "tags", "transfer"
 )
 
 // external dependencies
 val configApiVersion = "21.1.3"
-val nightConfigVersion =  "3.6.3"
+val nightConfigVersion = "3.8.0" // matches Porting Lib config's embedded runtime
 val jsr305Version = "3.0.2"
 
 // compat
@@ -61,6 +59,12 @@ plugins {
     id("fabric-loom") version "1.10.+"
     id("maven-publish")
 }
+
+// Registrate's latest 1.21.1 release still links the retired lazy_registration module.
+apply(from = "gradle/registrate_porting_lib.gradle")
+@Suppress("UNCHECKED_CAST")
+val migratedRegistrate = (extra["registrateForCurrentPortingLib"] as groovy.lang.Closure<org.gradle.api.file.FileCollection>)
+    .call(registrateVersion)
 
 val buildNum = providers.environmentVariable("GITHUB_RUN_NUMBER")
     .filter(String::isNotEmpty)
@@ -106,6 +110,10 @@ val journeyMapApiJar = zipTree(journeyMapArchive.singleFile)
     .matching { include("META-INF/jars/journeymap-api-fabric-$jmApiVersion.jar") }
     .singleFile
 
+val portingLibGameTestArchive = configurations.detachedConfiguration(
+    dependencies.create("io.github.fabricators_of_create.Porting-Lib:gametest:$portLibVersion")
+).apply { isTransitive = false }
+
 dependencies {
     // setup
     minecraft("com.mojang:minecraft:$minecraftVersion")
@@ -126,7 +134,8 @@ dependencies {
         modImplementation(include("io.github.fabricators_of_create.Porting-Lib:$module:$portLibVersion")!!)
     }
 
-    modApi(include("com.tterrag.registrate_fabric:Registrate:$registrateVersion")!!)
+    modApi(files(migratedRegistrate))
+    include("com.tterrag.registrate_fabric:Registrate:$registrateVersion") { isTransitive = false }
 
     modApi(include("com.electronwill.night-config:core:$nightConfigVersion")!!)
     modApi(include("com.electronwill.night-config:toml:$nightConfigVersion")!!)
@@ -234,10 +243,6 @@ loom {
 }
 
 configurations {
-    configureEach {
-        exclude(group = "io.github.fabricators_of_create.Porting-Lib", module = "gametest")
-    }
-
     // this avoids remapping ponder when it's local
     named("runtimeClasspath") {
         attributes {
@@ -248,6 +253,12 @@ configurations {
 
 tasks.named<ProcessResources>("processResources") {
     exclude("**/*.bbmodel", "**/*.lnk")
+    // beta.91 still ships these existing structures under the pre-1.21 directory.
+    from(provider { zipTree(portingLibGameTestArchive.singleFile) }) {
+        include("data/porting_lib_gametest/structures/**")
+        eachFile { path = path.replace("/structures/", "/structure/") }
+        includeEmptyDirs = false
+    }
 
     val properties: MutableMap<String, Any> = mutableMapOf(
         "version" to version,

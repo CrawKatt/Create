@@ -1,0 +1,96 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import org.gradle.api.artifacts.transform.CacheableTransform
+import org.gradle.api.artifacts.transform.InputArtifact
+import org.gradle.api.artifacts.transform.TransformAction
+import org.gradle.api.artifacts.transform.TransformOutputs
+import org.gradle.api.artifacts.transform.TransformParameters
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.file.FileSystemLocation
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.commons.ClassRemapper
+import org.objectweb.asm.commons.SimpleRemapper
+
+import java.nio.charset.StandardCharsets
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+
+buildscript {
+    repositories { mavenCentral() }
+    dependencies { classpath 'org.ow2.asm:asm-commons:9.7.1' }
+}
+
+// Registrate 1.3.77 predates Porting Lib's registry module; adapt only that artifact.
+@CacheableTransform
+abstract class RegistratePortingLibTransform implements TransformAction<TransformParameters.None> {
+    @InputArtifact
+    @PathSensitive(PathSensitivity.NONE)
+    abstract Provider<FileSystemLocation> getInputArtifact()
+
+    @Override
+    void transform(TransformOutputs outputs) {
+        def input = inputArtifact.get().asFile
+        if (input.name != 'Registrate-1.3.77-MC1.21.1.jar') {
+            outputs.file(input)
+            return
+        }
+        def remapper = new SimpleRemapper(
+            'io/github/fabricators_of_create/porting_lib/util/DeferredHolder',
+            'io/github/fabricators_of_create/porting_lib/registry/DeferredHolder')
+        def output = outputs.file(input.name.replace('.jar', '-porting-lib.jar'))
+        new ZipFile(input).withCloseable { source ->
+            new ZipOutputStream(new FileOutputStream(output)).withCloseable { target ->
+                source.entries().toList().sort { it.name }.each { entry ->
+                    // Create supplies current PL, FAPI and jsr305 instead of old nested copies.
+                    if (entry.name.startsWith('META-INF/jars/')) return
+                    def bytes = source.getInputStream(entry).withCloseable { it.readAllBytes() }
+                    if (entry.name.endsWith('.class')) {
+                        def writer = new ClassWriter(0)
+                        new ClassReader(bytes).accept(new ClassRemapper(writer, remapper), 0)
+                        bytes = writer.toByteArray()
+                    } else if (entry.name == 'fabric.mod.json') {
+                        def metadata = new JsonSlurper().parse(bytes)
+                        metadata.remove('jars')
+                        bytes = JsonOutput.toJson(metadata).getBytes(StandardCharsets.UTF_8)
+                    }
+                    def transformed = new ZipEntry(entry.name)
+                    transformed.time = 0
+                    target.putNextEntry(transformed)
+                    target.write(bytes)
+                    target.closeEntry()
+                }
+            }
+        }
+    }
+}
+
+def artifactType = ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
+def migratedRegistrate = Attribute.of('create.registrate-porting-lib', Boolean)
+dependencies.attributesSchema.attribute(migratedRegistrate)
+dependencies.artifactTypes.maybeCreate(ArtifactTypeDefinition.JAR_TYPE)
+    .attributes.attribute(migratedRegistrate, false)
+dependencies.registerTransform(RegistratePortingLibTransform) {
+    from.attribute(artifactType, ArtifactTypeDefinition.JAR_TYPE)
+    from.attribute(migratedRegistrate, false)
+    to.attribute(artifactType, ArtifactTypeDefinition.JAR_TYPE)
+    to.attribute(migratedRegistrate, true)
+}
+// Loom's nesting view forces artifactType=jar but retains this separate attribute.
+configurations.named('include') {
+    attributes.attribute(migratedRegistrate, true)
+}
+ext.registrateForCurrentPortingLib = { String version ->
+    def original = configurations.detachedConfiguration(
+        dependencies.create("com.tterrag.registrate_fabric:Registrate:${version}"))
+    original.transitive = false
+    original.incoming.artifactView {
+        attributes.attribute(artifactType, ArtifactTypeDefinition.JAR_TYPE)
+        attributes.attribute(migratedRegistrate, true)
+    }.files
+}
