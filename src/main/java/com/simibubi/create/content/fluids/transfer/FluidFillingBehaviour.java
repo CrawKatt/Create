@@ -221,7 +221,7 @@ public class FluidFillingBehaviour extends FluidManipulationBehaviour {
 				BlockState blockState = world.getBlockState(currentPos);
 
 				if (!blockEntity.isVirtual())
-					world.updateSnapshots(ctx);
+					world.port_lib$updateSnapshots(ctx);
 
 				new SnapshotParticipant<Unit>() { // can't be a typical TransactionCallback because ordering refuses to cooperate
 					@Override protected Unit createSnapshot() { return Unit.INSTANCE; }

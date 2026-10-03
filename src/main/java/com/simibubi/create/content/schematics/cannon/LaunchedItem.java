@@ -223,8 +223,13 @@ public abstract class LaunchedItem {
 		@Override
 		public CompoundTag serializeNBT(HolderLookup.Provider registries) {
 			CompoundTag serializeNBT = super.serializeNBT(registries);
-			if (entity != null)
-				serializeNBT.put("Entity", entity.serializeNBT(registries));
+			if (entity != null) {
+				CompoundTag entityTag = new CompoundTag();
+				String id = entity.getEncodeId();
+				if (id != null)
+					entityTag.putString("id", id);
+				serializeNBT.put("Entity", entity.saveWithoutId(entityTag));
+			}
 			return serializeNBT;
 		}
 

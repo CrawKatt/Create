@@ -40,7 +40,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 
-import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvent;
+import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvents;
 import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingChangeTargetEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingDropsEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingExperienceDropEvent;
@@ -107,7 +107,7 @@ public class DeployerFakePlayer extends FakePlayer {
 		return owner == null ? super.getUUID() : owner;
 	}
 
-	public static void deployerHasEyesOnHisFeet(EntityEvent.Size event) {
+	public static void deployerHasEyesOnHisFeet(EntityEvents.Size event) {
 		if (event.getEntity() instanceof DeployerFakePlayer)
 			event.setNewSize(event.getNewSize().withEyeHeight(0));
 	}

@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.phys.Vec3;
 
-import io.github.fabricators_of_create.porting_lib.util.MinecartAndRailUtil;
+import io.github.fabricators_of_create.porting_lib.blocks.util.MinecartAndRailUtil;
 
 public class CouplingPhysics {
 
@@ -65,7 +65,7 @@ public class CouplingPhysics {
 			BlockState railState = world.getBlockState(railPosition.above());
 
 			if (railState.getBlock() instanceof BaseRailBlock block) {
-				shape = MinecartAndRailUtil.getDirectionOfRail(railState, world, railPosition, block);
+				shape = MinecartAndRailUtil.getDirectionOfRail(railState, world, railPosition, cart);
 			}
 
 			Vec3 correction = Vec3.ZERO;
@@ -119,7 +119,7 @@ public class CouplingPhysics {
 			BlockState railState = world.getBlockState(railPosition.above());
 			if (!(railState.getBlock() instanceof BaseRailBlock block))
 				return null;
-			return MinecartAndRailUtil.getDirectionOfRail(railState, world, railPosition, block);
+			return MinecartAndRailUtil.getDirectionOfRail(railState, world, railPosition, minecart);
 		});
 
 		float futureStress = (float) (couplingLength - nextPositions.getFirst()

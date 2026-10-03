@@ -39,6 +39,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -55,7 +56,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.base.EmptyItemFluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.base.FullItemFluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 
-import io.github.fabricators_of_create.porting_lib.event.common.FluidPlaceBlockCallback;
+import io.github.fabricators_of_create.porting_lib.level.events.BlockEvent.FluidPlaceBlockEvent;
 
 @SuppressWarnings("UnstableApiUsage")
 public class AllFluids {
@@ -171,8 +172,14 @@ public class AllFluids {
 	}
 
 	public static void registerFluidInteractions() {
-		// fabric: no fluid interaction API, use legacy method
-		FluidPlaceBlockCallback.EVENT.register(AllFluids::whenFluidsMeet);
+		FluidPlaceBlockEvent.EVENT.register(event -> {
+			// Preserve the old spreadTo callback: it used the displaced fluid, not the placed solid or fire.
+			if (event.isCanceled() || !event.getState().is(Blocks.STONE))
+				return;
+			BlockState replacement = whenFluidsMeet(event.getLevel(), event.getPos(), event.getOriginalState());
+			if (replacement != null)
+				event.setNewState(replacement);
+		});
 	}
 
 	public static BlockState whenFluidsMeet(LevelAccessor world, BlockPos pos, BlockState blockState) {

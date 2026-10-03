@@ -334,7 +334,7 @@ public class AllFanProcessingTypes {
 					.isEmpty())
 					horse.spawnAtLocation(horse.getBodyArmorItem());
 
-				skeletonHorse.deserializeNBT(entity.registryAccess(), serializeNBT);
+				skeletonHorse.load(serializeNBT);
 				skeletonHorse.setPos(horse.getPosition(0));
 				level.addFreshEntity(skeletonHorse);
 				horse.discard();

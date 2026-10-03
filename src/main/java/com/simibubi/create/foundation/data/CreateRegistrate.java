@@ -19,7 +19,7 @@ import com.tterrag.registrate.fabric.SimpleFlowableFluid;
 
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredHolder;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;

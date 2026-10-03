@@ -7,8 +7,8 @@ import com.simibubi.create.content.schematics.SchematicProcessor;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredRegister;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredHolder;
 
 public class AllStructureProcessorTypes {
 	private static final DeferredRegister<StructureProcessorType<?>> REGISTER = DeferredRegister.create(Registries.STRUCTURE_PROCESSOR, Create.ID);

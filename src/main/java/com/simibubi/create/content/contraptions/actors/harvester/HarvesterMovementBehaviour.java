@@ -25,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.GrowingPlantBlock;
@@ -35,8 +36,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
-
-import io.github.fabricators_of_create.porting_lib.common.util.IPlantable;
 
 public class HarvesterMovementBehaviour implements MovementBehaviour {
 
@@ -153,7 +152,7 @@ public class HarvesterMovementBehaviour implements MovementBehaviour {
 				return false;
 			}
 
-			if (state.getBlock() instanceof IPlantable)
+			if (state.getBlock() instanceof BushBlock)
 				return true;
 		}
 

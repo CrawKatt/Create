@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import io.github.fabricators_of_create.porting_lib.extensions.extensions.BlockEntityExtensions;
+import io.github.fabricators_of_create.porting_lib.blocks.injects.BlockEntityInjection;
 
 public abstract class DisplayTarget {
 	public static final SimpleRegistry<Block, DisplayTarget> BY_BLOCK = SimpleRegistry.create();
@@ -58,7 +58,7 @@ public abstract class DisplayTarget {
 		if (line == 0)
 			return;
 
-		CompoundTag tag = ((BlockEntityExtensions) target).getPersistentData();
+		CompoundTag tag = ((BlockEntityInjection) target).getPortingLibPersistentData();
 		CompoundTag compound = tag.getCompound("DisplayLink");
 		compound.putLong("Line" + line, context.blockEntity()
 			.getBlockPos()
@@ -67,7 +67,7 @@ public abstract class DisplayTarget {
 	}
 
 	public boolean isReserved(int line, BlockEntity target, DisplayLinkContext context) {
-		CompoundTag tag = ((BlockEntityExtensions) target).getPersistentData();
+		CompoundTag tag = ((BlockEntityInjection) target).getPortingLibPersistentData();
 		CompoundTag compound = tag.getCompound("DisplayLink");
 
 		if (!compound.contains("Line" + line))

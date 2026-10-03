@@ -46,7 +46,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 
 import com.simibubi.create.infrastructure.fabric.transfer.fluid.FluidStack;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.LiquidBlockAccessor;
 import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 
@@ -176,7 +175,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 				else {
 					affectedArea = BBHelper.encapsulate(affectedArea, BoundingBox.fromCorners(currentPos, currentPos));
 					if (!blockEntity.isVirtual()) {
-						world.updateSnapshots(ctx);
+						world.port_lib$updateSnapshots(ctx);
 						world.setBlock(currentPos, emptied, 2 | 16);
 					}
 					dequeue(queue);
@@ -215,7 +214,7 @@ public class FluidDrainingBehaviour extends FluidManipulationBehaviour {
 			});
 
 			if (!blockEntity.isVirtual()) {
-				world.updateSnapshots(ctx);
+				world.port_lib$updateSnapshots(ctx);
 				world.setBlock(currentPos, emptied, 2 | 16);
 
 				BlockState stateAbove = world.getBlockState(currentPos.above());

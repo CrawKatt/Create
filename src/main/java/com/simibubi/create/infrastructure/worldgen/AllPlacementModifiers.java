@@ -7,8 +7,8 @@ import com.simibubi.create.Create;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredRegister;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredHolder;
 
 public class AllPlacementModifiers {
 	private static final DeferredRegister<PlacementModifierType<?>> REGISTER = DeferredRegister.create(Registries.PLACEMENT_MODIFIER_TYPE, Create.ID);

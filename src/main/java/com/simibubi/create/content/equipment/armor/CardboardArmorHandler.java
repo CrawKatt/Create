@@ -17,13 +17,13 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.player.Player;
 
-import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvent;
-import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingEvent;
+import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvents;
+import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingEvents;
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
 
 public class CardboardArmorHandler {
 
-	public static void playerHitboxChangesWhenHidingAsBox(EntityEvent.Size event) {
+	public static void playerHitboxChangesWhenHidingAsBox(EntityEvents.Size event) {
 		Entity entity = event.getEntity();
 		if (!entity.isAlive())
 			return;
@@ -38,7 +38,7 @@ public class CardboardArmorHandler {
 			AllAdvancements.CARDBOARD_ARMOR.awardTo(p);
 	}
 
-	public static void playersStealthWhenWearingCardboard(LivingEvent.LivingVisibilityEvent event) {
+	public static void playersStealthWhenWearingCardboard(LivingEvents.LivingVisibilityEvent event) {
 		LivingEntity entity = event.getEntity();
 		if (!testForStealth(entity))
 			return;

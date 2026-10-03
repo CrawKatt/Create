@@ -55,7 +55,7 @@ import com.simibubi.create.infrastructure.ponder.scenes.trains.TrackScenes;
 import com.simibubi.create.infrastructure.ponder.scenes.trains.TrainScenes;
 import com.simibubi.create.infrastructure.ponder.scenes.trains.TrainSignalScenes;
 import com.simibubi.create.infrastructure.ponder.scenes.trains.TrainStationScenes;
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredHolder;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;

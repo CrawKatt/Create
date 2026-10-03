@@ -621,7 +621,7 @@ public class AllArmInteractionPointTypes {
 			ItemStack record = jukeboxBE.getTheItem();
 			if (record.isEmpty())
 				return ItemStack.EMPTY;
-			level.updateSnapshots(ctx);
+			level.port_lib$updateSnapshots(ctx);
 			level.setBlock(pos, cachedState.setValue(JukeboxBlock.HAS_RECORD, false), 2);
 			TransactionSuccessCallback.register(ctx, () -> {
 				level.levelEvent(1010, pos, 0);

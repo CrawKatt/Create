@@ -21,7 +21,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import io.github.fabricators_of_create.porting_lib.client_events.event.client.RenderHandEvent;
-import io.github.fabricators_of_create.porting_lib.util.FirstPersonRendererHelper;
 
 public class ExtendoGripRenderHandler {
 
@@ -138,11 +137,11 @@ public class ExtendoGripRenderHandler {
 	}
 
 	private static ItemStack getRenderedMainHandStack() {
-		return FirstPersonRendererHelper.getStackInMainHand(Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer());
+		return Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer().mainHandItem;
 	}
 
 	private static ItemStack getRenderedOffHandStack() {
-		return FirstPersonRendererHelper.getStackInOffHand(Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer());
+		return Minecraft.getInstance().getEntityRenderDispatcher().getItemInHandRenderer().offHandItem;
 	}
 
 }

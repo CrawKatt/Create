@@ -58,9 +58,9 @@ import net.minecraft.world.phys.Vec3;
 
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
-import io.github.fabricators_of_create.porting_lib.entity.ext.ItemExt;
+import io.github.fabricators_of_create.porting_lib.entity.injects.ItemInjection;
 
-public class PackageItem extends Item implements ItemExt {
+public class PackageItem extends Item implements ItemInjection {
 
 	public static final int SLOTS = 9;
 

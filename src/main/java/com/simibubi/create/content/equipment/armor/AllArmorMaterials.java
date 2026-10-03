@@ -10,7 +10,7 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredRegister;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;

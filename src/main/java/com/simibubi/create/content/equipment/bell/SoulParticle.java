@@ -12,8 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;
 
-import io.github.fabricators_of_create.porting_lib.util.ParticleHelper;
-
 public class SoulParticle extends CustomRotationParticle {
 
 	private final SpriteSet animatedSprite;
@@ -54,7 +52,7 @@ public class SoulParticle extends CustomRotationParticle {
 		this.numLoops = (int) (1f + this.random.nextFloat() * 2f);
 
 		this.setFrame(0);
-		ParticleHelper.setStoppedByCollision(this, true); // disable movement
+		stoppedByCollision = true; // disable movement
 		this.mirror = this.random.nextBoolean();
 
 		this.isPerimeter = data instanceof BasicParticleData.SoulPerimeterData;

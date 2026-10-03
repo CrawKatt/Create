@@ -274,7 +274,7 @@ public class BlockHelper {
 		BlockState old = chunksection.setBlockState(SectionPos.sectionRelative(target.getX()),
 			SectionPos.sectionRelative(target.getY()), SectionPos.sectionRelative(target.getZ()), state);
 		chunk.setUnsaved(true);
-		world.markAndNotifyBlock(target, chunk, old, state, 82, 512);
+		world.port_lib$markAndNotifyBlock(target, chunk, old, state, 82, 512);
 
 		world.setBlock(target, state, 82);
 		world.neighborChanged(target, world.getBlockState(target.below())

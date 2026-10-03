@@ -5,8 +5,8 @@ import com.simibubi.create.Create;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredRegister;
+import io.github.fabricators_of_create.porting_lib.registry.DeferredHolder;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
 

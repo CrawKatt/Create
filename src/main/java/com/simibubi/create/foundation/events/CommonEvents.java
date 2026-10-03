@@ -1,7 +1,6 @@
 package com.simibubi.create.foundation.events;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -105,7 +104,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -139,7 +137,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 
 import io.github.fabricators_of_create.porting_lib.entity.events.EntityDataEvents;
-import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvent;
+import io.github.fabricators_of_create.porting_lib.resources.events.AddPackFindersEvent;
+import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvents;
 import io.github.fabricators_of_create.porting_lib.entity.events.EntityMountEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.ProjectileImpactEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.PlayerTickEvent;
@@ -149,7 +148,7 @@ import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingDr
 import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingExperienceDropEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingHurtEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingKnockBackEvent;
-import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingEvent.LivingVisibilityEvent;
+import io.github.fabricators_of_create.porting_lib.entity.events.living.LivingEvents.LivingVisibilityEvent;
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
 import io.github.fabricators_of_create.porting_lib.common.util.EnvExecutor;
 
@@ -215,7 +214,7 @@ public class CommonEvents {
 		AllCommands.register(dispatcher);
 	}
 
-	public static void onEntityEnterSection(EntityEvent.EnteringSection event) {
+	public static void onEntityEnterSection(EntityEvents.EnteringSection event) {
 		CarriageEntityHandler.onEntityEnterSection(event.getEntity(), event.getPackedOldPos(), event.getPackedNewPos());
 	}
 
@@ -254,20 +253,13 @@ public class CommonEvents {
 		}
 	}
 
-	private static volatile RepositorySource dynamicPackSource;
-	private static final AtomicBoolean dynamicPackConsumed = new AtomicBoolean(false);
+	public static void addPackFinders(AddPackFindersEvent event) {
+		if (event.getPackType() != PackType.SERVER_DATA)
+			return;
 
-	// consumed by PackRepositoryMixin when any PackRepository is constructed
-	public static RepositorySource consumeDynamicPackSource() {
-		if (dynamicPackConsumed.getAndSet(true))
-			return null;
-		return dynamicPackSource;
-	}
-
-	public static void addPackFinders() {
 		DynamicPack dynamicPack = new DynamicPack("create:dynamic_data", PackType.SERVER_DATA);
 		RuntimeDataGenerator.insertIntoPack(dynamicPack);
-		dynamicPackSource = new DynamicPackSource("create:dynamic_data", PackType.SERVER_DATA, Pack.Position.BOTTOM, dynamicPack);
+		event.addRepositorySource(new DynamicPackSource("create:dynamic_data", PackType.SERVER_DATA, Pack.Position.BOTTOM, dynamicPack));
 	}
 
 	private static InteractionResult useChainOnConveyor(Player player, Level level, InteractionHand hand,
@@ -286,7 +278,7 @@ public class CommonEvents {
 	}
 
 	public static void register() {
-		addPackFinders();
+		AddPackFindersEvent.EVENT.register(CommonEvents::addPackFinders);
 
 		// Fabric Events
 		ServerTickEvents.END_SERVER_TICK.register(CommonEvents::onServerTick);
@@ -300,7 +292,7 @@ public class CommonEvents {
 		AttackEntityCallback.EVENT.register(CommonEvents::onEntityAttackedByPlayer);
 		CommandRegistrationCallback.EVENT.register(CommonEvents::registerCommands);
 		EntityTrackingEvents.START_TRACKING.register(CommonEvents::startTracking);
-		EntityEvent.EnteringSection.EVENT.register(CommonEvents::onEntityEnterSection);
+		EntityEvents.EnteringSection.EVENT.register(CommonEvents::onEntityEnterSection);
 		EntityTickEvent.Pre.EVENT.register(CommonEvents::onUpdateLivingEntity);
 		ServerPlayConnectionEvents.JOIN.register(CommonEvents::playerLoggedIn);
 		PipeCollisionEvent.FLOW.register(FluidReactions::handlePipeFlowCollisionFallback);
@@ -342,7 +334,7 @@ public class CommonEvents {
 		LivingDropsEvent.EVENT.register(DeployerFakePlayer::deployerCollectsDropsFromKilledEntities);
 		ServerEntityEvents.EQUIPMENT_CHANGE.register(NetheriteDivingHandler::onLivingEquipmentChange);
 		LivingChangeTargetEvent.EVENT.register(DeployerFakePlayer::entitiesDontRetaliate);
-		EntityEvent.Size.EVENT.register(DeployerFakePlayer::deployerHasEyesOnHisFeet);
+		EntityEvents.Size.EVENT.register(DeployerFakePlayer::deployerHasEyesOnHisFeet);
 		BlockPostProcessPlaceEvent.EVENT.register(SymmetryHandler::onBlockPlaced);
 		BlockPostProcessPlaceEvent.EVENT.register(SuperGlueHandler::glueListensForBlockPlacement);
 		ProjectileImpactEvent.EVENT.register(BlazeBurnerHandler::onThrowableImpact);
@@ -350,7 +342,7 @@ public class CommonEvents {
 		PlayerBlockBreakEvents.BEFORE.register(SymmetryHandler::onBlockDestroyed);
 		PlayerBlockBreakEvents.AFTER.register(ExtendoGripItem::consumeDurabilityOnBlockBreak);
 		BlockPostProcessPlaceEvent.EVENT.register(ExtendoGripItem::consumeDurabilityOnPlace);
-		EntityEvent.Size.EVENT.register(CardboardArmorHandler::playerHitboxChangesWhenHidingAsBox);
+		EntityEvents.Size.EVENT.register(CardboardArmorHandler::playerHitboxChangesWhenHidingAsBox);
 		LivingVisibilityEvent.EVENT.register(CardboardArmorHandler::playersStealthWhenWearingCardboard);
 		EntityTickEvent.Pre.EVENT.register(CardboardArmorHandler::mobsMayLoseTargetWhenItIsWearingCardboard);
 		AttackBlockCallback.EVENT.register(CardboardSwordItem::cardboardSwordsMakeNoiseOnClick);

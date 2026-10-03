@@ -141,7 +141,7 @@ public class OpenEndedPipe extends FlowSource {
 				() -> AdvancementBehaviour.tryAward(world, pos, AllAdvancements.WATER_SUPPLY));
 
 		if (waterlog) {
-			world.updateSnapshots(ctx);
+			world.port_lib$updateSnapshots(ctx);
 			world.setBlock(outputPos, state.setValue(WATERLOGGED, false), 3);
 			TransactionSuccessCallback.register(ctx, () -> world.scheduleTick(outputPos, Fluids.WATER, 1));
 		} else {
@@ -160,7 +160,7 @@ public class OpenEndedPipe extends FlowSource {
 				}
 			}
 
-			world.updateSnapshots(ctx);
+			world.port_lib$updateSnapshots(ctx);
 			world.setBlock(outputPos, newState, 3);
 		}
 
@@ -211,7 +211,7 @@ public class OpenEndedPipe extends FlowSource {
 		}
 
 		if (waterlog) {
-			world.updateSnapshots(ctx);
+			world.port_lib$updateSnapshots(ctx);
 			world.setBlock(outputPos, state.setValue(WATERLOGGED, true), 3);
 			TransactionSuccessCallback.register(ctx, () -> world.scheduleTick(outputPos, Fluids.WATER, 1));
 			return true;
@@ -220,7 +220,7 @@ public class OpenEndedPipe extends FlowSource {
 		if (!AllConfigs.server().fluids.pipesPlaceFluidSourceBlocks.get())
 			return true;
 
-		world.updateSnapshots(ctx);
+		world.port_lib$updateSnapshots(ctx);
 		world.setBlock(outputPos, fluid.getFluid()
 			.defaultFluidState()
 			.createLegacyBlock(), 3);

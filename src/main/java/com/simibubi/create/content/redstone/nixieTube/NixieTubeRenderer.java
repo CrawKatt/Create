@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.redstone.nixieTube.DoubleFaceAttachedBlock.DoubleAttachFace;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
+import com.simibubi.create.foundation.mixin.accessor.FontAccessor;
 import com.simibubi.create.foundation.render.RenderTypes;
 import com.simibubi.create.foundation.utility.DyeHelper;
 
@@ -28,8 +29,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-
-import io.github.fabricators_of_create.porting_lib.util.FontRenderUtil;
 
 public class NixieTubeRenderer extends SafeBlockEntityRenderer<NixieTubeBlockEntity> {
 
@@ -117,7 +116,7 @@ public class NixieTubeRenderer extends SafeBlockEntityRenderer<NixieTubeBlockEnt
 		fontRenderer.drawInBatch(c, 0, 0, color, false, ms.last()
 			.pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
 		if (buffer instanceof BufferSource) {
-			BakedGlyph texturedglyph = FontRenderUtil.getFontStorage(fontRenderer, Style.DEFAULT_FONT)
+			BakedGlyph texturedglyph = ((FontAccessor) fontRenderer).create$getFonts().apply(Style.DEFAULT_FONT)
 				.whiteGlyph();
 			((BufferSource) buffer).endBatch(texturedglyph.renderType(Font.DisplayMode.NORMAL));
 		}

@@ -22,9 +22,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-import io.github.fabricators_of_create.porting_lib.extensions.extensions.StructureProcessorExtensions;
+import io.github.fabricators_of_create.porting_lib.extensions.common.StructureProcessorExtension;
 
-public class SchematicProcessor extends StructureProcessor implements StructureProcessorExtensions {
+public class SchematicProcessor extends StructureProcessor implements StructureProcessorExtension {
 	public static final SchematicProcessor INSTANCE = new SchematicProcessor();
 	public static final MapCodec<SchematicProcessor> CODEC = MapCodec.unit(() -> INSTANCE);
 
@@ -46,7 +46,7 @@ public class SchematicProcessor extends StructureProcessor implements StructureP
 
 	@Nullable
 	@Override
-	public StructureTemplate.StructureEntityInfo processEntity(LevelReader world, BlockPos pos, StructureTemplate.StructureEntityInfo rawInfo,
+	public StructureTemplate.StructureEntityInfo port_lib$processEntity(LevelReader world, BlockPos pos, StructureTemplate.StructureEntityInfo rawInfo,
 			StructureTemplate.StructureEntityInfo info, StructurePlaceSettings settings, StructureTemplate template) {
 		return EntityType.by(info.nbt).flatMap(type -> {
 			if (world instanceof Level) {

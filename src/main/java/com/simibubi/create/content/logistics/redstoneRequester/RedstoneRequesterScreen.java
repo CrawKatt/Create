@@ -203,7 +203,7 @@ public class RedstoneRequesterScreen extends AbstractSimiContainerScreen<Redston
 		if (!(hoveredSlot instanceof SlotItemHandler))
 			return tooltip;
 
-		int slotIndex = this.hoveredSlot.getSlotIndex();
+		int slotIndex = this.hoveredSlot.getContainerSlot();
 		if (slotIndex >= amounts.size())
 			return tooltip;
 
