@@ -61,6 +61,7 @@
     "fabric.ServerGamePacketListenerImplAccessor",
     "fabric.SortedArraySetAccessor",
     "fabric.TagAppenderAccessor",
+    "fabric.gametest.PortingLibGameTestHelperMixin",
     "fabric.gametest.StructureBlockEntityMixin",
     "fabric.gametest.StructureUtilsMixin",
     "fabric.infra.ServerPlayerGameModeMixin",
