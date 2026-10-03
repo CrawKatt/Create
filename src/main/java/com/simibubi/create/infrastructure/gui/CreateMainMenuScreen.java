@@ -37,8 +37,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.ScreenAccessor;
-
 public class CreateMainMenuScreen extends AbstractSimiScreen {
 
 	public static final CubeMap PANORAMA_RESOURCES =
@@ -202,7 +200,7 @@ public class CreateMainMenuScreen extends AbstractSimiScreen {
 	@Override
 	protected void renderWindowForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderWindowForeground(graphics, mouseX, mouseY, partialTicks);
-		((ScreenAccessor) this).port_lib$getRenderables().forEach(w -> w.render(graphics, mouseX, mouseY, partialTicks));
+		renderables.forEach(w -> w.render(graphics, mouseX, mouseY, partialTicks));
 
 		if (fromTitleOrMods) {
 			if (mouseX < gettingStarted.getX() || mouseX > gettingStarted.getX() + 98)

@@ -2,8 +2,6 @@ package com.simibubi.create.content.trains.display;
 
 import java.util.List;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.FontAccessor;
-
 import net.createmod.catnip.animation.AnimationTickHolder;
 
 import net.fabricmc.api.EnvType;
@@ -17,6 +15,7 @@ import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
+import com.simibubi.create.foundation.mixin.accessor.FontAccessor;
 
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.render.CachedBuffers;
@@ -42,8 +41,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.FontAccessor;
-
 public class FlapDisplayRenderer extends KineticBlockEntityRenderer<FlapDisplayBlockEntity> {
 
 	public FlapDisplayRenderer(BlockEntityRendererProvider.Context context) {
@@ -56,7 +53,7 @@ public class FlapDisplayRenderer extends KineticBlockEntityRenderer<FlapDisplayB
 		super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
 
 		Font fontRenderer = Minecraft.getInstance().font;
-		FontSet fontSet = ((FontAccessor) fontRenderer).port_lib$getFontSet(Style.DEFAULT_FONT);
+		FontSet fontSet = ((FontAccessor) fontRenderer).create$getFonts().apply(Style.DEFAULT_FONT);
 
 		float scale = 1 / 32f;
 
@@ -224,7 +221,7 @@ public class FlapDisplayRenderer extends KineticBlockEntityRenderer<FlapDisplayB
 		}
 
 		private FontSet getFontSet() {
-			return ((FontAccessor) Minecraft.getInstance().font).port_lib$getFontSet(Style.DEFAULT_FONT);
+			return ((FontAccessor) Minecraft.getInstance().font).create$getFonts().apply(Style.DEFAULT_FONT);
 		}
 
 		private RenderType renderTypeOf(BakedGlyph bakedglyph) {

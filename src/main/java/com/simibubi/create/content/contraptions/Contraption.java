@@ -130,7 +130,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.HashMapPaletteAccessor;
 import io.github.fabricators_of_create.porting_lib.util.StickinessUtil;
 
 public abstract class Contraption {
@@ -936,7 +935,7 @@ public abstract class Contraption {
 
 		ListTag paletteNBT = new ListTag();
 		for (int i = 0; i < palette.getSize(); ++i)
-			paletteNBT.add(NbtUtils.writeBlockState(((HashMapPaletteAccessor<BlockState>) palette).port_lib$getValues().byId(i)));
+			paletteNBT.add(NbtUtils.writeBlockState(palette.values.byId(i)));
 		compound.put("Palette", paletteNBT);
 		compound.put("BlockList", blockList);
 
@@ -954,9 +953,9 @@ public abstract class Contraption {
 			});
 
 			ListTag list = c.getList("Palette", Tag.TAG_COMPOUND);
-			((HashMapPaletteAccessor) palette).port_lib$getValues().clear();
+			palette.values.clear();
 			for (int i = 0; i < list.size(); ++i)
-				((HashMapPaletteAccessor) palette).port_lib$getValues().add(NbtUtils.readBlockState(holderGetter, list.getCompound(i)));
+				palette.values.add(NbtUtils.readBlockState(holderGetter, list.getCompound(i)));
 
 			blockList = c.getList("BlockList", Tag.TAG_COMPOUND);
 		} else {

@@ -12,8 +12,6 @@ import com.simibubi.create.foundation.mixin.accessor.EntityRenderDispatcherAcces
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.ModelPartAccessor;
-
 import net.createmod.catnip.render.CachedBuffers;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
@@ -75,7 +73,7 @@ public class CreateHatArmorLayer<T extends LivingEntity, M extends EntityModel<T
 
 					ModelPart lastChild = partsToHead.get(partsToHead.size() - 1);
 					if (!lastChild.isEmpty()) {
-						List<Cube> cubes = ((ModelPartAccessor) (Object) lastChild).porting_lib$cubes();
+						List<Cube> cubes = lastChild.cubes;
 						Cube cube = cubes.get(Mth.clamp(info.cubeIndex(), 0, cubes.size() - 1));
 						ms.translate(info.offset().x() / 16.0F, (cube.minY - cube.maxY + info.offset().y()) / 16.0F, info.offset().z() / 16.0F);
 						float max = Math.max(cube.maxX - cube.minX, cube.maxZ - cube.minZ) / 8.0F * info.scale();

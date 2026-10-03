@@ -14,8 +14,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Mth;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.CommandSuggestions$SuggestionsListAccessor;
-
 public class DestinationSuggestions extends CommandSuggestions {
 
 	private EditBox textBox;
@@ -92,7 +90,7 @@ public class DestinationSuggestions extends CommandSuggestions {
 		for (Suggestion suggestion : currentSuggestions)
 			width = Math.max(width, this.font.width(suggestion.getText()));
 		int x = Mth.clamp(textBox.getScreenX(0), 0, textBox.getScreenX(0) + textBox.getInnerWidth() - width);
-		suggestions = CommandSuggestions$SuggestionsListAccessor.port_lib$create(this, x, 72 + yOffset, width, currentSuggestions, false);
+		suggestions = new SuggestionsList(x, 72 + yOffset, width, currentSuggestions, false);
 	}
 
 	public boolean isEmpty() {

@@ -24,9 +24,6 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.PlayerAccessor;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.SlotAccessor;
-
 public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> {
 
 	protected AllGuiTextures background;
@@ -97,7 +94,7 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> 
 		if (hoveredSlot.hasItem())
 			list = getTooltipFromContainerItem(hoveredSlot.getItem());
 
-		graphics.renderComponentTooltip(font, addToTooltip(list, ((SlotAccessor) hoveredSlot).port_lib$getSlotIndex(), true), x, y);
+		graphics.renderComponentTooltip(font, addToTooltip(list, hoveredSlot.getContainerSlot(), true), x, y);
 	}
 
 	private List<Component> addToTooltip(List<Component> list, int slot, boolean isEmptySlot) {
@@ -134,7 +131,7 @@ public class BlueprintScreen extends AbstractSimiContainerScreen<BlueprintMenu> 
 	@Override
 	protected void containerTick() {
 		if (!menu.contentHolder.isEntityAlive())
-			((PlayerAccessor) menu.player).port_lib$closeScreen();
+			menu.player.closeContainer();
 
 		super.containerTick();
 

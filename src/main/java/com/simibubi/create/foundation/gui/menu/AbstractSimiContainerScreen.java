@@ -32,8 +32,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.ScreenAccessor;
-
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
 public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
@@ -126,7 +124,7 @@ public abstract class AbstractSimiContainerScreen<T extends AbstractContainerMen
 
 	protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		renderTooltip(graphics, mouseX, mouseY);
-		for (Renderable widget : ((ScreenAccessor) this).port_lib$getRenderables()) {
+		for (Renderable widget : renderables) {
 			if (widget instanceof AbstractSimiWidget simiWidget && simiWidget.isMouseOver(mouseX, mouseY)) {
 				List<Component> tooltip = simiWidget.getToolTip();
 				if (tooltip.isEmpty())

@@ -63,7 +63,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.ScreenAccessor;
 import io.github.fabricators_of_create.porting_lib.util.KeyBindingHelper;
 
 public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> implements ScreenWithStencils {
@@ -380,7 +379,7 @@ public class ScheduleScreen extends AbstractSimiContainerScreen<ScheduleMenu> im
 		else {
 			renderBackground(graphics, mouseX, mouseY, partialTicks);
 			renderBg(graphics, partialTicks, mouseX, mouseY);
-			for (Renderable widget : ((ScreenAccessor) this).port_lib$getRenderables())
+			for (Renderable widget : renderables)
 				widget.render(graphics, mouseX, mouseY, partialTicks);
 			renderForeground(graphics, mouseX, mouseY, partialTicks);
 		}

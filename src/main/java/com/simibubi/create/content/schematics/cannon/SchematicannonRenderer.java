@@ -32,7 +32,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.BlockRenderDispatcherAccessor;
 import io.github.fabricators_of_create.porting_lib.models.virtual.FixedLightBakedModel;
 
 public class SchematicannonRenderer extends SafeBlockEntityRenderer<SchematicannonBlockEntity> {
@@ -199,7 +198,7 @@ public class SchematicannonRenderer extends SafeBlockEntityRenderer<Schematicann
 						dispatcher.getModelRenderer()
 								.tesselateBlock(EmptyVirtualBlockGetter.FULL_DARK, model, state, BlockPos.ZERO, ms, buffer.getBuffer(ItemBlockRenderTypes.getRenderType(state, false)), false, RandomSource.create(), 42L, overlay);
 					}
-					case ENTITYBLOCK_ANIMATED -> ((BlockRenderDispatcherAccessor) dispatcher).getBlockEntityRenderer().renderByItem(new ItemStack(state.getBlock()), ItemDisplayContext.NONE, ms, buffer, light, overlay);
+					case ENTITYBLOCK_ANIMATED -> dispatcher.blockEntityRenderer.renderByItem(new ItemStack(state.getBlock()), ItemDisplayContext.NONE, ms, buffer, light, overlay);
 				}
 			} else if (launched instanceof ForEntity) {
 				// Render the item

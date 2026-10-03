@@ -35,8 +35,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.phys.Vec3;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.BaseSpawnerAccessor;
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlazeBurnerBlockItem extends BlockItem {
@@ -83,14 +81,14 @@ public class BlazeBurnerBlockItem extends BlockItem {
 
 		BaseSpawner spawner = ((SpawnerBlockEntity) be).getSpawner();
 
-		List<SpawnData> possibleSpawns = ((BaseSpawnerAccessor) spawner).port_lib$getSpawnPotentials().unwrap()
+		List<SpawnData> possibleSpawns = spawner.spawnPotentials.unwrap()
 			.stream()
 			.map(Wrapper::data)
 			.toList();
 
 		if (possibleSpawns.isEmpty()) {
 			possibleSpawns = new ArrayList<>();
-			possibleSpawns.add(((BaseSpawnerAccessor) spawner).port_lib$getNextSpawnData());
+			possibleSpawns.add(spawner.nextSpawnData);
 		}
 
 		for (SpawnData e : possibleSpawns) {

@@ -18,7 +18,6 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.AbstractContainerScreenAccessor;
 import com.simibubi.create.infrastructure.fabric.transfer.item.ItemStackHandler;
 
 @MethodsReturnNonnullByDefault
@@ -31,7 +30,7 @@ public class GhostIngredientHandler<T extends GhostItemMenu<?>>
 	@Override
 	public boolean dropStack(AbstractSimiContainerScreen<T> gui, EmiIngredient ingredient, int x, int y) {
 		List<EmiStack> stacks = ingredient.getEmiStacks();
-		if (!(gui instanceof AbstractContainerScreenAccessor access) || stacks.size() != 1)
+		if (stacks.size() != 1)
 			return false;
 		ItemStack stack = stacks.get(0).getItemStack();
 		if (stack.isEmpty())
@@ -41,7 +40,7 @@ public class GhostIngredientHandler<T extends GhostItemMenu<?>>
 		for (int i = INVENTORY_SIZE; i < gui.getMenu().slots.size(); i++) {
 			Slot slot = gui.getMenu().slots.get(i);
 			if (slot.isActive()) {
-				Rect2i slotArea = new Rect2i(access.port_lib$getGuiLeft() + slot.x, access.port_lib$getGuiTop() + slot.y, 16, 16);
+				Rect2i slotArea = new Rect2i(gui.leftPos + slot.x, gui.topPos + slot.y, 16, 16);
 				if (slotArea.contains(x, y)) {
 					acceptStack(gui, isAttributeFilter, i - INVENTORY_SIZE, stack);
 					return true;

@@ -1,7 +1,5 @@
 package com.simibubi.create.content.equipment.armor;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.LivingEntityAccessor;
-
 import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import io.github.fabricators_of_create.porting_lib.entity.events.tick.EntityTickEvent;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.LivingEntityAccessor;
 
 public class DivingBootsItem extends BaseArmorItem {
 	public static final EquipmentSlot SLOT = EquipmentSlot.FEET;
@@ -49,7 +46,7 @@ public class DivingBootsItem extends BaseArmorItem {
 			return;
 
 		Vec3 motion = entity.getDeltaMovement();
-		boolean isJumping = ((LivingEntityAccessor) entity).port_lib$isJumping();
+		boolean isJumping = entity.jumping;
 		entity.setOnGround(entity.onGround() || entity.verticalCollision);
 
 		if (isJumping && entity.onGround()) {
@@ -90,7 +87,7 @@ public class DivingBootsItem extends BaseArmorItem {
 		double vMultiplier = yMotion < 0 ? Math.max(0, 2.5 - Math.abs(yMotion) * 2) : 1;
 
 		if (!entity.onGround()) {
-			if (((LivingEntityAccessor) entity).port_lib$isJumping() && entity.getCustomData()
+			if (entity.jumping && entity.getCustomData()
 				.contains("LavaGrounded")) {
 				boolean eyeInFluid = entity.isEyeInFluid(FluidTags.LAVA);
 				vMultiplier = yMotion == 0 ? 0 : (eyeInFluid ? 1 : 0.5) / yMotion;

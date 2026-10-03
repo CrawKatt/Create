@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,7 +40,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.entity.FakePlayer;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.AxeItemAccessor;
 
 
 @MethodsReturnNonnullByDefault
@@ -171,8 +171,7 @@ public class SandPaperItem extends Item implements CustomUseEffectsItem {
 		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		BlockState state = level.getBlockState(pos);
-		AxeItemAccessor access = (AxeItemAccessor) Items.DIAMOND_AXE;
-		Optional<BlockState> newState = access.porting_lib$getStripped(state);
+		Optional<BlockState> newState = ((AxeItem) Items.DIAMOND_AXE).getStripped(state);
 		if (newState.isPresent()) {
 			AllSoundEvents.SANDING_LONG.play(level, player, pos, 1, 1 + (level.random.nextFloat() * 0.5f - 1f) / 5f);
 			level.levelEvent(player, 3005, pos, 0); // Spawn particles

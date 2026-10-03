@@ -14,8 +14,6 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import com.simibubi.create.foundation.utility.ControlsUtil;
 import com.simibubi.create.foundation.utility.CreateLang;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.SlotAccessor;
-
 import net.createmod.catnip.gui.element.GuiGameElement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -100,7 +98,7 @@ public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedCo
 		if (hoveredSlot.hasItem())
 			list = getTooltipFromContainerItem(hoveredSlot.getItem());
 
-		graphics.renderComponentTooltip(font, addToTooltip(list, ((SlotAccessor)hoveredSlot).port_lib$getSlotIndex()), x, y);
+		graphics.renderComponentTooltip(font, addToTooltip(list, hoveredSlot.getContainerSlot()), x, y);
 	}
 
 	private List<Component> addToTooltip(List<Component> list, int slot) {

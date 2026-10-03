@@ -81,8 +81,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 
 import io.github.fabricators_of_create.porting_lib.entity.IEntityWithComplexSpawn;
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.EntityAccessor;
-
 public abstract class AbstractContraptionEntity extends Entity implements IEntityWithComplexSpawn {
 
 	private static final EntityDataAccessor<Boolean> STALLED =
@@ -793,7 +791,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 		for (Entity entity : passengers) {
 			// setPos has world accessing side-effects when removed == null
-			((EntityAccessor) entity).port_lib$setRemovalReason(RemovalReason.UNLOADED_TO_CHUNK);
+			entity.removalReason = RemovalReason.UNLOADED_TO_CHUNK;
 
 			// Gather passengers into same chunk when saving
 			Vec3 prevVec = entity.position();
@@ -801,7 +799,7 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 
 			// Super requires all passengers to not be removed in order to write them to the
 			// tag
-			((EntityAccessor) entity).port_lib$setRemovalReason(null);
+			entity.removalReason = null;
 		}
 
 		CompoundTag tag = super.saveWithoutId(nbt);

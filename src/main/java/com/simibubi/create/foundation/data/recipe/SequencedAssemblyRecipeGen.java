@@ -22,8 +22,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.TagValueAccessor;
-
 public class SequencedAssemblyRecipeGen extends CreateRecipeProvider {
 	@Override
 	public String getName() {
@@ -77,10 +75,10 @@ public class SequencedAssemblyRecipeGen extends CreateRecipeProvider {
 			.loops(1)
 			.addStep(DeployerApplicationRecipe::new,
 				rb -> rb.require(Ingredient.fromValues(
-					Stream.of(TagValueAccessor.createTagValue(I.ironNugget()), TagValueAccessor.createTagValue(I.zincNugget())))))
+					Stream.of(new Ingredient.TagValue(I.ironNugget()), new Ingredient.TagValue(I.zincNugget())))))
 			.addStep(DeployerApplicationRecipe::new,
 				rb -> rb.require(Ingredient.fromValues(
-					Stream.of(TagValueAccessor.createTagValue(I.ironNugget()), TagValueAccessor.createTagValue(I.zincNugget())))))
+					Stream.of(new Ingredient.TagValue(I.ironNugget()), new Ingredient.TagValue(I.zincNugget())))))
 			.addStep(PressingRecipe::new, rb -> rb))
 
 	;

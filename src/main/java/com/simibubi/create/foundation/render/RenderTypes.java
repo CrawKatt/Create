@@ -16,8 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.RenderTypeAccessor;
-
 public class RenderTypes extends RenderStateShard {
 	public static final RenderStateShard.ShaderStateShard GLOWING_SHADER = new RenderStateShard.ShaderStateShard(() -> Shaders.glowingShader);
 
@@ -69,7 +67,7 @@ public class RenderTypes extends RenderStateShard {
 			.setOverlayState(OVERLAY)
 			.createCompositeState(true));
 
-	private static final RenderType ITEM_GLOWING_TRANSLUCENT = RenderTypeAccessor.port_lib$create(createLayerName("item_glowing_translucent"),
+	private static final RenderType ITEM_GLOWING_TRANSLUCENT = RenderType.create(createLayerName("item_glowing_translucent"),
 		DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
 			.setShaderState(GLOWING_SHADER)
 			.setTextureState(BLOCK_SHEET)

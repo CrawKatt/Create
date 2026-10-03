@@ -19,8 +19,6 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.client.accessor.AbstractContainerScreenAccessor;
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class GhostIngredientHandler<T extends GhostItemMenu<?>>
@@ -69,7 +67,7 @@ public class GhostIngredientHandler<T extends GhostItemMenu<?>>
 			this.slotIndex = slotIndex;
 			this.isAttributeFilter = isAttributeFilter;
 			Slot slot = gui.getMenu().slots.get(slotIndex + 36);
-			this.area = new Rect2i(((AbstractContainerScreenAccessor) gui).port_lib$getGuiLeft() + slot.x, ((AbstractContainerScreenAccessor) gui).port_lib$getGuiTop() + slot.y, 16, 16);
+			this.area = new Rect2i(gui.leftPos + slot.x, gui.topPos + slot.y, 16, 16);
 		}
 
 		@Override

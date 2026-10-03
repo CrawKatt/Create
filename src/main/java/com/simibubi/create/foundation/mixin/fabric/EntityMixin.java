@@ -24,8 +24,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.EntityAccessor;
-
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 	@Shadow
@@ -61,7 +59,7 @@ public abstract class EntityMixin {
 
 			builder.addAll(world.getBlockCollisions(entity, entityBoundingBox.expandTowards(movement)));
 			// Prevent Lithium's changes from executing for PonderWorlds
-			ci.setReturnValue(EntityAccessor.port_lib$collideWithShapes(movement, entityBoundingBox, builder.build()));
+			ci.setReturnValue(Entity.collideWithShapes(movement, entityBoundingBox, builder.build()));
 
 		}
 	}
