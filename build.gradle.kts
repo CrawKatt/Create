@@ -296,6 +296,13 @@ publishing {
         register<MavenPublication>("mavenJava") {
             artifactId = "create-fabric-$minecraftVersion"
             from(components["java"])
+
+            // JitPack coordinates must not replace the mod's runtime version.
+            if (providers.environmentVariable("JITPACK").orNull == "true") {
+                groupId = providers.environmentVariable("GROUP").get()
+                artifactId = providers.environmentVariable("ARTIFACT").get()
+                version = providers.environmentVariable("VERSION").get()
+            }
         }
     }
 

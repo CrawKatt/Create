@@ -34,3 +34,27 @@ Looking to make an addon for Create? A template mod for a Fabric addon can be fo
 [here](https://github.com/Fabricators-of-Create/create-fabric-addon-template),
 and a template for a multi-loader addon with Architectury can be found
 [here](https://github.com/Fabricators-of-Create/create-multiloader-addon-template).
+
+### Maven dependency for this fork
+
+This fork is configured for [JitPack](https://docs.jitpack.io/building/) using
+Java 21 and the Gradle wrapper. Once the configuration is pushed, select a tag
+or commit containing it on JitPack and check that its build succeeds before
+using the dependency in a Fabric addon:
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    modImplementation("com.github.CrawKatt:Create:<tag-or-commit>")
+}
+```
+
+Replace `<tag-or-commit>` with a fixed version; keep the repositories your addon
+needs for transitive dependencies. JitPack publishes the remapped Fabric JAR
+and sources through the existing `mavenJava` publication. Its Maven coordinates
+do not change the mod's runtime version. No DevOS publishing credentials are
+required; GitHub Actions can continue building downloadable artifacts without
+publishing to DevOS.
