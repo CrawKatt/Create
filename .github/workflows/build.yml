@@ -38,15 +38,16 @@ jobs:
       # - name: Run Gametests
       #   run: ./gradlew runGametestServer
 
+      # Upstream Maven publishing is opt-in; forks can build and upload artifacts without it.
       - name: Publish to Maven [Releases]
-        if: ${{ github.event.inputs.release }}
+        if: ${{ vars.PUBLISH_TO_DEVOS == 'true' && github.event_name != 'pull_request' && inputs.release }}
         run: >-
           ./gradlew publishAllPublicationsToDevOsReleasesRepository
           -PdevOsReleasesUsername="${{ secrets.MAVEN_USER }}"
           -PdevOsReleasesPassword="${{ secrets.MAVEN_PASS }}"
 
       - name: Publish to Maven [Snapshots]
-        if: ${{ !github.event.inputs.release }}
+        if: ${{ vars.PUBLISH_TO_DEVOS == 'true' && github.event_name != 'pull_request' && !inputs.release }}
         run: >-
           ./gradlew publishAllPublicationsToDevOsSnapshotsRepository
           -PdevOsSnapshotsUsername="${{ secrets.MAVEN_USER }}"
