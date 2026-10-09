@@ -60,9 +60,7 @@ public class BlockEntityRenderHelper {
 				continue;
 			}
 
-			if (!renderer.shouldRender(blockEntity, Minecraft.getInstance().gameRenderer.getMainCamera().getPosition()))
-				continue;
-
+			// Virtual block positions are local, so world-space camera distance checks do not apply.
 			BlockPos pos = blockEntity.getBlockPos();
 			ms.pushPose();
 			TransformStack.of(ms)
