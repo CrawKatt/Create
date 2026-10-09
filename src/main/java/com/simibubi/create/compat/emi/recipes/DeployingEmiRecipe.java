@@ -43,10 +43,16 @@ public class DeployingEmiRecipe extends CreateEmiRecipe<DeployerApplicationRecip
 	}
 
 	public static DeployingEmiRecipe fromSandpaper(RecipeHolder<SandPaperPolishingRecipe> holder) {
-		return new DeployingEmiRecipe(DeployerApplicationRecipe.convert(holder).value());
+		RecipeHolder<DeployerApplicationRecipe> converted = DeployerApplicationRecipe.convert(holder);
+		DeployingEmiRecipe recipe = new DeployingEmiRecipe(converted.value());
+		recipe.setId(converted.id());
+		return recipe;
 	}
 
 	public static DeployingEmiRecipe fromItemApplication(RecipeHolder<ManualApplicationRecipe> holder) {
-		return new DeployingEmiRecipe(ManualApplicationRecipe.asDeploying(holder).value());
+		RecipeHolder<DeployerApplicationRecipe> converted = ManualApplicationRecipe.asDeploying(holder);
+		DeployingEmiRecipe recipe = new DeployingEmiRecipe(converted.value());
+		recipe.setId(converted.id());
+		return recipe;
 	}
 }

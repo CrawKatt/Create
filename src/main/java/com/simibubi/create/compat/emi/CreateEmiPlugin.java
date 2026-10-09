@@ -295,8 +295,9 @@ public class CreateEmiPlugin implements EmiPlugin {
 		addAllHolders(registry, AllRecipeTypes.SANDPAPER_POLISHING, DeployingEmiRecipe::fromSandpaper);
 		addAllHolders(registry, AllRecipeTypes.ITEM_APPLICATION, DeployingEmiRecipe::fromItemApplication);
 
-		for (ConversionRecipe recipe : MysteriousConversionEmiRecipe.RECIPES) {
-			registry.addRecipe(synthetic(new MysteriousConversionEmiRecipe(recipe)));
+		for (int i = 0; i < MysteriousConversionEmiRecipe.RECIPES.size(); i++) {
+			ConversionRecipe recipe = MysteriousConversionEmiRecipe.RECIPES.get(i);
+			registry.addRecipe(synthetic(identified(new MysteriousConversionEmiRecipe(recipe), Create.asResource("conversion_" + i))));
 		}
 		addAll(registry, AllRecipeTypes.FILLING, SpoutEmiRecipe::new);
 		addAll(registry, AllRecipeTypes.EMPTYING, DrainEmiRecipe::new);
