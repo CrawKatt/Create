@@ -25,10 +25,14 @@ import com.simibubi.create.infrastructure.gametest.GameTestGroup;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +50,30 @@ import io.netty.buffer.Unpooled;
 
 @GameTestGroup(path = "processing")
 public class TestProcessing {
+	@GameTest(template = "water_filling_bottle")
+	public static void optionalCrushingRecipesFollowTheirTags(CreateGameTestHelper helper) {
+		for (String metal : List.of("aluminum", "lead", "nickel", "osmium", "platinum", "quicksilver", "silver", "tin", "uranium")) {
+			for (String family : List.of("ore", "raw", "raw_block")) {
+				String tagPath = switch (family) {
+					case "ore" -> "ores/" + metal;
+					case "raw" -> "raw_materials/" + metal;
+					default -> "storage_blocks/raw_" + metal;
+				};
+				String recipePath = switch (family) {
+					case "ore" -> metal + "_ore";
+					case "raw" -> "raw_" + metal;
+					default -> "raw_" + metal + "_block";
+				};
+				boolean tagPresent = BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM,
+					ResourceLocation.fromNamespaceAndPath("c", tagPath))).isPresent();
+				boolean recipePresent = helper.getLevel().getRecipeManager().byKey(Create.asResource("crushing/" + recipePath)).isPresent();
+				helper.assertTrue(recipePresent == tagPresent,
+					"crushing/" + recipePath + " availability differs from its ingredient tag " + tagPath);
+			}
+		}
+		helper.succeed();
+	}
+
 	@GameTest(template = "water_filling_bottle")
 	public static void mixingTransactionsJoinTheirCaller(CreateGameTestHelper helper) {
 		ItemStackHandler inventory = new ItemStackHandler(1);

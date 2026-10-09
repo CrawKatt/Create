@@ -32,6 +32,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 
@@ -547,10 +549,8 @@ public class CrushingRecipeGen extends ProcessingRecipeGen {
 		return AllRecipeTypes.CRUSHING;
 	}
 
-	private static net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition notTagEmpty(String path) {
-		return net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions.not(
-			net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions.tagsPopulated(
-				com.simibubi.create.AllTags.commonItemTag(path)));
+	private static ResourceCondition notTagEmpty(String path) {
+		return ResourceConditions.tagsPopulated(AllTags.commonItemTag(path));
 	}
 
 }
