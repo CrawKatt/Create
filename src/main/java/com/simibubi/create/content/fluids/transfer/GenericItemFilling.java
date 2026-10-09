@@ -71,10 +71,7 @@ public class GenericItemFilling {
 	public static long getRequiredAmountForItem(Level world, ItemStack stack, FluidStack availableFluid) {
 		if (stack.getItem() == Items.GLASS_BOTTLE && canFillGlassBottleInternally(availableFluid))
 			return PotionFluidHandler.getRequiredAmountForFilledBottle(stack, availableFluid);
-		if (stack.getItem() == Items.BUCKET && canFillBucketInternally(availableFluid))
-			return FluidConstants.BUCKET;
-
-		Storage<FluidVariant> tank = FluidStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack));
+		Storage<FluidVariant> tank = FluidStorage.ITEM.find(stack, new MutableContainerItemContext(stack.copyWithCount(1)));
 		if (tank == null)
 			return -1;
 
@@ -90,7 +87,8 @@ public class GenericItemFilling {
 //		}
 
 		try (Transaction t = Transaction.openOuter()) {
-			long filled = tank.insert(availableFluid.getVariant(), availableFluid.getAmount(), t);
+			long filled = tank.insert(availableFluid.getVariant(), stack.is(Items.BUCKET)
+				? FluidConstants.BUCKET : availableFluid.getAmount(), t);
 			return filled == 0 ? -1 : filled;
 		}
 	}
@@ -106,14 +104,11 @@ public class GenericItemFilling {
 		return false;
 	}
 
-	private static boolean canFillBucketInternally(FluidStack availableFluid) {
-		return true; // fabric: this is false on forge for reasons I'm not entirely sure of. we need it true here to catch buckets.
-	}
-
 	public static ItemStack fillItem(Level world, long requiredAmount, ItemStack stack, FluidStack availableFluid) {
+		if (stack.isEmpty() || requiredAmount <= 0 || requiredAmount > availableFluid.getAmount())
+			return ItemStack.EMPTY;
 		FluidStack toFill = availableFluid.copy();
 		toFill.setAmount(requiredAmount);
-		availableFluid.shrink(requiredAmount);
 
 		if (stack.getItem() == Items.GLASS_BOTTLE && canFillGlassBottleInternally(toFill)) {
 			ItemStack fillBottle;
@@ -124,6 +119,7 @@ public class GenericItemFilling {
 				fillBottle = AllItems.BUILDERS_TEA.asStack();
 			else
 				fillBottle = PotionFluidHandler.fillBottle(stack, toFill);
+			availableFluid.shrink(requiredAmount);
 			stack.shrink(1);
 			return fillBottle;
 		}
@@ -135,10 +131,12 @@ public class GenericItemFilling {
 		if (tank == null)
 			return ItemStack.EMPTY;
 		try (Transaction t = Transaction.openOuter()) {
-			tank.insert(toFill.getVariant(), toFill.getAmount(), t);
+			if (tank.insert(toFill.getVariant(), toFill.getAmount(), t) != requiredAmount)
+				return ItemStack.EMPTY;
 			t.commit();
 
 			ItemStack container = ctx.getItemVariant().toStack((int) ctx.getAmount());
+			availableFluid.shrink(requiredAmount);
 			stack.shrink(1);
 			return container;
 		}

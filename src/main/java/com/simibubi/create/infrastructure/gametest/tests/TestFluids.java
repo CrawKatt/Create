@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.simibubi.create.AllBlockEntityTypes;
+import com.simibubi.create.AllFluids;
+import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
+import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.content.fluids.hosePulley.HosePulleyFluidHandler;
 import com.simibubi.create.content.fluids.pipes.valve.FluidValveBlock;
 import com.simibubi.create.content.kinetics.gauge.SpeedGaugeBlockEntity;
@@ -48,6 +51,32 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 
 @GameTestGroup(path = "fluids")
 public class TestFluids {
+	@GameTest(template = "spouting")
+	public static void incompatibleBucketFillingPreservesFluid(CreateGameTestHelper helper) {
+		ItemStack potion = PotionContents.createItemStack(Items.POTION, Potions.STRENGTH);
+		FluidStack potionFluid = PotionFluidHandler.getFluidFromPotionItem(potion);
+		potionFluid.setAmount(FluidConstants.BUCKET);
+		for (FluidStack fluid : List.of(potionFluid, new FluidStack(AllFluids.TEA.get(), FluidConstants.BUCKET))) {
+			ItemStack bucket = new ItemStack(Items.BUCKET);
+			helper.assertTrue(GenericItemFilling.getRequiredAmountForItem(helper.getLevel(), bucket, fluid) == -1,
+				"Incompatible virtual fluid was accepted for bucket filling");
+			ItemStack result = GenericItemFilling.fillItem(helper.getLevel(), FluidConstants.BUCKET, bucket, fluid);
+			helper.assertTrue(result.isEmpty() && bucket.is(Items.BUCKET) && bucket.getCount() == 1
+				&& fluid.getAmount() == FluidConstants.BUCKET, "Rejected bucket filling consumed items or fluid");
+		}
+		ItemStack bucket = new ItemStack(Items.BUCKET);
+		FluidStack water = new FluidStack(Fluids.WATER, FluidConstants.BUCKET);
+		ItemStack filled = GenericItemFilling.fillItem(helper.getLevel(), FluidConstants.BUCKET, bucket, water);
+		helper.assertTrue(filled.is(Items.WATER_BUCKET) && bucket.isEmpty() && water.isEmpty(),
+			"Valid water bucket filling changed");
+		ItemStack bottle = new ItemStack(Items.GLASS_BOTTLE);
+		ItemStack filledBottle = GenericItemFilling.fillItem(helper.getLevel(), FluidConstants.BOTTLE, bottle, potionFluid);
+		helper.assertTrue(ItemStack.matches(filledBottle, potion) && bottle.isEmpty()
+			&& potionFluid.getAmount() == FluidConstants.BUCKET - FluidConstants.BOTTLE,
+			"Valid potion bottle filling lost its components or used the wrong amount");
+		helper.succeed();
+	}
+
 	@GameTest(template = "hose_pulley_transfer", timeoutTicks = CreateGameTestHelper.TWENTY_SECONDS)
 	public static void hosePulleyTransfer(CreateGameTestHelper helper) {
 		BlockPos lever = new BlockPos(7, 7, 5);

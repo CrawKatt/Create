@@ -166,6 +166,8 @@ public class FluidHelper {
 			if (player.isCreative() || be instanceof CreativeFluidTankBlockEntity)
 				heldItem = heldItem.copy();
 			ItemStack out = GenericItemFilling.fillItem(world, requiredAmountForItem, heldItem, fluid.copy());
+			if (out.isEmpty())
+				continue;
 
 			try (Transaction t = Transaction.openOuter()) {
 				tank.extract(fluid.getVariant(), requiredAmountForItem, t);
