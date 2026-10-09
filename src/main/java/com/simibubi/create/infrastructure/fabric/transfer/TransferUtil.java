@@ -81,11 +81,10 @@ public class TransferUtil {
 				continue;
 
 			// if one hasn't, see if this one matches
-			if (resourceExtracting == null && predicate.test(resource)) {
+			if (resourceExtracting == null) {
+				if (!predicate.test(resource))
+					continue;
 				resourceExtracting = resource;
-			} else {
-				// nope, skip
-				continue;
 			}
 
 			extracted += view.extract(resource, maxAmount - extracted, ctx);

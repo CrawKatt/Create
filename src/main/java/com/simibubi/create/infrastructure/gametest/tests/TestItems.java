@@ -130,6 +130,32 @@ import com.simibubi.create.infrastructure.fabric.transfer.TransferUtil;
 @GameTestGroup(path = "items")
 public class TestItems {
 	@GameTest(template = "threshold_switch")
+	public static void materialExtractionAcrossChestSlots(CreateGameTestHelper helper) {
+		BlockPos chestPos = new BlockPos(1, 1, 1);
+		helper.setBlock(chestPos, Blocks.CHEST);
+		ChestBlockEntity chest = helper.getBlockEntity(chestPos);
+		chest.setItem(0, new ItemStack(Items.OAK_SLAB));
+		chest.setItem(1, new ItemStack(Items.STONE));
+		chest.setItem(2, new ItemStack(Items.OAK_SLAB));
+		Storage<ItemVariant> storage = helper.itemStorageAt(chestPos);
+		try (Transaction transaction = Transaction.openOuter()) {
+			var extracted = TransferUtil.extractMatching(storage, variant -> variant.isOf(Items.OAK_SLAB), 2, transaction);
+			helper.assertTrue(extracted != null && extracted.amount() == 2,
+				"Two slabs in separate chest slots were not accumulated");
+		}
+		helper.assertTrue(chest.getItem(0).getCount() == 1 && chest.getItem(2).getCount() == 1,
+			"Aborted material extraction consumed slabs");
+		try (Transaction transaction = Transaction.openOuter()) {
+			var extracted = TransferUtil.extractMatching(storage, variant -> variant.isOf(Items.OAK_SLAB), 2, transaction);
+			helper.assertTrue(extracted != null && extracted.amount() == 2, "Material extraction changed after rollback");
+			transaction.commit();
+		}
+		helper.assertTrue(chest.getItem(0).isEmpty() && chest.getItem(2).isEmpty() && chest.getItem(1).is(Items.STONE),
+			"Committed material extraction consumed the wrong items");
+		helper.succeed();
+	}
+
+	@GameTest(template = "threshold_switch")
 	public static void unpackingTransactionAtomicity(CreateGameTestHelper helper) {
 		BlockPos packagerPos = new BlockPos(1, 1, 1);
 		Direction facing = Direction.NORTH;
