@@ -1,5 +1,7 @@
 package com.simibubi.create.infrastructure.fabric.util;
 
+import com.simibubi.create.foundation.utility.CreateLang;
+
 import net.minecraft.network.chat.Component;
 
 public enum FluidUnit {
@@ -12,7 +14,7 @@ public enum FluidUnit {
 
 	FluidUnit(int divisor, String key) {
 		this.divisor = divisor;
-		this.name = Component.translatable(key);
+		this.name = CreateLang.translateDirect(key);
 	}
 
 	public long convert(long droplets) {
