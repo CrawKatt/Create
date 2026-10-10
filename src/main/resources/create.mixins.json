@@ -90,6 +90,7 @@
     "client.LevelRendererMixin",
     "client.MinecraftMixin",
     "compat.ModernKeyBindingMixin",
+    "compat.flywheel.MatrixBufferMixin",
     "client.PlayerRendererMixin",
     "compat.ftbchunks.LargeMapScreenAccessor",
     "compat.ftbchunks.RegionMapPanelAccessor",
