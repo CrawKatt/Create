@@ -45,10 +45,8 @@ public class BakedModelHelper {
 		float v0 = quad.spriteV(0, 0);
 		float v1 = quad.spriteV(1, 0);
 
-		float uScale = (float) Math
-			.round((getUnInterpolatedU(sprite, u3) - getUnInterpolatedU(sprite, u0)) / xyz3.distanceTo(xyz0));
-		float vScale = (float) Math
-			.round((getUnInterpolatedV(sprite, v1) - getUnInterpolatedV(sprite, v0)) / xyz1.distanceTo(xyz0));
+		float uScale = (float) ((getUnInterpolatedU(sprite, u3) - getUnInterpolatedU(sprite, u0)) / xyz3.distanceTo(xyz0));
+		float vScale = (float) ((getUnInterpolatedV(sprite, v1) - getUnInterpolatedV(sprite, v0)) / xyz1.distanceTo(xyz0));
 
 		if (uScale == 0) {
 			float v3 = quad.spriteV(3, 0);
@@ -57,10 +55,8 @@ public class BakedModelHelper {
 				.scale(.5);
 			vAxis = xyz3.add(xyz2)
 				.scale(.5);
-			uScale = (float) Math
-				.round((getUnInterpolatedU(sprite, u1) - getUnInterpolatedU(sprite, u0)) / xyz1.distanceTo(xyz0));
-			vScale = (float) Math
-				.round((getUnInterpolatedV(sprite, v3) - getUnInterpolatedV(sprite, v0)) / xyz3.distanceTo(xyz0));
+			uScale = (float) ((getUnInterpolatedU(sprite, u1) - getUnInterpolatedU(sprite, u0)) / xyz1.distanceTo(xyz0));
+			vScale = (float) ((getUnInterpolatedV(sprite, v3) - getUnInterpolatedV(sprite, v0)) / xyz3.distanceTo(xyz0));
 
 		}
 
